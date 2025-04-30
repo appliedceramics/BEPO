@@ -1,7 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertInsulinLogSchema } from "@shared/schema";
+import { insertInsulinLogSchema, insertMealPresetSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { setupAuth, isAuthenticated, hasProfile } from "./auth";
@@ -169,6 +169,124 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching unshared logs:", error);
       res.status(500).json({ message: "Failed to fetch unshared logs" });
+    }
+  });
+
+  // Meal presets routes
+  app.get("/api/meal-presets", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = req.user.id;
+      const presets = await storage.getUserMealPresets(userId);
+      res.json(presets);
+    } catch (error) {
+      console.error("Error fetching meal presets:", error);
+      res.status(500).json({ message: "Failed to fetch meal presets" });
+    }
+  });
+
+  app.get("/api/meal-presets/:id", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+
+      const preset = await storage.getMealPreset(id);
+      if (!preset) {
+        return res.status(404).json({ message: "Meal preset not found" });
+      }
+      
+      // Check if the preset belongs to the current user
+      if (preset.userId !== req.user.id) {
+        return res.status(403).json({ message: "You don't have permission to access this preset" });
+      }
+
+      res.json(preset);
+    } catch (error) {
+      console.error("Error fetching meal preset:", error);
+      res.status(500).json({ message: "Failed to fetch meal preset" });
+    }
+  });
+
+  app.post("/api/meal-presets", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const presetData = insertMealPresetSchema.parse(req.body);
+      const userId = req.user.id;
+      
+      const newPreset = await storage.createMealPreset({
+        ...presetData,
+        userId
+      });
+      
+      res.status(201).json(newPreset);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const validationError = fromZodError(error);
+        return res.status(400).json({ message: validationError.message });
+      }
+      console.error("Error creating meal preset:", error);
+      res.status(500).json({ message: "Failed to create meal preset" });
+    }
+  });
+
+  app.put("/api/meal-presets/:id", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      // Check if the preset exists and belongs to the user
+      const preset = await storage.getMealPreset(id);
+      if (!preset) {
+        return res.status(404).json({ message: "Meal preset not found" });
+      }
+      
+      if (preset.userId !== req.user.id) {
+        return res.status(403).json({ message: "You don't have permission to update this preset" });
+      }
+      
+      // Validate and update the preset
+      const presetData = insertMealPresetSchema.partial().parse(req.body);
+      const updatedPreset = await storage.updateMealPreset(id, presetData);
+      
+      res.json(updatedPreset);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const validationError = fromZodError(error);
+        return res.status(400).json({ message: validationError.message });
+      }
+      console.error("Error updating meal preset:", error);
+      res.status(500).json({ message: "Failed to update meal preset" });
+    }
+  });
+
+  app.delete("/api/meal-presets/:id", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      // Check if the preset exists and belongs to the user
+      const preset = await storage.getMealPreset(id);
+      if (!preset) {
+        return res.status(404).json({ message: "Meal preset not found" });
+      }
+      
+      if (preset.userId !== req.user.id) {
+        return res.status(403).json({ message: "You don't have permission to delete this preset" });
+      }
+      
+      const success = await storage.deleteMealPreset(id);
+      if (!success) {
+        return res.status(500).json({ message: "Failed to delete meal preset" });
+      }
+      
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting meal preset:", error);
+      res.status(500).json({ message: "Failed to delete meal preset" });
     }
   });
 

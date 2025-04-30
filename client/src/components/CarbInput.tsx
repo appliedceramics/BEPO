@@ -3,6 +3,11 @@ import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
 import { CarbsIcon } from "./AnimatedIcons";
 import { VoiceInput } from "./VoiceInput";
+import { Button } from "@/components/ui/button";
+import { MealPresets } from "./MealPresets";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { MealPreset } from "@shared/schema";
+import { Book } from "lucide-react";
 
 interface CarbInputProps {
   value: number | undefined;
@@ -13,6 +18,7 @@ interface CarbInputProps {
 export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
   const [error, setError] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState<string>(value?.toString() || "");
+  const [isPresetsOpen, setIsPresetsOpen] = useState(false);
 
   useEffect(() => {
     // Update input value when value prop changes
@@ -47,6 +53,13 @@ export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
     onChange(value);
   };
 
+  // Handle selecting a meal preset
+  const handleSelectPreset = (preset: MealPreset) => {
+    setInputValue(preset.carbValue.toString());
+    onChange(preset.carbValue);
+    setIsPresetsOpen(false);
+  };
+
   if (hidden) {
     return null;
   }
@@ -74,6 +87,21 @@ export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
           placeholder="carbohydrates" 
           fieldType="carbs" 
         />
+        <Dialog open={isPresetsOpen} onOpenChange={setIsPresetsOpen}>
+          <DialogTrigger asChild>
+            <Button 
+              variant="ghost" 
+              className="ml-1" 
+              size="icon"
+              title="Select from meal presets"
+            >
+              <Book className="h-5 w-5" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <MealPresets onSelectPreset={handleSelectPreset} />
+          </DialogContent>
+        </Dialog>
       </div>
       {error && <p className="mt-1 text-sm text-red-600 animate-pulse">{error}</p>}
     </div>
