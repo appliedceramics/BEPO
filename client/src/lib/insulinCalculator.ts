@@ -21,27 +21,42 @@ export function calculateInsulin(params: CalculationParams): CalculationResult {
   // Convert BG from mmol/L to mg/dL
   const bgMgdl = convertBgToMgdl(bgValue);
 
-  // Calculate meal insulin based on meal type and carbs
-  let mealInsulin = 0;
-  if (mealType === "first" && carbValue) {
-    mealInsulin = carbValue / 10;
-  } else if (mealType === "other" && carbValue) {
-    mealInsulin = carbValue / 15;
+  // For bedtime, we only use correction insulin without any meal insulin component
+  if (mealType === "bedtime") {
+    // Calculate correction insulin based on BG and meal type
+    const { correction: correctionInsulin, range: correctionRange } = getCorrectionInsulin(bgMgdl, mealType);
+    
+    // For bedtime, total insulin is just the correction insulin
+    return {
+      mealInsulin: 0,
+      correctionInsulin,
+      totalInsulin: correctionInsulin,
+      bgMgdl,
+      correctionRange
+    };
+  } 
+  // For regular meals
+  else {
+    // Calculate meal insulin based on meal type and carbs
+    let mealInsulin = 0;
+    if (mealType === "first" && carbValue) {
+      mealInsulin = carbValue / 10;
+    } else if (mealType === "other" && carbValue) {
+      mealInsulin = carbValue / 15;
+    }
+    
+    // Calculate correction insulin based on BG and meal type
+    const { correction: correctionInsulin, range: correctionRange } = getCorrectionInsulin(bgMgdl, mealType);
+    
+    // Calculate total insulin
+    const totalInsulin = mealInsulin + correctionInsulin;
+    
+    return {
+      mealInsulin,
+      correctionInsulin,
+      totalInsulin,
+      bgMgdl,
+      correctionRange
+    };
   }
-  // Note: For bedtime, mealInsulin remains 0
-  
-  // Calculate correction insulin based on BG and meal type
-  // Pass the meal type to get the appropriate correction chart
-  const { correction: correctionInsulin, range: correctionRange } = getCorrectionInsulin(bgMgdl, mealType);
-  
-  // Calculate total insulin
-  const totalInsulin = mealInsulin + correctionInsulin;
-  
-  return {
-    mealInsulin,
-    correctionInsulin,
-    totalInsulin,
-    bgMgdl,
-    correctionRange
-  };
 }
