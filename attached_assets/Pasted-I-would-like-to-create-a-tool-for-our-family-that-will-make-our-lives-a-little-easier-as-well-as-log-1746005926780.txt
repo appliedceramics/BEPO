@@ -1,0 +1,47 @@
+I would like to create a tool for our family that will make our lives a little easier as well as log his insulin consumption. 
+
+So, before each meal, he must calculate his Carbohydrates and then divide that number by 10 for first meal and 15 each meal after during the day and evening. 
+
+For example, in the morning, if he will have 180 carbs, he will divide by 10 and this will be 18 units. Later, for lunch, if it is 150 carbs, he will divide by 15, resulting in 10 units. 
+
+But depending on his current (BG) Blood Glucose, he must add correction based on chart. 
+
+So, I would like on a webpage, that he enter: 
+
+Drop Down: First Meal, Other Meal, Bedtime 
+
+If First Meal, divide by 10, If Other Meal, divide by 15. 
+
+[Select Meal]		Enter Total Cabs: __150___		Total Units: 10 (if first meal) 
+
+Automatically provide total Units based on Meal selected. (No buttons, just automatically) 
+
+ 
+
+Correction  
+
+(When giving insulin, depending on his current BG level, he must add correction) 
+
+Next enter BG: He will enter like 7.3 (this is in millimoles per liter mmol/L for EU and to get milligrams per deciliter mg/dL is 7.3*18 = 131.40) 
+
+He will use mmol/L to enter but Correction Chart is in mg/dL. So, when he enters 7.3, webpage will automatically show also mg/dl by multiplying 7.3 * 18 = 131.40 
+
+So, if he is 7.3 mmol/L and page will auto equate and show 131.40 mg/dL. 
+
+Based on that, system will refer to pre-configured chart below which is in mg/dL (mmol/L*18) 
+
+System will refer to chart and give him the amount (additional) he must give and he will know that he has to add these addition units. 
+
+So, if his BG is 7.3 mmol/L which is 131.40 mg/dL, the system will use the chart, with result: 
+
+121 – 138 = +0.5 units + 10 units from above 10.5 units. 
+
+Then pushes button [Log Insulin] 
+
+This will capture Meal + Date + Time 
+
+Will need a button open Log as well. 
+
+ 
+
+***If Bedtime Correction, this is without meal. So, this is just Current BG number in mmol/L, then *18 will give mg/dL, pulls from chart and while he sleeping we can give the correction. So if his BG is 9 (then *18 = 162), in chart that is +0.5 units. Then I give him in middle of night while he sleeping +0.5 and log it. 
