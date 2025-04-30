@@ -33,7 +33,7 @@ import { useEffect } from "react";
 const profileSchema = z.object({
   name: z.string().min(1, "Name is required"),
   age: z.coerce.number().min(1, "Age is required").max(120, "Age must be valid"),
-  sex: z.enum(["male", "female", "other"], {
+  sex: z.enum(["male", "female"], {
     required_error: "Please select a gender",
   }),
   motherName: z.string().optional(),
@@ -82,7 +82,7 @@ export default function ProfileEditPage() {
       form.reset({
         name: profile.name,
         age: profile.age,
-        sex: profile.sex as "male" | "female" | "other",
+        sex: profile.sex as "male" | "female",
         motherName: profile.motherName || "",
         motherPhone: profile.motherPhone || "",
         fatherName: profile.fatherName || "",

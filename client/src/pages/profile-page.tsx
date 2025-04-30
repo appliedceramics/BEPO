@@ -30,7 +30,7 @@ import { BepoLogo } from "@/components/BepoLogo";
 const profileSchema = z.object({
   name: z.string().min(1, "Name is required"),
   age: z.coerce.number().min(1, "Age is required").max(120, "Age must be valid"),
-  sex: z.enum(["male", "female", "other"], {
+  sex: z.enum(["male", "female"], {
     required_error: "Please select a gender",
   }),
   motherName: z.string().optional(),
@@ -45,17 +45,7 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 export default function ProfilePage() {
   const { user, updateProfileMutation } = useAuth();
   const [location, navigate] = useLocation();
-
-  // Redirect if not logged in
-  if (!user) {
-    return <Redirect to="/auth" />;
-  }
-
-  // If user already has a profile, redirect to home
-  if (user.profile) {
-    return <Redirect to="/" />;
-  }
-
+  
   // Profile form configuration
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -82,6 +72,16 @@ export default function ProfilePage() {
 
   // Get the notify parents value for conditional rendering
   const notifyParents = form.watch("notifyParents");
+
+  // Handle redirect cases only after all hooks are called
+  if (!user) {
+    return <Redirect to="/auth" />;
+  }
+
+  // If user already has a profile, redirect to home
+  if (user.profile) {
+    return <Redirect to="/" />;
+  }
 
   return (
     <div className="min-h-screen flex">
