@@ -4,7 +4,7 @@ export function BepoLogo() {
   const [blink, setBlink] = useState(false);
   const [celebrateArm, setCelebrateArm] = useState(false);
   
-  // Blinking animation for the character's eyes
+  // Blinking animation for the character's left eye only (right one is winking)
   useEffect(() => {
     const blinkInterval = setInterval(() => {
       setBlink(true);
@@ -26,9 +26,14 @@ export function BepoLogo() {
   return (
     <div className="w-20 h-20 md:w-36 md:h-36 relative">
       <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-        {/* Longer Brown Hair - more styled like the image */}
+        {/* Longer Brown Hair - more styled like the image with spiky/wavy top */}
         <path 
-          d="M15,42 C15,25 40,10 60,10 C80,10 105,25 105,42 L105,50 
+          d="M15,42 C15,25 40,10 60,10 C80,10 105,25 105,42 
+             L105,30 C105,30 103,20 100,15 C97,10 90,15 85,18
+             C80,21 75,10 70,15 C65,20 60,12 55,15
+             C50,18 45,10 40,15 C35,20 30,18 25,15
+             C20,12 15,18 15,25 L15,42
+             L105,42 L105,50 
              C105,50 100,47 95,47 L95,60 
              C95,60 100,65 105,63 L105,70
              C105,70 100,68 95,70 L95,75
@@ -59,7 +64,7 @@ export function BepoLogo() {
           strokeWidth="1"
         />
         
-        {/* Eyes */}
+        {/* Left Eye - Normal eye that blinks */}
         <ellipse 
           cx="50" 
           cy="45" 
@@ -69,47 +74,39 @@ export function BepoLogo() {
           stroke="#DDDDDD" 
           strokeWidth="0.5"
         />
-        <ellipse 
-          cx="70" 
-          cy="45" 
-          rx="4" 
-          ry={blink ? "0.5" : "5"} 
-          fill="#FFFFFF" 
-          stroke="#DDDDDD" 
-          strokeWidth="0.5"
+          
+        {/* Right Eye - Winking eye */}
+        <path 
+          d="M65,44 C68,40 76,40 74,44" 
+          stroke="#663300"
+          strokeWidth="2"
+          fill="none"
+          strokeLinecap="round"
         />
         
-        {/* Pupils - Blue eyes like in the image */}
+        {/* Smiling effect for winking eye */}
+        <path 
+          d="M69,46 C70,47 72,47 73,46" 
+          stroke="#663300"
+          strokeWidth="0.5"
+          fill="none"
+          strokeLinecap="round"
+        />
+        
+        {/* Left Pupil - Brown eye */}
         <ellipse 
           cx="50" 
           cy="45" 
           rx="2.5" 
           ry={blink ? "0.3" : "3"} 
-          fill="#4169E1" 
-          stroke="#0047AB" 
-          strokeWidth="0.5"
-        />
-        <ellipse 
-          cx="70" 
-          cy="45" 
-          rx="2.5" 
-          ry={blink ? "0.3" : "3"} 
-          fill="#4169E1" 
-          stroke="#0047AB" 
+          fill="#663300" 
+          stroke="#4B2400" 
           strokeWidth="0.5"
         />
         
-        {/* Eye highlights to make eyes more vibrant */}
+        {/* Eye highlight for left eye */}
         <ellipse 
           cx="49" 
-          cy="44" 
-          rx="1" 
-          ry={blink ? "0" : "1"} 
-          fill="#FFFFFF" 
-          strokeWidth="0"
-        />
-        <ellipse 
-          cx="69" 
           cy="44" 
           rx="1" 
           ry={blink ? "0" : "1"} 
