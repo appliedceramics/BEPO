@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { InsulinLog } from "@shared/schema";
 import { format } from "date-fns";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, ComposedChart } from "recharts";
 
 interface InsulinChartProps {
   logs: InsulinLog[];
@@ -40,7 +40,7 @@ export function InsulinChart({ logs }: InsulinChartProps) {
       
       <div className="h-80 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart
+          <ComposedChart
             data={chartData}
             margin={{ top: 20, right: 30, left: 0, bottom: 70 }}
           >
@@ -52,8 +52,18 @@ export function InsulinChart({ logs }: InsulinChartProps) {
               height={70} 
               tick={{ fontSize: 12 }} 
             />
-            <YAxis yAxisId="left" orientation="left" label={{ value: 'Insulin Units', angle: -90, position: 'insideLeft' }} />
-            <YAxis yAxisId="right" orientation="right" label={{ value: 'Blood Glucose (mmol/L)', angle: 90, position: 'insideRight' }} />
+            <YAxis 
+              yAxisId="left" 
+              orientation="left" 
+              label={{ value: 'Insulin Units', angle: -90, position: 'insideLeft' }} 
+              domain={[0, 'dataMax + 1']}
+            />
+            <YAxis 
+              yAxisId="right" 
+              orientation="right" 
+              label={{ value: 'Blood Glucose (mmol/L)', angle: 90, position: 'insideRight' }} 
+              domain={['dataMin - 1', 'dataMax + 1']}
+            />
             <Tooltip 
               formatter={(value, name) => {
                 if (name === "bgValue") return [value + " mmol/L", "Blood Glucose"];
@@ -62,10 +72,43 @@ export function InsulinChart({ logs }: InsulinChartProps) {
               labelFormatter={(label) => `Time: ${label}`}
             />
             <Legend />
-            <Bar yAxisId="left" dataKey="mealInsulin" stackId="a" fill="#4C92D3" name="Meal Insulin" />
-            <Bar yAxisId="left" dataKey="correctionInsulin" stackId="a" fill="#44BD7B" name="Correction" />
-            <Bar yAxisId="right" dataKey="bgValue" fill="#f59e0b" name="Blood Glucose" />
-          </BarChart>
+            <Area 
+              yAxisId="left" 
+              dataKey="mealInsulin" 
+              stackId="a" 
+              fill="#4C92D3" 
+              stroke="#4C92D3" 
+              fillOpacity={0.6}
+              name="Meal Insulin" 
+            />
+            <Area 
+              yAxisId="left" 
+              dataKey="correctionInsulin" 
+              stackId="a" 
+              fill="#44BD7B" 
+              stroke="#44BD7B" 
+              fillOpacity={0.6}
+              name="Correction" 
+            />
+            <Line 
+              yAxisId="right" 
+              type="monotone" 
+              dataKey="totalInsulin" 
+              stroke="#5D57F4" 
+              strokeWidth={2}
+              name="Total Insulin" 
+              dot={{ fill: '#5D57F4', r: 4 }} 
+            />
+            <Line 
+              yAxisId="right" 
+              type="monotone" 
+              dataKey="bgValue" 
+              stroke="#f59e0b" 
+              strokeWidth={3}
+              name="Blood Glucose" 
+              dot={{ fill: '#f59e0b', r: 5 }} 
+            />
+          </ComposedChart>
         </ResponsiveContainer>
       </div>
       
