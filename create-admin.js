@@ -26,13 +26,13 @@ async function hashPassword(password) {
     // Hash the password
     const hashedPassword = await hashPassword('Z4greb2@');
     
-    // Create a new admin user
+    // Update existing bepo user
     const res = await client.query(
-      'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id, username, email',
-      ['admin', 'admin@bepo.app', hashedPassword]
+      'UPDATE users SET password = $1 WHERE username = $2 RETURNING id, username, email',
+      [hashedPassword, 'bepo']
     );
     
-    console.log('Created admin user:', res.rows[0]);
+    console.log('Updated bepo user password:', res.rows[0]);
   } catch (err) {
     console.error('Error creating admin user:', err);
   } finally {

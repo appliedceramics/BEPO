@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 export function BepoLogo() {
   const [blink, setBlink] = useState(false);
-  const [celebrateArm, setCelebrateArm] = useState(false);
+  const [thumbsUp, setThumbsUp] = useState(false);
   
   // Blinking animation for the character's left eye only (right one is winking)
   useEffect(() => {
@@ -14,125 +14,104 @@ export function BepoLogo() {
     return () => clearInterval(blinkInterval);
   }, []);
 
-  // Victory pose animation
+  // Thumbs up subtle animation
   useEffect(() => {
-    const armInterval = setInterval(() => {
-      setCelebrateArm(prev => !prev);
-    }, 1500);
+    const thumbsInterval = setInterval(() => {
+      setThumbsUp(prev => !prev);
+    }, 2000);
     
-    return () => clearInterval(armInterval);
+    return () => clearInterval(thumbsInterval);
   }, []);
 
   return (
-    <div className="w-20 h-20 md:w-36 md:h-36 relative">
+    <div className="w-24 h-24 md:w-40 md:h-40 relative">
       <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-        {/* Longer Brown Hair - more styled like the image with spiky/wavy top */}
-        <path 
-          d="M15,42 C15,25 40,10 60,10 C80,10 105,25 105,42 
-             L105,30 C105,30 103,20 100,15 C97,10 90,15 85,18
-             C80,21 75,10 70,15 C65,20 60,12 55,15
-             C50,18 45,10 40,15 C35,20 30,18 25,15
-             C20,12 15,18 15,25 L15,42
-             L105,42 L105,50 
-             C105,50 100,47 95,47 L95,60 
-             C95,60 100,65 105,63 L105,70
-             C105,70 100,68 95,70 L95,75
-             C95,75 90,70 85,65 C85,65 90,70 88,75 
-             C88,75 85,80 80,77 L80,82
-             C80,82 75,80 70,75 L70,80 
-             C70,80 65,80 60,75 L60,80 
-             C60,80 55,80 50,75 L50,80
-             C50,80 45,80 40,75 L40,80
-             C40,80 35,77 30,75 L30,82
-             C30,82 25,80 23,75 C23,75 20,70 25,65 
-             C25,65 20,70 15,70 L15,75
-             C15,75 10,68 15,63 L15,47 
-             C10,47 5,50 5,50 Z" 
-          fill="#663300" 
-          stroke="#4B2400" 
-          strokeWidth="1"
-        />
-        
-        {/* Face */}
+        {/* Large cartoonish head */}
         <ellipse 
           cx="60" 
           cy="50" 
-          rx="25" 
-          ry="23" 
+          rx="40" 
+          ry="38" 
           fill="#FFE0BD" 
           stroke="#E8C39E" 
-          strokeWidth="1"
+          strokeWidth="1.5"
         />
         
-        {/* Left Eye - Normal eye that blinks */}
+        {/* Longer Brown Hair with more styling */}
+        <path 
+          d="M20,25 C20,15 35,5 60,5 C85,5 100,15 100,25
+             L100,35 C100,35 95,30 90,30 C90,30 92,40 90,42
+             C90,42 95,45 92,50 C92,50 85,45 80,48
+             C80,48 82,50 78,55 C78,55 70,50 65,53
+             C65,53 60,50 55,53 C55,53 50,50 42,55
+             C42,55 38,50 40,48 C40,48 35,45 28,50
+             C28,50 25,45 30,42 C30,42 28,40 30,30
+             C30,30 25,35 20,35 L20,25 Z" 
+          fill="#663300" 
+          stroke="#4B2400" 
+          strokeWidth="1.5"
+        />
+        
+        {/* Left Eye - Open normal eye */}
         <ellipse 
-          cx="50" 
+          cx="45" 
           cy="45" 
-          rx="4" 
-          ry={blink ? "0.5" : "5"} 
+          rx="6" 
+          ry={blink ? "0.5" : "7"} 
           fill="#FFFFFF" 
           stroke="#DDDDDD" 
           strokeWidth="0.5"
         />
-          
-        {/* Right Eye - Winking eye */}
-        <path 
-          d="M65,44 C68,40 76,40 74,44" 
-          stroke="#663300"
-          strokeWidth="2"
-          fill="none"
-          strokeLinecap="round"
-        />
-        
-        {/* Smiling effect for winking eye */}
-        <path 
-          d="M69,46 C70,47 72,47 73,46" 
-          stroke="#663300"
-          strokeWidth="0.5"
-          fill="none"
-          strokeLinecap="round"
-        />
         
         {/* Left Pupil - Brown eye */}
         <ellipse 
-          cx="50" 
+          cx="45" 
           cy="45" 
-          rx="2.5" 
-          ry={blink ? "0.3" : "3"} 
+          rx="3" 
+          ry={blink ? "0.3" : "3.5"} 
           fill="#663300" 
           stroke="#4B2400" 
           strokeWidth="0.5"
         />
         
-        {/* Eye highlight for left eye */}
+        {/* Left Eye highlight */}
         <ellipse 
-          cx="49" 
-          cy="44" 
-          rx="1" 
-          ry={blink ? "0" : "1"} 
+          cx="43" 
+          cy="43" 
+          rx="1.5" 
+          ry={blink ? "0" : "1.5"} 
           fill="#FFFFFF" 
           strokeWidth="0"
+        />
+          
+        {/* Right Eye - Winking eye */}
+        <path 
+          d="M65,45 C70,40 80,40 85,45" 
+          stroke="#663300"
+          strokeWidth="2.5"
+          fill="none"
+          strokeLinecap="round"
         />
         
         {/* Eyebrows */}
         <path 
-          d="M45,38 C47,36 53,36 55,38" 
+          d="M35,35 C40,32 50,32 55,35" 
           fill="none" 
           stroke="#663300" 
-          strokeWidth="1.5" 
+          strokeWidth="2" 
           strokeLinecap="round"
         />
         <path 
-          d="M65,38 C67,36 73,36 75,38" 
+          d="M65,35 C70,30 80,32 85,37" 
           fill="none" 
           stroke="#663300" 
-          strokeWidth="1.5" 
+          strokeWidth="2" 
           strokeLinecap="round"
         />
         
         {/* Nose */}
         <path 
-          d="M60,50 C63,53 63,56 60,58 C57,56 57,53 60,50" 
+          d="M60,50 C65,55 65,60 60,63 C55,60 55,55 60,50" 
           fill="#FFDABD" 
           stroke="#E8C39E" 
           strokeWidth="0.5"
@@ -140,135 +119,91 @@ export function BepoLogo() {
         
         {/* Mouth - Big cheerful smile */}
         <path 
-          d="M45,63 C50,72 70,72 75,63" 
+          d="M40,68 C50,80 70,80 80,68" 
           fill="#FF6B8B" 
           stroke="#CC6666" 
-          strokeWidth="1.5" 
+          strokeWidth="2" 
           strokeLinecap="round"
         />
         
         {/* Teeth to make the smile more prominent */}
         <path 
-          d="M52,64 L68,64" 
+          d="M48,72 L72,72" 
           stroke="#FFFFFF" 
-          strokeWidth="1.5" 
+          strokeWidth="2" 
           strokeLinecap="round"
         />
         
         {/* Ears */}
         <ellipse 
-          cx="35" 
+          cx="20" 
           cy="50" 
-          rx="5" 
-          ry="8" 
-          fill="#FFE0BD" 
-          stroke="#E8C39E" 
-          strokeWidth="1"
-        />
-        <ellipse 
-          cx="85" 
-          cy="50" 
-          rx="5" 
-          ry="8" 
-          fill="#FFE0BD" 
-          stroke="#E8C39E" 
-          strokeWidth="1"
-        />
-        
-        {/* Victory pose - Left arm up with fist */}
-        <path 
-          d="M45,75 L25,30" 
-          stroke="#FFE0BD" 
-          strokeWidth="8" 
-          strokeLinecap="round"
-        />
-        <circle 
-          cx="25" 
-          cy="30" 
-          r="6" 
-          fill="#FFE0BD" 
-          stroke="#E8C39E" 
-          strokeWidth="1"
-        />
-        
-        {/* Right arm - Alternating between two trophy-holding positions */}
-        <path 
-          d={celebrateArm ? "M75,75 L95,35" : "M75,75 L100,40"}
-          stroke="#FFE0BD" 
-          strokeWidth="8" 
-          strokeLinecap="round"
-        />
-        <circle 
-          cx={celebrateArm ? "95" : "100"} 
-          cy={celebrateArm ? "35" : "40"} 
-          r="6" 
-          fill="#FFE0BD" 
-          stroke="#E8C39E" 
-          strokeWidth="1"
-        />
-        
-        {/* Trophy (between hands) */}
-        <path 
-          d={celebrateArm ? 
-            "M60,25 L90,35 M60,25 L30,35 M60,10 L60,25" : 
-            "M60,30 L95,40 M60,30 L25,40 M60,15 L60,30"
-          }
-          stroke="#FFD700" 
-          strokeWidth="3" 
-          strokeLinecap="round"
-        />
-        <ellipse 
-          cx="60" 
-          cy={celebrateArm ? "8" : "13"} 
           rx="8" 
-          ry="5" 
-          fill="#FFD700" 
-          stroke="#CC9900" 
+          ry="10" 
+          fill="#FFE0BD" 
+          stroke="#E8C39E" 
+          strokeWidth="1"
+        />
+        <ellipse 
+          cx="100" 
+          cy="50" 
+          rx="8" 
+          ry="10" 
+          fill="#FFE0BD" 
+          stroke="#E8C39E" 
           strokeWidth="1"
         />
         
-        {/* Shirt - Yellow orange like in the image */}
-        <path 
-          d="M40,75 L80,75 L80,95 L40,95 Z" 
-          fill="#FF9E00" 
-          stroke="#E08800" 
+        {/* Neck */}
+        <path
+          d="M50,85 L70,85 L70,90 L50,90 Z"
+          fill="#FFE0BD"
+          stroke="#E8C39E"
           strokeWidth="1"
         />
         
-        {/* Shorts - Blue like in the image */}
-        <path 
-          d="M45,95 L75,95 L78,110 L42,110 Z" 
-          fill="#4284E6" 
-          stroke="#3266B3" 
-          strokeWidth="1"
+        {/* Shirt - Orange/yellow */}
+        <path
+          d="M35,90 L85,90 L90,115 L30,115 Z"
+          fill="#FF9E00"
+          stroke="#E08800"
+          strokeWidth="1.5"
         />
         
-        {/* Sneakers */}
-        <path 
-          d="M42,110 L35,115 L45,118 L50,110" 
-          fill="#FFFFFF" 
-          stroke="#DDDDDD" 
-          strokeWidth="1"
-        />
-        <path 
-          d="M78,110 L85,115 L75,118 L70,110" 
-          fill="#FFFFFF" 
-          stroke="#DDDDDD" 
-          strokeWidth="1"
+        {/* Left arm */}
+        <path
+          d="M35,90 L15,100"
+          stroke="#FFE0BD"
+          strokeWidth="8"
+          strokeLinecap="round"
         />
         
-        {/* Sneaker details */}
-        <path 
-          d="M35,115 L45,118" 
-          fill="none" 
-          stroke="#4C92D3" 
-          strokeWidth="2"
+        {/* Right arm with thumbs up */}
+        <path
+          d="M85,90 L105,75"
+          stroke="#FFE0BD"
+          strokeWidth="8"
+          strokeLinecap="round"
         />
-        <path 
-          d="M85,115 L75,118" 
-          fill="none" 
-          stroke="#4C92D3" 
-          strokeWidth="2"
+        
+        {/* Right hand - Thumbs up */}
+        <path
+          d={thumbsUp ? 
+            "M100,65 L105,50 L110,65 L108,70 L100,72 L95,70 Z" : 
+            "M100,66 L105,51 L110,66 L108,71 L100,73 L95,71 Z"}
+          fill="#FFE0BD"
+          stroke="#E8C39E"
+          strokeWidth="1.5"
+        />
+        
+        {/* Thumbs up detail */}
+        <path
+          d={thumbsUp ? 
+            "M105,50 L105,65" : 
+            "M105,51 L105,66"}
+          stroke="#E8C39E"
+          strokeWidth="1"
+          strokeLinecap="round"
         />
       </svg>
       
