@@ -7,6 +7,13 @@ import { BepoLogo } from "@/components/BepoLogo";
 import { LogIcon } from "@/components/AnimatedIcons";
 import { Navigation } from "@/components/Navigation";
 import { useAuth } from "@/hooks/use-auth";
+import { 
+  CalculationsIcon, 
+  TrackingIcon, 
+  NotifyIcon, 
+  VoiceInputIcon,
+  MealPresetsIcon 
+} from "@/components/FeatureIcons";
 
 export default function Home() {
   const { 
@@ -63,6 +70,66 @@ export default function Home() {
             </div>
           </div>
         </header>
+
+        {/* Feature Boxes */}
+        <div className="mb-8 mt-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {/* Feature 1: Accurate Calculations */}
+            <div className="bepo-card bg-gradient-to-br from-white to-primary/5 p-4 flex flex-col items-center text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+              <div className="mb-3">
+                <CalculationsIcon />
+              </div>
+              <h3 className="font-bold text-primary mb-2">Accurate Calculations</h3>
+              <p className="text-sm text-primary/80">
+                Precise insulin dose calculations based on BG readings and carb intake
+              </p>
+            </div>
+            
+            {/* Feature 2: Easy Tracking */}
+            <div className="bepo-card bg-gradient-to-br from-white to-accent/5 p-4 flex flex-col items-center text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+              <div className="mb-3">
+                <TrackingIcon />
+              </div>
+              <h3 className="font-bold text-primary mb-2">Easy Tracking</h3>
+              <p className="text-sm text-primary/80">
+                Keep a comprehensive log of insulin doses and blood glucose readings
+              </p>
+            </div>
+            
+            {/* Feature 3: Share with Parents */}
+            <div className="bepo-card bg-gradient-to-br from-white to-primary/5 p-4 flex flex-col items-center text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+              <div className="mb-3">
+                <NotifyIcon />
+              </div>
+              <h3 className="font-bold text-primary mb-2">SMS Notifications</h3>
+              <p className="text-sm text-primary/80">
+                Automatically notify parents of insulin doses via SMS messages
+              </p>
+            </div>
+            
+            {/* Feature 4: Voice Input */}
+            <div className="bepo-card bg-gradient-to-br from-white to-accent/5 p-4 flex flex-col items-center text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+              <div className="mb-3">
+                <VoiceInputIcon />
+              </div>
+              <h3 className="font-bold text-primary mb-2">Voice Input</h3>
+              <p className="text-sm text-primary/80">
+                Speak your blood glucose readings and carb values for easy entry
+              </p>
+            </div>
+            
+            {/* Feature 5: Meal Presets */}
+            <div className="bepo-card bg-gradient-to-br from-white to-primary/5 p-4 flex flex-col items-center text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+              <div className="mb-3">
+                <MealPresetsIcon />
+              </div>
+              <h3 className="font-bold text-primary mb-2">Meal Presets</h3>
+              <p className="text-sm text-primary/80">
+                Save common foods with carb values for quick and easy selection
+              </p>
+            </div>
+          </div>
+        </div>
 
         <main>
           <Calculator 
