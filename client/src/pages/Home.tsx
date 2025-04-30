@@ -73,57 +73,58 @@ export default function Home() {
 
         {/* Feature Boxes */}
         <div className="mb-8 mt-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <h2 className="text-2xl font-bold text-center mb-6 text-primary">Features at a Glance</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
             {/* Feature 1: Accurate Calculations */}
-            <div className="bepo-card bg-gradient-to-br from-white to-primary/5 p-4 flex flex-col items-center text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-              <div className="mb-3">
+            <div className="bepo-card bg-white rounded-lg border-2 border-primary/20 shadow-md p-6 flex flex-col items-center text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-primary">
+              <div className="mb-4 bg-primary/10 p-3 rounded-full">
                 <CalculationsIcon />
               </div>
-              <h3 className="font-bold text-primary mb-2">Accurate Calculations</h3>
+              <h3 className="font-bold text-lg text-primary mb-2">Accurate Calculations</h3>
               <p className="text-sm text-primary/80">
                 Precise insulin dose calculations based on BG readings and carb intake
               </p>
             </div>
             
             {/* Feature 2: Easy Tracking */}
-            <div className="bepo-card bg-gradient-to-br from-white to-accent/5 p-4 flex flex-col items-center text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-              <div className="mb-3">
+            <div className="bepo-card bg-white rounded-lg border-2 border-accent/20 shadow-md p-6 flex flex-col items-center text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-accent">
+              <div className="mb-4 bg-accent/10 p-3 rounded-full">
                 <TrackingIcon />
               </div>
-              <h3 className="font-bold text-primary mb-2">Easy Tracking</h3>
+              <h3 className="font-bold text-lg text-primary mb-2">Easy Tracking</h3>
               <p className="text-sm text-primary/80">
                 Keep a comprehensive log of insulin doses and blood glucose readings
               </p>
             </div>
             
             {/* Feature 3: Share with Parents */}
-            <div className="bepo-card bg-gradient-to-br from-white to-primary/5 p-4 flex flex-col items-center text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-              <div className="mb-3">
+            <div className="bepo-card bg-white rounded-lg border-2 border-primary/20 shadow-md p-6 flex flex-col items-center text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-primary">
+              <div className="mb-4 bg-primary/10 p-3 rounded-full">
                 <NotifyIcon />
               </div>
-              <h3 className="font-bold text-primary mb-2">SMS Notifications</h3>
+              <h3 className="font-bold text-lg text-primary mb-2">SMS Notifications</h3>
               <p className="text-sm text-primary/80">
                 Automatically notify parents of insulin doses via SMS messages
               </p>
             </div>
             
             {/* Feature 4: Voice Input */}
-            <div className="bepo-card bg-gradient-to-br from-white to-accent/5 p-4 flex flex-col items-center text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-              <div className="mb-3">
+            <div className="bepo-card bg-white rounded-lg border-2 border-accent/20 shadow-md p-6 flex flex-col items-center text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-accent">
+              <div className="mb-4 bg-accent/10 p-3 rounded-full">
                 <VoiceInputIcon />
               </div>
-              <h3 className="font-bold text-primary mb-2">Voice Input</h3>
+              <h3 className="font-bold text-lg text-primary mb-2">Voice Input</h3>
               <p className="text-sm text-primary/80">
                 Speak your blood glucose readings and carb values for easy entry
               </p>
             </div>
             
             {/* Feature 5: Meal Presets */}
-            <div className="bepo-card bg-gradient-to-br from-white to-primary/5 p-4 flex flex-col items-center text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-              <div className="mb-3">
+            <div className="bepo-card bg-white rounded-lg border-2 border-primary/20 shadow-md p-6 flex flex-col items-center text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-primary">
+              <div className="mb-4 bg-primary/10 p-3 rounded-full">
                 <MealPresetsIcon />
               </div>
-              <h3 className="font-bold text-primary mb-2">Meal Presets</h3>
+              <h3 className="font-bold text-lg text-primary mb-2">Meal Presets</h3>
               <p className="text-sm text-primary/80">
                 Save common foods with carb values for quick and easy selection
               </p>
