@@ -3,49 +3,51 @@
 @tailwind utilities;
 
 :root {
+  /* Enhanced contrast colors */
   --background: 120 40% 98%;
-  --foreground: 200 80% 20%;
+  --foreground: 200 90% 10%; /* Darker text for better contrast */
   --muted: 120 20% 96%;
-  --muted-foreground: 200 20% 40%;
+  --muted-foreground: 200 50% 30%; /* Darker muted text */
   --popover: 0 0% 100%;
-  --popover-foreground: 200 80% 20%;
+  --popover-foreground: 200 90% 10%;
   --card: 0 0% 100%;
-  --card-foreground: 200 80% 20%;
-  --border: 120 30% 90%;
+  --card-foreground: 200 90% 10%;
+  --border: 120 30% 80%; /* Darker border */
   --input: 120 30% 95%;
-  --primary: 200 90% 54%;
+  --primary: 200 90% 40%; /* Darker primary for better contrast */
   --primary-foreground: 210 100% 99%;
-  --secondary: 120 60% 50%;
+  --secondary: 120 70% 40%; /* Darker secondary */
   --secondary-foreground: 120 60% 99%;
-  --accent: 130 50% 60%;
+  --accent: 130 70% 40%; /* Darker accent */
   --accent-foreground: 130 60% 99%;
-  --destructive: 0 84.2% 60.2%;
+  --destructive: 0 84.2% 50.2%; /* Darker destructive */
   --destructive-foreground: 60 9.1% 97.8%;
-  --ring: 130 50% 60%;
+  --ring: 130 70% 40%;
   --radius: 0.75rem;
-  }
-  .dark {
-      --background: 240 10% 3.9%;
---foreground: 0 0% 98%;
---muted: 240 3.7% 15.9%;
---muted-foreground: 240 5% 64.9%;
---popover: 240 10% 3.9%;
---popover-foreground: 0 0% 98%;
---card: 240 10% 3.9%;
---card-foreground: 0 0% 98%;
---border: 240 3.7% 15.9%;
---input: 240 3.7% 15.9%;
---primary: 207 90% 54%;
---primary-foreground: 211 100% 99%;
---secondary: 240 3.7% 15.9%;
---secondary-foreground: 0 0% 98%;
---accent: 240 3.7% 15.9%;
---accent-foreground: 0 0% 98%;
---destructive: 0 62.8% 30.6%;
---destructive-foreground: 0 0% 98%;
---ring: 240 4.9% 83.9%;
---radius: 0.5rem;
-  }
+}
+
+.dark {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --primary: 207 90% 54%;
+  --primary-foreground: 211 100% 99%;
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 240 4.9% 83.9%;
+  --radius: 0.5rem;
+}
 
 @layer base {
   * {
@@ -54,42 +56,61 @@
 
   body {
     @apply font-sans antialiased text-foreground;
-    background: linear-gradient(135deg, hsl(120, 70%, 95%) 0%, hsl(120, 60%, 92%) 100%);
+    background: linear-gradient(135deg, hsl(120, 60%, 90%) 0%, hsl(120, 50%, 85%) 100%);
+  }
+
+  /* Enhance headings contrast */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold;
+    color: hsl(200, 90%, 15%);
+  }
+
+  /* Enhance label contrast */
+  label {
+    @apply font-medium;
+    color: hsl(200, 80%, 20%);
   }
 }
 
 @layer components {
   .bepo-card {
     @apply bg-white rounded-lg shadow-md p-5;
-    border: 2px solid hsl(var(--accent) / 0.2);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05), 
-                0 0 0 2px hsl(var(--accent) / 0.1);
+    border: 2px solid hsl(var(--accent) / 0.3); /* More visible border */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), /* Stronger shadow for depth */
+                0 0 0 2px hsl(var(--accent) / 0.2);
   }
   
   .bepo-button {
-    @apply transition-all duration-300;
+    @apply transition-all duration-300 font-bold; /* Bolder text */
     background: linear-gradient(to right, hsl(var(--secondary)), hsl(var(--accent)));
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Stronger hover shadow */
     }
   }
   
   .bepo-input {
     @apply border-2 rounded-md transition-all duration-300;
-    border-color: hsl(var(--accent) / 0.4);
+    border-color: hsl(var(--accent) / 0.6); /* Darker border for input */
     &:focus {
       border-color: hsl(var(--primary));
-      box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
+      box-shadow: 0 0 0 3px hsl(var(--primary) / 0.3); /* Stronger focus ring */
     }
   }
   
   .result-highlight {
     animation: pulse 2s ease-in-out;
+    @apply font-bold; /* Bolder text for results */
   }
   
   .transition-height {
     @apply transition-all duration-500 ease-in-out;
+  }
+
+  /* Enhanced text contrast for important elements */
+  .important-text {
+    color: hsl(200, 90%, 15%);
+    @apply font-semibold;
   }
 }
 

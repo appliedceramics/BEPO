@@ -40,58 +40,58 @@ export function ResultsDisplay({
   }, [totalInsulin]);
 
   return (
-    <div className="bepo-card mb-6 bg-gradient-to-br from-primary/5 to-accent/10">
-      <div className="flex items-center mb-3">
+    <div className="bepo-card mb-6 bg-gradient-to-br from-primary/10 to-accent/15">
+      <div className="flex items-center mb-4">
         <InsulinIcon />
-        <h3 className="ml-2 text-lg font-medium text-primary">
+        <h3 className="ml-2 text-xl font-bold text-primary">
           {isBedtime ? "Bedtime Correction" : "Calculation Results"}
         </h3>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-accent/20">
-          <p className="text-sm text-primary/70">
+        <div className="bg-white p-4 rounded-lg shadow-md border-2 border-accent/30">
+          <p className="text-sm font-bold text-primary/80">
             {isBedtime ? "Bedtime Insulin" : "Meal Insulin"}
           </p>
-          <p id="meal-insulin" className="text-xl font-semibold text-primary">
-            {mealInsulinFormatted} units
+          <p id="meal-insulin" className="text-2xl font-bold text-primary">
+            {mealInsulinFormatted} <span className="text-lg">units</span>
           </p>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-accent/20">
-          <p className="text-sm text-primary/70">Correction Insulin</p>
-          <p id="correction-insulin" className={`text-xl font-semibold ${
+        <div className="bg-white p-4 rounded-lg shadow-md border-2 border-accent/30">
+          <p className="text-sm font-bold text-primary/80">Correction Insulin</p>
+          <p id="correction-insulin" className={`text-2xl font-bold ${
             correctionInsulin && correctionInsulin > 0 
-              ? "text-green-600" 
+              ? "text-green-700" 
               : correctionInsulin && correctionInsulin < 0 
-                ? "text-red-500" 
+                ? "text-red-600" 
                 : "text-primary"
           }`}>
-            {correctionFormatted} units
+            {correctionFormatted} <span className="text-lg">units</span>
           </p>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-red-300">
-          <p className="text-sm text-red-500">Total Insulin</p>
+        <div className="bg-white p-4 rounded-lg shadow-md border-2 border-red-400">
+          <p className="text-sm font-bold text-red-600">Total Insulin</p>
           <p
             ref={totalRef}
             id="total-insulin"
-            className="text-xl font-semibold text-red-600"
+            className="text-2xl font-bold text-red-700"
           >
-            {totalInsulinFormatted} units
+            {totalInsulinFormatted} <span className="text-lg">units</span>
           </p>
         </div>
       </div>
       
       {correctionRange && (
-        <div id="correction-details" className="mt-4 p-3 text-sm rounded-md bg-accent/10 border border-accent/20">
-          <p className="font-medium text-blue-600">
-            Correction based on BG: <span id="correction-range" className="font-semibold">{correctionRange}</span>
+        <div id="correction-details" className="mt-5 p-4 text-sm rounded-md bg-blue-50 border-2 border-blue-200 shadow-sm">
+          <p className="font-bold text-blue-700">
+            Correction based on BG: <span id="correction-range" className="font-bold underline">{correctionRange}</span>
           </p>
         </div>
       )}
       
       {isBedtime && (
-        <div className="mt-4 p-3 text-sm rounded-md bg-orange-50 border border-orange-200">
-          <p className="font-medium text-orange-700">
+        <div className="mt-5 p-4 text-sm rounded-md bg-orange-100 border-2 border-orange-300 shadow-sm">
+          <p className="font-bold text-orange-800">
             <span className="inline-block mr-2">⚠️</span>
             If correcting at bedtime, re-check blood glucose in 2 hours
           </p>
