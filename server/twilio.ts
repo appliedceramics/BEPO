@@ -26,7 +26,7 @@ function formatInsulinMessage(log: InsulinLog, name: string): string {
   const roundedInsulin = Math.round(log.totalInsulin);
   
   return `${name} took ${roundedInsulin} units of insulin at ${date} for ${mealTypeText}. 
-Blood glucose: ${log.bgValue} mmol/L (${log.bgMgdl} mg/dL).
+BG: ${log.bgValue} mmol/L (${log.bgMgdl} mg/dL).
 ${log.carbValue ? `Carbs: ${log.carbValue}g.` : ''}`;
 }
 

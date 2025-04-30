@@ -26,18 +26,25 @@ export function BepoLogo() {
   return (
     <div className="w-20 h-20 md:w-36 md:h-36 relative">
       <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-        {/* Long Hair */}
+        {/* Longer Brown Hair - more styled like the image */}
         <path 
-          d="M20,38 C20,25 40,15 60,15 C80,15 100,25 100,38 L100,45 
-             C100,45 95,42 90,42 L90,65 C90,65 85,75 80,80 
-             C80,80 75,85 70,83 L70,88
-             C70,88 65,83 60,80 L60,85 
-             C60,85 55,83 50,80 L50,85
-             C50,85 45,83 40,80 L40,83
-             C40,83 35,85 30,80 C25,75 20,65 20,65 L20,42 
-             C15,42 10,45 10,45 Z" 
-          fill="#8B4513" 
-          stroke="#6B3E26" 
+          d="M15,42 C15,25 40,10 60,10 C80,10 105,25 105,42 L105,50 
+             C105,50 100,47 95,47 L95,60 
+             C95,60 100,65 105,63 L105,70
+             C105,70 100,68 95,70 L95,75
+             C95,75 90,70 85,65 C85,65 90,70 88,75 
+             C88,75 85,80 80,77 L80,82
+             C80,82 75,80 70,75 L70,80 
+             C70,80 65,80 60,75 L60,80 
+             C60,80 55,80 50,75 L50,80
+             C50,80 45,80 40,75 L40,80
+             C40,80 35,77 30,75 L30,82
+             C30,82 25,80 23,75 C23,75 20,70 25,65 
+             C25,65 20,70 15,70 L15,75
+             C15,75 10,68 15,63 L15,47 
+             C10,47 5,50 5,50 Z" 
+          fill="#663300" 
+          stroke="#4B2400" 
           strokeWidth="1"
         />
         
@@ -72,14 +79,14 @@ export function BepoLogo() {
           strokeWidth="0.5"
         />
         
-        {/* Pupils */}
+        {/* Pupils - Blue eyes like in the image */}
         <ellipse 
           cx="50" 
           cy="45" 
           rx="2.5" 
           ry={blink ? "0.3" : "3"} 
-          fill="#663300" 
-          stroke="#331A00" 
+          fill="#4169E1" 
+          stroke="#0047AB" 
           strokeWidth="0.5"
         />
         <ellipse 
@@ -87,9 +94,27 @@ export function BepoLogo() {
           cy="45" 
           rx="2.5" 
           ry={blink ? "0.3" : "3"} 
-          fill="#663300" 
-          stroke="#331A00" 
+          fill="#4169E1" 
+          stroke="#0047AB" 
           strokeWidth="0.5"
+        />
+        
+        {/* Eye highlights to make eyes more vibrant */}
+        <ellipse 
+          cx="49" 
+          cy="44" 
+          rx="1" 
+          ry={blink ? "0" : "1"} 
+          fill="#FFFFFF" 
+          strokeWidth="0"
+        />
+        <ellipse 
+          cx="69" 
+          cy="44" 
+          rx="1" 
+          ry={blink ? "0" : "1"} 
+          fill="#FFFFFF" 
+          strokeWidth="0"
         />
         
         {/* Eyebrows */}
@@ -116,11 +141,19 @@ export function BepoLogo() {
           strokeWidth="0.5"
         />
         
-        {/* Mouth - Big smile */}
+        {/* Mouth - Big cheerful smile */}
         <path 
-          d="M45,63 C50,70 70,70 75,63" 
-          fill="none" 
+          d="M45,63 C50,72 70,72 75,63" 
+          fill="#FF6B8B" 
           stroke="#CC6666" 
+          strokeWidth="1.5" 
+          strokeLinecap="round"
+        />
+        
+        {/* Teeth to make the smile more prominent */}
+        <path 
+          d="M52,64 L68,64" 
+          stroke="#FFFFFF" 
           strokeWidth="1.5" 
           strokeLinecap="round"
         />
@@ -197,19 +230,19 @@ export function BepoLogo() {
           strokeWidth="1"
         />
         
-        {/* Shirt */}
+        {/* Shirt - Yellow orange like in the image */}
         <path 
           d="M40,75 L80,75 L80,95 L40,95 Z" 
-          fill="#4C92D3" 
-          stroke="#3A7BBD" 
+          fill="#FF9E00" 
+          stroke="#E08800" 
           strokeWidth="1"
         />
         
-        {/* Shorts */}
+        {/* Shorts - Blue like in the image */}
         <path 
           d="M45,95 L75,95 L78,110 L42,110 Z" 
-          fill="#44BD7B" 
-          stroke="#38A268" 
+          fill="#4284E6" 
+          stroke="#3266B3" 
           strokeWidth="1"
         />
         
