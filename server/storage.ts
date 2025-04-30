@@ -1,4 +1,6 @@
 import { insulinLogs, type InsulinLog, type InsertInsulinLog, users, type User, type InsertUser } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (for future expansion)
@@ -13,61 +15,58 @@ export interface IStorage {
   deleteInsulinLog(id: number): Promise<boolean>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private insulinLogs: Map<number, InsulinLog>;
-  private userCurrentId: number;
-  private logCurrentId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.insulinLogs = new Map();
-    this.userCurrentId = 1;
-    this.logCurrentId = 1;
-  }
-
+export class DatabaseStorage implements IStorage {
   // User operations
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.userCurrentId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
     return user;
   }
 
   // Insulin log operations
   async getAllInsulinLogs(): Promise<InsulinLog[]> {
-    return Array.from(this.insulinLogs.values())
-      .sort((a, b) => {
-        // Sort by timestamp descending (newest first)
-        return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
-      });
+    return await db
+      .select()
+      .from(insulinLogs)
+      .orderBy(desc(insulinLogs.timestamp));
   }
 
   async getInsulinLog(id: number): Promise<InsulinLog | undefined> {
-    return this.insulinLogs.get(id);
+    const [log] = await db
+      .select()
+      .from(insulinLogs)
+      .where(eq(insulinLogs.id, id));
+    return log || undefined;
   }
 
   async createInsulinLog(insertLog: InsertInsulinLog): Promise<InsulinLog> {
-    const id = this.logCurrentId++;
-    const timestamp = new Date();
-    const log: InsulinLog = { ...insertLog, id, timestamp };
-    this.insulinLogs.set(id, log);
+    const [log] = await db
+      .insert(insulinLogs)
+      .values(insertLog)
+      .returning();
     return log;
   }
 
   async deleteInsulinLog(id: number): Promise<boolean> {
-    return this.insulinLogs.delete(id);
+    const result = await db
+      .delete(insulinLogs)
+      .where(eq(insulinLogs.id, id))
+      .returning({ id: insulinLogs.id });
+    
+    return result.length > 0;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
