@@ -22,7 +22,10 @@ function formatInsulinMessage(log: InsulinLog, name: string): string {
       ? 'a meal' 
       : 'bedtime';
   
-  return `${name} took ${log.totalInsulin} units of insulin at ${date} for ${mealTypeText}. 
+  // Round to the nearest whole unit of insulin
+  const roundedInsulin = Math.round(log.totalInsulin);
+  
+  return `${name} took ${roundedInsulin} units of insulin at ${date} for ${mealTypeText}. 
 Blood glucose: ${log.bgValue} mmol/L (${log.bgMgdl} mg/dL).
 ${log.carbValue ? `Carbs: ${log.carbValue}g.` : ''}`;
 }
