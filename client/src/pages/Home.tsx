@@ -89,7 +89,7 @@ export default function Home() {
 
         <footer className="mt-12 text-center text-sm text-foreground/70 border-t border-accent/20 pt-6">
           <p>This calculator is for informational purposes only. Always consult with your healthcare provider.</p>
-          <p className="mt-1">© {new Date().getFullYear()} BEPO Insulin Calculator and Log. All rights reserved.</p>
+          <p className="mt-1">© {new Date().getFullYear()} Motava Corp. All rights reserved.</p>
         </footer>
       </div>
     </div>
