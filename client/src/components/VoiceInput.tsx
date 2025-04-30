@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Mic, MicOff, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
+import { useAchievements } from '@/hooks/use-achievements';
 
 // Define types for the SpeechRecognition Web API
 interface SpeechRecognitionEvent extends Event {
@@ -53,6 +54,7 @@ export function VoiceInput({ onResult, placeholder, fieldType }: VoiceInputProps
   const [transcript, setTranscript] = useState('');
   const [error, setError] = useState('');
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const { trackAchievement } = useAchievements();
 
   useEffect(() => {
     // Check browser support for SpeechRecognition
@@ -118,6 +120,16 @@ export function VoiceInput({ onResult, placeholder, fieldType }: VoiceInputProps
       const parsedValue = parseFloat(numberMatch[0]);
       if (!isNaN(parsedValue)) {
         onResult(parsedValue);
+        
+        // Track achievement for voice input usage
+        trackAchievement("voice_user", 1);
+        
+        // If this was a successful voice recognition with high confidence,
+        // track voice accuracy achievement
+        const confidence = event.results[0][0].confidence;
+        if (confidence > 0.8) {
+          trackAchievement("voice_accuracy", 1);
+        }
         
         // Show toast notification
         toast({
