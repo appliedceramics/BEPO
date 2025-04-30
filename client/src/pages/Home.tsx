@@ -5,6 +5,8 @@ import { useInsulinLogs } from "@/hooks/useInsulinLog";
 import { MealType } from "@shared/schema";
 import { BepoLogo } from "@/components/BepoLogo";
 import { LogIcon } from "@/components/AnimatedIcons";
+import { Navigation } from "@/components/Navigation";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function Home() {
   const { 

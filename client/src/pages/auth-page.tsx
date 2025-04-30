@@ -42,11 +42,6 @@ export default function AuthPage() {
   const [activeTab, setActiveTab] = useState<string>("login");
   const { user, loginMutation, registerMutation, isLoading } = useAuth();
   const [location, navigate] = useLocation();
-  
-  // Redirect if already logged in
-  if (user) {
-    return <Redirect to="/" />;
-  }
 
   // Login form configuration
   const loginForm = useForm<LoginFormValues>({
