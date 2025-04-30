@@ -2,6 +2,8 @@ import { Calculator } from "@/components/Calculator";
 import { InsulinLogDisplay } from "@/components/InsulinLog";
 import { useInsulinLogs } from "@/hooks/useInsulinLog";
 import { MealType } from "@shared/schema";
+import { BepoLogo } from "@/components/BepoLogo";
+import { LogIcon } from "@/components/AnimatedIcons";
 
 export default function Home() {
   const { 
@@ -33,14 +35,22 @@ export default function Home() {
   };
 
   return (
-    <div className="bg-neutral-50 font-sans text-neutral-900 min-h-screen">
+    <div className="min-h-screen font-sans">
       <div className="container mx-auto px-4 py-6 max-w-6xl">
-        <header className="mb-6">
-          <h1 className="text-2xl md:text-3xl font-bold text-primary-700 text-center">
-            Insulin Calculator
-          </h1>
-          <p className="text-neutral-600 text-center mt-2">
-            Calculate insulin dosage based on meals and blood glucose levels
+        <header className="mb-8 flex flex-col items-center">
+          <div className="flex items-center justify-center mb-3">
+            <BepoLogo />
+            <div className="ml-4">
+              <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+                BEPO Insulin Calculator
+              </h1>
+              <p className="text-accent text-lg md:text-xl font-medium mt-1">
+                and Log
+              </p>
+            </div>
+          </div>
+          <p className="text-foreground/80 text-center mt-2 max-w-lg">
+            Calculate insulin dosage based on meals and blood glucose levels with this fun and easy-to-use tool
           </p>
         </header>
 
@@ -49,16 +59,27 @@ export default function Home() {
             onLogInsulin={handleLogInsulin} 
             isLogging={isPendingCreate}
           />
-          <InsulinLogDisplay 
-            logs={logs} 
-            isLoading={isLoading} 
-            onDelete={deleteLog}
-          />
+          
+          <div className="mt-8 flex items-center justify-center">
+            <div className="h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent w-full max-w-4xl"></div>
+            <div className="mx-4">
+              <LogIcon />
+            </div>
+            <div className="h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent w-full max-w-4xl"></div>
+          </div>
+          
+          <div className="mt-8">
+            <InsulinLogDisplay 
+              logs={logs} 
+              isLoading={isLoading} 
+              onDelete={deleteLog}
+            />
+          </div>
         </main>
 
-        <footer className="mt-8 text-center text-sm text-neutral-500">
+        <footer className="mt-12 text-center text-sm text-foreground/70 border-t border-accent/20 pt-6">
           <p>This calculator is for informational purposes only. Always consult with your healthcare provider.</p>
-          <p className="mt-1">© {new Date().getFullYear()} Insulin Calculator. All rights reserved.</p>
+          <p className="mt-1">© {new Date().getFullYear()} BEPO Insulin Calculator and Log. All rights reserved.</p>
         </footer>
       </div>
     </div>

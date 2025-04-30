@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { convertBgToMgdl } from "@/lib/correctionCalculator";
+import { BloodGlucoseIcon } from "./AnimatedIcons";
 
 interface BloodGlucoseInputProps {
   value: number | undefined;
@@ -51,11 +52,14 @@ export function BloodGlucoseInput({ value, onChange }: BloodGlucoseInputProps) {
   };
 
   return (
-    <div className="mb-6">
-      <h3 className="text-lg font-medium text-primary-700 mb-3">Blood Glucose</h3>
+    <div className="bepo-card mb-6">
+      <div className="flex items-center mb-3">
+        <BloodGlucoseIcon />
+        <h3 className="ml-2 text-lg font-medium text-primary">Blood Glucose</h3>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="bg-input" className="block text-sm font-medium text-neutral-700 mb-1">
+          <Label htmlFor="bg-input" className="block text-sm font-medium text-primary/80 mb-1">
             Current BG (mmol/L)
           </Label>
           <Input
@@ -66,15 +70,15 @@ export function BloodGlucoseInput({ value, onChange }: BloodGlucoseInputProps) {
             onChange={handleInputChange}
             min="0"
             step="0.1"
-            className="w-full"
+            className="w-full bepo-input"
           />
-          {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+          {error && <p className="mt-1 text-sm text-red-600 animate-pulse">{error}</p>}
         </div>
         <div>
-          <Label className="block text-sm font-medium text-neutral-700 mb-1">
+          <Label className="block text-sm font-medium text-primary/80 mb-1">
             BG in mg/dL
           </Label>
-          <div id="bg-mgdl" className="w-full px-3 py-2 bg-neutral-50 border border-neutral-200 rounded-md text-neutral-700">
+          <div id="bg-mgdl" className="w-full px-3 py-2 rounded-md text-accent-foreground bg-accent/10 border border-accent/20 font-medium">
             {mgdlValue}
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { InsulinIcon } from "./AnimatedIcons";
 
 interface ResultsDisplayProps {
   mealInsulin: number | undefined;
@@ -36,35 +37,38 @@ export function ResultsDisplay({
   }, [totalInsulin]);
 
   return (
-    <div className="bg-primary-50 rounded-md p-4 mb-6">
-      <h3 className="text-lg font-medium text-primary-700 mb-2">Calculation Results</h3>
+    <div className="bepo-card mb-6 bg-gradient-to-br from-primary/5 to-accent/10">
+      <div className="flex items-center mb-3">
+        <InsulinIcon />
+        <h3 className="ml-2 text-lg font-medium text-primary">Calculation Results</h3>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white p-3 rounded shadow-sm">
-          <p className="text-sm text-neutral-600">Meal Insulin</p>
-          <p id="meal-insulin" className="text-xl font-semibold text-primary-800">
+        <div className="bg-white p-4 rounded-lg shadow-sm border border-accent/20">
+          <p className="text-sm text-primary/70">Meal Insulin</p>
+          <p id="meal-insulin" className="text-xl font-semibold text-primary">
             {mealInsulinFormatted} units
           </p>
         </div>
-        <div className="bg-white p-3 rounded shadow-sm">
-          <p className="text-sm text-neutral-600">Correction Insulin</p>
-          <p id="correction-insulin" className="text-xl font-semibold text-primary-800">
+        <div className="bg-white p-4 rounded-lg shadow-sm border border-accent/20">
+          <p className="text-sm text-primary/70">Correction Insulin</p>
+          <p id="correction-insulin" className="text-xl font-semibold text-primary">
             {correctionFormatted} units
           </p>
         </div>
-        <div className="bg-white p-3 rounded shadow-sm">
-          <p className="text-sm text-neutral-600">Total Insulin</p>
+        <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary/30">
+          <p className="text-sm text-secondary/70">Total Insulin</p>
           <p
             ref={totalRef}
             id="total-insulin"
-            className="text-xl font-semibold text-secondary-700"
+            className="text-xl font-semibold text-secondary"
           >
             {totalInsulinFormatted} units
           </p>
         </div>
       </div>
       {correctionRange && (
-        <div id="correction-details" className="mt-3 text-sm text-neutral-700">
-          <p>Correction based on BG: <span id="correction-range">{correctionRange}</span></p>
+        <div id="correction-details" className="mt-4 p-3 text-sm rounded-md bg-accent/10 border border-accent/20">
+          <p className="font-medium text-accent-foreground">Correction based on BG: <span id="correction-range" className="font-semibold">{correctionRange}</span></p>
         </div>
       )}
     </div>

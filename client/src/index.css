@@ -3,26 +3,26 @@
 @tailwind utilities;
 
 :root {
-      --background: 0 0% 100%;
---foreground: 20 14.3% 4.1%;
---muted: 60 4.8% 95.9%;
---muted-foreground: 25 5.3% 44.7%;
---popover: 0 0% 100%;
---popover-foreground: 20 14.3% 4.1%;
---card: 0 0% 100%;
---card-foreground: 20 14.3% 4.1%;
---border: 20 5.9% 90%;
---input: 20 5.9% 90%;
---primary: 207 90% 54%;
---primary-foreground: 211 100% 99%;
---secondary: 60 4.8% 95.9%;
---secondary-foreground: 24 9.8% 10%;
---accent: 60 4.8% 95.9%;
---accent-foreground: 24 9.8% 10%;
---destructive: 0 84.2% 60.2%;
---destructive-foreground: 60 9.1% 97.8%;
---ring: 20 14.3% 4.1%;
---radius: 0.5rem;
+  --background: 120 40% 98%;
+  --foreground: 200 80% 20%;
+  --muted: 120 20% 96%;
+  --muted-foreground: 200 20% 40%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 200 80% 20%;
+  --card: 0 0% 100%;
+  --card-foreground: 200 80% 20%;
+  --border: 120 30% 90%;
+  --input: 120 30% 95%;
+  --primary: 200 90% 54%;
+  --primary-foreground: 210 100% 99%;
+  --secondary: 120 60% 50%;
+  --secondary-foreground: 120 60% 99%;
+  --accent: 130 50% 60%;
+  --accent-foreground: 130 60% 99%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 60 9.1% 97.8%;
+  --ring: 130 50% 60%;
+  --radius: 0.75rem;
   }
   .dark {
       --background: 240 10% 3.9%;
@@ -53,7 +53,43 @@
   }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply font-sans antialiased text-foreground;
+    background: linear-gradient(135deg, hsl(120, 70%, 95%) 0%, hsl(120, 60%, 92%) 100%);
+  }
+}
+
+@layer components {
+  .bepo-card {
+    @apply bg-white rounded-lg shadow-md p-5;
+    border: 2px solid hsl(var(--accent) / 0.2);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05), 
+                0 0 0 2px hsl(var(--accent) / 0.1);
+  }
+  
+  .bepo-button {
+    @apply transition-all duration-300;
+    background: linear-gradient(to right, hsl(var(--secondary)), hsl(var(--accent)));
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+  }
+  
+  .bepo-input {
+    @apply border-2 rounded-md transition-all duration-300;
+    border-color: hsl(var(--accent) / 0.4);
+    &:focus {
+      border-color: hsl(var(--primary));
+      box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
+    }
+  }
+  
+  .result-highlight {
+    animation: pulse 2s ease-in-out;
+  }
+  
+  .transition-height {
+    @apply transition-all duration-500 ease-in-out;
   }
 }
 

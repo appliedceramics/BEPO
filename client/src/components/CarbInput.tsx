@@ -1,6 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
+import { CarbsIcon } from "./AnimatedIcons";
 
 interface CarbInputProps {
   value: number | undefined;
@@ -42,10 +43,13 @@ export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
   }
 
   return (
-    <div id="carb-input-container">
-      <Label htmlFor="carb-input" className="block text-sm font-medium text-neutral-700 mb-1">
-        Total Carbohydrates (g)
-      </Label>
+    <div id="carb-input-container" className="bepo-card">
+      <div className="flex items-center mb-2">
+        <CarbsIcon />
+        <Label htmlFor="carb-input" className="ml-2 text-sm font-medium text-primary">
+          Total Carbohydrates (g)
+        </Label>
+      </div>
       <Input
         type="number"
         id="carb-input"
@@ -53,9 +57,9 @@ export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
         value={inputValue}
         onChange={handleInputChange}
         min="0"
-        className="w-full"
+        className="w-full bepo-input"
       />
-      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-sm text-red-600 animate-pulse">{error}</p>}
     </div>
   );
 }
