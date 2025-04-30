@@ -8,7 +8,7 @@ export const mealTypeEnum = z.enum(["first", "other", "bedtime"]);
 export type MealType = z.infer<typeof mealTypeEnum>;
 
 // Enum for gender/sex
-export const sexEnum = z.enum(["male", "female", "other"]);
+export const sexEnum = z.enum(["male", "female"]);
 export type Sex = z.infer<typeof sexEnum>;
 
 // Users table for authentication
