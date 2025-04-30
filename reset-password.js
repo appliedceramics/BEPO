@@ -1,0 +1,41 @@
+import crypto from 'crypto';
+import { promisify } from 'util';
+import pg from 'pg';
+const { Client } = pg;
+
+const scryptAsync = promisify(crypto.scrypt);
+
+/**
+ * Hashes a password using scrypt
+ */
+async function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const buf = await scryptAsync(password, salt, 64);
+  return `${buf.toString('hex')}.${salt}`;
+}
+
+(async () => {
+  // Connect to database
+  const client = new Client({
+    connectionString: process.env.DATABASE_URL
+  });
+  
+  await client.connect();
+  
+  try {
+    // Hash the password
+    const hashedPassword = await hashPassword('Z4greb2@');
+    
+    // Update the user
+    const res = await client.query(
+      'UPDATE users SET password = $1 WHERE id = 1 RETURNING id, username, email',
+      [hashedPassword]
+    );
+    
+    console.log('Password updated for user:', res.rows[0]);
+  } catch (err) {
+    console.error('Error updating password:', err);
+  } finally {
+    await client.end();
+  }
+})();
