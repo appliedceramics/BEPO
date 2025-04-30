@@ -119,8 +119,8 @@ export default function ProfileEditPage() {
     <div className="min-h-screen flex flex-col">
       <Navigation />
       
-      <div className="flex-1 container max-w-3xl py-10">
-        <div className="space-y-6">
+      <div className="flex-1 flex justify-center items-start py-10">
+        <div className="w-full max-w-2xl space-y-6 px-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Edit Your Profile</h1>
             <p className="text-muted-foreground">
