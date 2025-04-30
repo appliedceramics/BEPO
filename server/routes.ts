@@ -5,6 +5,7 @@ import { insertInsulinLogSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { setupAuth, isAuthenticated, hasProfile } from "./auth";
+import { notifyParents } from "./twilio";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication routes
@@ -60,6 +61,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId
       });
       
+      // Check if the user has a profile with parent notification enabled
+      const profile = await storage.getProfileByUserId(userId);
+      if (profile && profile.notifyParents) {
+        try {
+          // Send SMS notifications to parents
+          await notifyParents(newLog, profile);
+          
+          // Mark the log as shared after successful notification
+          await storage.markLogAsShared(newLog.id);
+        } catch (notifyError) {
+          console.error("Error sending SMS notifications:", notifyError);
+          // We'll still return the log even if notifications fail
+        }
+      }
+      
       res.status(201).json(newLog);
     } catch (error) {
       if (error instanceof ZodError) {
@@ -101,7 +117,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // SMS Notification endpoint - will be expanded later
+  // SMS Notification endpoint
   app.post("/api/notify-parents", isAuthenticated, hasProfile, async (req: Request, res: Response) => {
     try {
       const logId = parseInt(req.body.logId);
@@ -109,10 +125,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid log ID" });
       }
       
+      // Get the insulin log
+      const log = await storage.getInsulinLog(logId);
+      if (!log) {
+        return res.status(404).json({ message: "Insulin log not found" });
+      }
+      
+      // Check if the log belongs to the current user
+      const userId = req.user.id;
+      if (log.userId !== userId) {
+        return res.status(403).json({ message: "You don't have permission to share this log" });
+      }
+      
+      // Get the user's profile
+      const profile = await storage.getProfileByUserId(userId);
+      if (!profile) {
+        return res.status(404).json({ message: "User profile not found" });
+      }
+      
+      if (!profile.notifyParents) {
+        return res.status(400).json({ message: "Parent notifications are not enabled in your profile" });
+      }
+      
+      // Send SMS notification
+      await notifyParents(log, profile);
+      
       // Mark the log as shared
       await storage.markLogAsShared(logId);
-      
-      // In the future, we'll add actual SMS sending logic here
       
       res.status(200).json({ message: "Parents notified successfully" });
     } catch (error) {
