@@ -28,9 +28,11 @@ export function calculateInsulin(params: CalculationParams): CalculationResult {
   } else if (mealType === "other" && carbValue) {
     mealInsulin = carbValue / 15;
   }
+  // Note: For bedtime, mealInsulin remains 0
   
-  // Calculate correction insulin based on BG
-  const { correction: correctionInsulin, range: correctionRange } = getCorrectionInsulin(bgMgdl);
+  // Calculate correction insulin based on BG and meal type
+  // Pass the meal type to get the appropriate correction chart
+  const { correction: correctionInsulin, range: correctionRange } = getCorrectionInsulin(bgMgdl, mealType);
   
   // Calculate total insulin
   const totalInsulin = mealInsulin + correctionInsulin;

@@ -1,7 +1,7 @@
-import { CorrectionRange } from "@shared/schema";
+import { CorrectionRange, MealType } from "@shared/schema";
 
-// Define the correction chart as an array of ranges and corrections
-export const correctionChart: CorrectionRange[] = [
+// Define the correction chart for meals (breakfast, lunch, dinner)
+export const mealCorrectionChart: CorrectionRange[] = [
   { min: 0, max: 70, correction: -0.5 },
   { min: 70, max: 100, correction: -0.5 },
   { min: 101, max: 120, correction: 0 },
@@ -24,11 +24,38 @@ export const correctionChart: CorrectionRange[] = [
   { min: 401, max: 999, correction: 8.5 } // Upper bound for extreme high values
 ];
 
-// Get correction insulin based on blood glucose in mg/dL
-export function getCorrectionInsulin(bgMgdl: number): {
+// Define the correction chart for bedtime
+export const bedtimeCorrectionChart: CorrectionRange[] = [
+  { min: 0, max: 70, correction: -0.5 },
+  { min: 70, max: 100, correction: -0.5 },
+  { min: 101, max: 150, correction: 0 },   // Different from meal chart
+  { min: 151, max: 168, correction: 0.5 }, // Different from meal chart
+  { min: 169, max: 185, correction: 1 },   // Different from meal chart
+  { min: 186, max: 203, correction: 1.5 }, // Different from meal chart
+  { min: 204, max: 220, correction: 2 },   // Different from meal chart
+  { min: 221, max: 238, correction: 2.5 }, // Different from meal chart
+  { min: 239, max: 255, correction: 3 },   // Different from meal chart
+  { min: 256, max: 273, correction: 3.5 }, // Different from meal chart
+  { min: 274, max: 290, correction: 4 },   // Different from meal chart
+  { min: 291, max: 308, correction: 4.5 }, // Different from meal chart
+  { min: 309, max: 325, correction: 5 },   // Different from meal chart
+  { min: 326, max: 343, correction: 5.5 }, // Different from meal chart
+  { min: 344, max: 360, correction: 6 },   // Different from meal chart
+  { min: 361, max: 378, correction: 6.5 }, // Different from meal chart
+  { min: 379, max: 395, correction: 7 },   // Different from meal chart
+  { min: 396, max: 413, correction: 7.5 }, // Different from meal chart
+  { min: 414, max: 430, correction: 8 },   // Different from meal chart
+  { min: 431, max: 999, correction: 8.5 }  // Upper bound for extreme high values
+];
+
+// Get correction insulin based on blood glucose in mg/dL and meal type
+export function getCorrectionInsulin(bgMgdl: number, mealType?: MealType): {
   correction: number;
   range: string;
 } {
+  // Select the appropriate correction chart based on meal type
+  const correctionChart = mealType === "bedtime" ? bedtimeCorrectionChart : mealCorrectionChart;
+  
   // Find the appropriate range in the correction chart
   const range = correctionChart.find(range => 
     bgMgdl >= range.min && bgMgdl <= range.max
