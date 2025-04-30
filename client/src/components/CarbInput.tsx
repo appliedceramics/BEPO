@@ -2,6 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
 import { CarbsIcon } from "./AnimatedIcons";
+import { VoiceInput } from "./VoiceInput";
 
 interface CarbInputProps {
   value: number | undefined;
@@ -38,6 +39,14 @@ export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
     }
   };
 
+  // Handle voice input result
+  const handleVoiceInput = (value: number) => {
+    // Update the input value
+    setInputValue(value.toString());
+    setError(null);
+    onChange(value);
+  };
+
   if (hidden) {
     return null;
   }
@@ -50,15 +59,22 @@ export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
           Total Carbohydrates (g)
         </Label>
       </div>
-      <Input
-        type="number"
-        id="carb-input"
-        placeholder="Enter carbs in grams"
-        value={inputValue}
-        onChange={handleInputChange}
-        min="0"
-        className="w-full bepo-input"
-      />
+      <div className="flex items-center">
+        <Input
+          type="number"
+          id="carb-input"
+          placeholder="Enter carbs in grams"
+          value={inputValue}
+          onChange={handleInputChange}
+          min="0"
+          className="w-full bepo-input"
+        />
+        <VoiceInput 
+          onResult={handleVoiceInput} 
+          placeholder="carbohydrates" 
+          fieldType="carbs" 
+        />
+      </div>
       {error && <p className="mt-1 text-sm text-red-600 animate-pulse">{error}</p>}
     </div>
   );

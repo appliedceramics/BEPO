@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { convertBgToMgdl } from "@/lib/correctionCalculator";
 import { BloodGlucoseIcon } from "./AnimatedIcons";
+import { VoiceInput } from "./VoiceInput";
 
 interface BloodGlucoseInputProps {
   value: number | undefined;
@@ -51,6 +52,18 @@ export function BloodGlucoseInput({ value, onChange }: BloodGlucoseInputProps) {
     }
   };
 
+  // Handle voice input result
+  const handleVoiceInput = (value: number) => {
+    // Update the input value
+    setInputValue(value.toString());
+    setError(null);
+    onChange(value);
+    
+    // Update mg/dL conversion
+    const mgdl = convertBgToMgdl(value).toFixed(1);
+    setMgdlValue(`${mgdl} mg/dL`);
+  };
+
   return (
     <div className="bepo-card mb-6">
       <div className="flex items-center mb-3">
@@ -62,16 +75,23 @@ export function BloodGlucoseInput({ value, onChange }: BloodGlucoseInputProps) {
           <Label htmlFor="bg-input" className="block text-sm font-medium text-primary/80 mb-1">
             Current BG (mmol/L)
           </Label>
-          <Input
-            type="number"
-            id="bg-input"
-            placeholder="Enter BG in mmol/L"
-            value={inputValue}
-            onChange={handleInputChange}
-            min="0"
-            step="0.1"
-            className="w-full bepo-input"
-          />
+          <div className="flex items-center">
+            <Input
+              type="number"
+              id="bg-input"
+              placeholder="Enter BG in mmol/L"
+              value={inputValue}
+              onChange={handleInputChange}
+              min="0"
+              step="0.1"
+              className="w-full bepo-input"
+            />
+            <VoiceInput 
+              onResult={handleVoiceInput} 
+              placeholder="blood glucose" 
+              fieldType="bg" 
+            />
+          </div>
           {error && <p className="mt-1 text-sm text-red-600 animate-pulse">{error}</p>}
         </div>
         <div>
