@@ -69,12 +69,12 @@ export function ResultsDisplay({
             {correctionFormatted} units
           </p>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary/30">
-          <p className="text-sm text-secondary/70">Total Insulin</p>
+        <div className="bg-white p-4 rounded-lg shadow-sm border border-red-300">
+          <p className="text-sm text-red-500">Total Insulin</p>
           <p
             ref={totalRef}
             id="total-insulin"
-            className="text-xl font-semibold text-secondary"
+            className="text-xl font-semibold text-red-600"
           >
             {totalInsulinFormatted} units
           </p>
