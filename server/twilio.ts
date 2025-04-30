@@ -9,11 +9,16 @@ const client = twilio(
 
 // Utility function to format the message
 function formatInsulinMessage(log: InsulinLog, name: string): string {
-  const date = new Date(log.timestamp).toLocaleString('en-US', {
+  // Format date as "on Apr 30 at 15:25"
+  const dateObj = new Date(log.timestamp);
+  const formattedDate = dateObj.toLocaleString('en-US', {
     month: 'short',
     day: 'numeric',
+  });
+  const formattedTime = dateObj.toLocaleString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
+    hour12: false
   });
   
   const mealTypeText = log.mealType === 'first' 
@@ -25,7 +30,7 @@ function formatInsulinMessage(log: InsulinLog, name: string): string {
   // Round to the nearest whole unit of insulin
   const roundedInsulin = Math.round(log.totalInsulin);
   
-  return `${name} took ${roundedInsulin} units of insulin at ${date} for ${mealTypeText}. 
+  return `${name} took ${roundedInsulin} units of insulin on ${formattedDate} at ${formattedTime} for ${mealTypeText}. 
 BG: ${log.bgValue} mmol/L (${log.bgMgdl} mg/dL).
 ${log.carbValue ? `Carbs: ${log.carbValue}g.` : ''}`;
 }
