@@ -7,7 +7,10 @@ import {
   type InsertUser,
   profiles,
   type Profile,
-  type InsertProfile
+  type InsertProfile,
+  mealPresets,
+  type MealPreset,
+  type InsertMealPreset
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, isNull } from "drizzle-orm";
@@ -32,6 +35,15 @@ export interface IStorage {
   getInsulinLog(id: number): Promise<InsulinLog | undefined>;
   createInsulinLog(log: InsertInsulinLog & { userId?: number }): Promise<InsulinLog>;
   deleteInsulinLog(id: number): Promise<boolean>;
+  markLogAsShared(id: number): Promise<boolean>;
+  getUnsharedLogs(userId: number): Promise<InsulinLog[]>;
+  
+  // Meal preset operations
+  getUserMealPresets(userId: number): Promise<MealPreset[]>;
+  getMealPreset(id: number): Promise<MealPreset | undefined>;
+  createMealPreset(preset: InsertMealPreset & { userId: number }): Promise<MealPreset>;
+  updateMealPreset(id: number, preset: Partial<InsertMealPreset>): Promise<MealPreset>;
+  deleteMealPreset(id: number): Promise<boolean>;
   
   // Session store for auth
   sessionStore: session.SessionStore;
@@ -51,6 +63,49 @@ export class DatabaseStorage implements IStorage {
       pool, 
       createTableIfMissing: true,
     });
+  }
+  
+  // Meal preset operations
+  async getUserMealPresets(userId: number): Promise<MealPreset[]> {
+    return await db
+      .select()
+      .from(mealPresets)
+      .where(eq(mealPresets.userId, userId))
+      .orderBy(desc(mealPresets.createdAt));
+  }
+  
+  async getMealPreset(id: number): Promise<MealPreset | undefined> {
+    const [preset] = await db
+      .select()
+      .from(mealPresets)
+      .where(eq(mealPresets.id, id));
+    return preset || undefined;
+  }
+  
+  async createMealPreset(preset: InsertMealPreset & { userId: number }): Promise<MealPreset> {
+    const [newPreset] = await db
+      .insert(mealPresets)
+      .values(preset)
+      .returning();
+    return newPreset;
+  }
+  
+  async updateMealPreset(id: number, preset: Partial<InsertMealPreset>): Promise<MealPreset> {
+    const [updatedPreset] = await db
+      .update(mealPresets)
+      .set(preset)
+      .where(eq(mealPresets.id, id))
+      .returning();
+    return updatedPreset;
+  }
+  
+  async deleteMealPreset(id: number): Promise<boolean> {
+    const result = await db
+      .delete(mealPresets)
+      .where(eq(mealPresets.id, id))
+      .returning({ id: mealPresets.id });
+    
+    return result.length > 0;
   }
   
   // User operations

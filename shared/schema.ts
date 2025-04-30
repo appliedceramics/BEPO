@@ -126,3 +126,29 @@ export const correctionRangeSchema = z.object({
 });
 
 export type CorrectionRange = z.infer<typeof correctionRangeSchema>;
+
+// Meal Presets
+export const mealPresets = pgTable("meal_presets", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  carbValue: integer("carb_value").notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const mealPresetsRelations = relations(mealPresets, ({ one }) => ({
+  user: one(users, {
+    fields: [mealPresets.userId],
+    references: [users.id],
+  }),
+}));
+
+export const insertMealPresetSchema = createInsertSchema(mealPresets).omit({
+  id: true,
+  userId: true,
+  createdAt: true,
+});
+
+export type InsertMealPreset = z.infer<typeof insertMealPresetSchema>;
+export type MealPreset = typeof mealPresets.$inferSelect;
