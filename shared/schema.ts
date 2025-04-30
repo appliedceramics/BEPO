@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, numeric, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, numeric, timestamp, boolean, json } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
@@ -23,6 +23,7 @@ export const users = pgTable("users", {
 export const usersRelations = relations(users, ({ one, many }) => ({
   profile: one(profiles),
   insulinLogs: many(insulinLogs),
+  achievements: many(achievements),
 }));
 
 // Authentication schemas
@@ -152,3 +153,63 @@ export const insertMealPresetSchema = createInsertSchema(mealPresets).omit({
 
 export type InsertMealPreset = z.infer<typeof insertMealPresetSchema>;
 export type MealPreset = typeof mealPresets.$inferSelect;
+
+// Achievement Type enum
+export const achievementTypeEnum = z.enum([
+  "log_streak",       // Consecutive days logging
+  "perfect_range",    // Blood glucose in target range
+  "precise_carbs",    // Accurate carb counting
+  "voice_input_user", // Using voice input feature
+  "meal_preset_pro",  // Creating and using meal presets
+  "data_sharer"       // Sharing results with parents
+]);
+export type AchievementType = z.infer<typeof achievementTypeEnum>;
+
+// Milestones table - defines available achievements
+export const milestones = pgTable("milestones", {
+  id: serial("id").primaryKey(),
+  type: text("type").notNull(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  requiredCount: integer("required_count").notNull(),
+  emoji: text("emoji").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertMilestoneSchema = createInsertSchema(milestones).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertMilestone = z.infer<typeof insertMilestoneSchema>;
+export type Milestone = typeof milestones.$inferSelect;
+
+// User achievements table - tracks completed achievements by users
+export const achievements = pgTable("achievements", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  milestoneId: integer("milestone_id").notNull().references(() => milestones.id),
+  earnedAt: timestamp("earned_at").defaultNow().notNull(),
+  progress: integer("progress").notNull().default(0),
+  isComplete: boolean("is_complete").notNull().default(false),
+  data: json("data").$type<Record<string, any>>(),
+});
+
+export const achievementsRelations = relations(achievements, ({ one }) => ({
+  user: one(users, {
+    fields: [achievements.userId],
+    references: [users.id],
+  }),
+  milestone: one(milestones, {
+    fields: [achievements.milestoneId],
+    references: [milestones.id],
+  }),
+}));
+
+export const insertAchievementSchema = createInsertSchema(achievements).omit({
+  id: true,
+  earnedAt: true,
+});
+
+export type InsertAchievement = z.infer<typeof insertAchievementSchema>;
+export type Achievement = typeof achievements.$inferSelect;

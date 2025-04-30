@@ -10,7 +10,13 @@ import {
   type InsertProfile,
   mealPresets,
   type MealPreset,
-  type InsertMealPreset
+  type InsertMealPreset,
+  milestones,
+  type Milestone,
+  type InsertMilestone,
+  achievements,
+  type Achievement,
+  type InsertAchievement
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, isNull } from "drizzle-orm";
@@ -45,6 +51,18 @@ export interface IStorage {
   updateMealPreset(id: number, preset: Partial<InsertMealPreset>): Promise<MealPreset>;
   deleteMealPreset(id: number): Promise<boolean>;
   
+  // Milestone operations (achievements system)
+  getAllMilestones(): Promise<Milestone[]>;
+  getMilestone(id: number): Promise<Milestone | undefined>;
+  createMilestone(milestone: InsertMilestone): Promise<Milestone>;
+  
+  // User achievement operations
+  getUserAchievements(userId: number): Promise<(Achievement & { milestone: Milestone })[]>;
+  getAchievement(id: number): Promise<Achievement | undefined>;
+  createOrUpdateAchievement(achievement: Partial<InsertAchievement>): Promise<Achievement>;
+  incrementAchievementProgress(userId: number, type: string, increment?: number): Promise<Achievement | undefined>;
+  checkAndCompleteAchievement(achievementId: number): Promise<Achievement | undefined>;
+  
   // Session store for auth
   sessionStore: session.SessionStore;
 }
@@ -63,6 +81,176 @@ export class DatabaseStorage implements IStorage {
       pool, 
       createTableIfMissing: true,
     });
+  }
+  
+  // Milestone operations
+  async getAllMilestones(): Promise<Milestone[]> {
+    return await db
+      .select()
+      .from(milestones)
+      .orderBy(milestones.requiredCount);
+  }
+  
+  async getMilestone(id: number): Promise<Milestone | undefined> {
+    const [milestone] = await db
+      .select()
+      .from(milestones)
+      .where(eq(milestones.id, id));
+    return milestone || undefined;
+  }
+  
+  async createMilestone(milestone: InsertMilestone): Promise<Milestone> {
+    const [newMilestone] = await db
+      .insert(milestones)
+      .values(milestone)
+      .returning();
+    return newMilestone;
+  }
+  
+  // Achievement operations
+  async getUserAchievements(userId: number): Promise<(Achievement & { milestone: Milestone })[]> {
+    const results = await db
+      .select({
+        achievement: achievements,
+        milestone: milestones,
+      })
+      .from(achievements)
+      .innerJoin(milestones, eq(achievements.milestoneId, milestones.id))
+      .where(eq(achievements.userId, userId))
+      .orderBy(desc(achievements.earnedAt));
+    
+    return results.map(({ achievement, milestone }) => ({
+      ...achievement,
+      milestone,
+    }));
+  }
+  
+  async getAchievement(id: number): Promise<Achievement | undefined> {
+    const [achievement] = await db
+      .select()
+      .from(achievements)
+      .where(eq(achievements.id, id));
+    return achievement || undefined;
+  }
+  
+  async createOrUpdateAchievement(achievement: Partial<InsertAchievement>): Promise<Achievement> {
+    // Check if achievement exists
+    const existingAchievements = await db
+      .select()
+      .from(achievements)
+      .where(
+        and(
+          eq(achievements.userId, achievement.userId!),
+          eq(achievements.milestoneId, achievement.milestoneId!)
+        )
+      );
+    
+    if (existingAchievements.length > 0) {
+      // Update existing achievement
+      const [updatedAchievement] = await db
+        .update(achievements)
+        .set(achievement)
+        .where(eq(achievements.id, existingAchievements[0].id))
+        .returning();
+      return updatedAchievement;
+    } else {
+      // Create new achievement
+      const [newAchievement] = await db
+        .insert(achievements)
+        .values(achievement as InsertAchievement)
+        .returning();
+      return newAchievement;
+    }
+  }
+  
+  async incrementAchievementProgress(userId: number, type: string, increment: number = 1): Promise<Achievement | undefined> {
+    // Find milestone by type
+    const [milestone] = await db
+      .select()
+      .from(milestones)
+      .where(eq(milestones.type, type));
+    
+    if (!milestone) return undefined;
+    
+    // Find or create achievement for user
+    const existingAchievements = await db
+      .select()
+      .from(achievements)
+      .where(
+        and(
+          eq(achievements.userId, userId),
+          eq(achievements.milestoneId, milestone.id)
+        )
+      );
+    
+    if (existingAchievements.length > 0) {
+      // Increment existing achievement
+      const achievement = existingAchievements[0];
+      if (achievement.isComplete) return achievement; // Don't update completed achievements
+      
+      const newProgress = achievement.progress + increment;
+      const isComplete = newProgress >= milestone.requiredCount;
+      
+      const [updatedAchievement] = await db
+        .update(achievements)
+        .set({
+          progress: newProgress,
+          isComplete,
+          ...(isComplete ? { earnedAt: new Date() } : {})
+        })
+        .where(eq(achievements.id, achievement.id))
+        .returning();
+      
+      return updatedAchievement;
+    } else {
+      // Create new achievement
+      const [newAchievement] = await db
+        .insert(achievements)
+        .values({
+          userId,
+          milestoneId: milestone.id,
+          progress: increment,
+          isComplete: increment >= milestone.requiredCount,
+          data: {}
+        })
+        .returning();
+      
+      return newAchievement;
+    }
+  }
+  
+  async checkAndCompleteAchievement(achievementId: number): Promise<Achievement | undefined> {
+    // Get the achievement
+    const [achievement] = await db
+      .select()
+      .from(achievements)
+      .where(eq(achievements.id, achievementId));
+    
+    if (!achievement || achievement.isComplete) return achievement;
+    
+    // Get the milestone
+    const [milestone] = await db
+      .select()
+      .from(milestones)
+      .where(eq(milestones.id, achievement.milestoneId));
+    
+    if (!milestone) return achievement;
+    
+    // Check if the achievement should be completed
+    if (achievement.progress >= milestone.requiredCount) {
+      const [updatedAchievement] = await db
+        .update(achievements)
+        .set({
+          isComplete: true,
+          earnedAt: new Date()
+        })
+        .where(eq(achievements.id, achievementId))
+        .returning();
+      
+      return updatedAchievement;
+    }
+    
+    return achievement;
   }
   
   // Meal preset operations
