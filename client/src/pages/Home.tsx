@@ -37,9 +37,12 @@ export default function Home() {
     });
   };
 
+  const { user } = useAuth();
+
   return (
-    <div className="min-h-screen font-sans">
-      <div className="container mx-auto px-4 py-3 max-w-6xl">
+    <div className="min-h-screen font-sans flex flex-col">
+      <Navigation />
+      <div className="container mx-auto px-4 py-3 max-w-6xl flex-1">
         <header className="mb-4 flex items-center justify-center">
           <div className="flex items-center justify-center">
             <BepoLogo />
@@ -54,6 +57,7 @@ export default function Home() {
                 </span>
               </div>
               <p className="text-foreground/70 text-sm md:text-base max-w-lg">
+                {user?.profile ? `Hello, ${user.profile.name}! ` : ''}
                 Fun and easy blood glucose tracking for the whole family
               </p>
             </div>
