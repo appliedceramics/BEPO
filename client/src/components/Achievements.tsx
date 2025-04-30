@@ -55,7 +55,6 @@ export function AchievementCard({ achievement }: { achievement: any }) {
         <Progress 
           value={(progress / requiredCount) * 100} 
           className={`h-2 ${isComplete ? 'bg-green-200' : ''}`}
-          indicatorClassName={isComplete ? 'bg-gradient-to-r from-green-500 to-emerald-500' : ''}
         />
       </CardContent>
       {isComplete && (

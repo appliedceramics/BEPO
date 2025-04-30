@@ -1,6 +1,13 @@
 import { Achievements } from "@/components/Achievements";
 import { Navigation } from "@/components/Navigation";
-import { PageHeader } from "@/components/ui/page-header";
+
+// Simple header component for pages
+const PageHeader = ({ title, description }: { title: string; description?: string }) => (
+  <div className="flex flex-col space-y-2 mb-6">
+    <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+    {description && <p className="text-muted-foreground">{description}</p>}
+  </div>
+);
 
 export default function AchievementsPage() {
   return (

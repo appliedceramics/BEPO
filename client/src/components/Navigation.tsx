@@ -48,6 +48,13 @@ export function Navigation() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 
+                <DropdownMenuItem asChild>
+                  <Link href="/achievements" className="flex w-full cursor-pointer items-center">
+                    <span className="mr-2 text-lg">🏆</span>
+                    <span>Achievements</span>
+                  </Link>
+                </DropdownMenuItem>
+
                 {user.profile ? (
                   <DropdownMenuItem asChild>
                     <Link href="/profile/edit" className="flex w-full cursor-pointer items-center">

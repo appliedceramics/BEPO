@@ -7,6 +7,7 @@ import { BepoLogo } from "@/components/BepoLogo";
 import { LogIcon } from "@/components/AnimatedIcons";
 import { Navigation } from "@/components/Navigation";
 import { useAuth } from "@/hooks/use-auth";
+import { useAchievements } from "@/hooks/use-achievements";
 
 export default function Home() {
   const { 
@@ -16,6 +17,9 @@ export default function Home() {
     isPendingCreate, 
     deleteLog
   } = useInsulinLogs();
+  
+  const { trackAchievement } = useAchievements();
+  const { user } = useAuth();
 
   const handleLogInsulin = (data: {
     mealType: MealType;
@@ -26,6 +30,25 @@ export default function Home() {
     correctionInsulin: number;
     totalInsulin: number;
   }) => {
+    // Track achievements when logging insulin
+    trackAchievement("log_streak", 1); // Track consecutive day logging
+    
+    // Check if blood glucose is in target range (4.5-7.0 mmol/L or 80-126 mg/dL)
+    const bgInRange = (data.bgValue >= 4.5 && data.bgValue <= 7.0);
+    if (bgInRange) {
+      trackAchievement("perfect_range", 1);
+    }
+    
+    // If this is a meal with carbs, track carb counting 
+    if (data.mealType !== "bedtime" && data.carbValue) {
+      trackAchievement("precise_carbs", 1);
+    }
+    
+    // Track data sharing if this was shared with parents
+    if (user?.profile?.notifyParents) {
+      trackAchievement("data_sharer", 1);
+    }
+    
     createLog({
       mealType: data.mealType,
       carbValue: data.carbValue?.toString(),
@@ -36,8 +59,6 @@ export default function Home() {
       totalInsulin: data.totalInsulin.toString(),
     });
   };
-
-  const { user } = useAuth();
 
   return (
     <div className="min-h-screen font-sans flex flex-col">
