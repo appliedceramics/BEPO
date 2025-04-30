@@ -10,6 +10,7 @@ import Home from "@/pages/Home";
 import AuthPage from "@/pages/auth-page";
 import ProfilePage from "@/pages/profile-page";
 import ProfileEditPage from "@/pages/profile-edit-page";
+import AchievementsPage from "@/pages/achievements-page";
 
 function Router() {
   return (
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/auth" component={AuthPage} />
       <ProtectedRoute path="/profile" component={ProfilePage} />
       <ProtectedRoute path="/profile/edit" component={ProfileEditPage} />
+      <ProtectedRoute path="/achievements" component={AchievementsPage} />
       <Route component={NotFound} />
     </Switch>
   );

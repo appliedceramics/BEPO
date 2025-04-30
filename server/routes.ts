@@ -1,7 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertInsulinLogSchema, insertMealPresetSchema } from "@shared/schema";
+import { insertInsulinLogSchema, insertMealPresetSchema, insertMilestoneSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { setupAuth, isAuthenticated, hasProfile } from "./auth";
@@ -287,6 +287,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting meal preset:", error);
       res.status(500).json({ message: "Failed to delete meal preset" });
+    }
+  });
+  
+  // Achievement system routes
+  
+  // Get all milestones
+  app.get("/api/milestones", async (req: Request, res: Response) => {
+    try {
+      const milestones = await storage.getAllMilestones();
+      res.json(milestones);
+    } catch (error) {
+      console.error("Error fetching milestones:", error);
+      res.status(500).json({ message: "Failed to fetch milestones" });
+    }
+  });
+  
+  // Get a specific milestone
+  app.get("/api/milestones/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const milestone = await storage.getMilestone(id);
+      if (!milestone) {
+        return res.status(404).json({ message: "Milestone not found" });
+      }
+      
+      res.json(milestone);
+    } catch (error) {
+      console.error("Error fetching milestone:", error);
+      res.status(500).json({ message: "Failed to fetch milestone" });
+    }
+  });
+  
+  // Create milestone (admin only, in a real app would have admin auth)
+  app.post("/api/milestones", async (req: Request, res: Response) => {
+    try {
+      const milestoneData = insertMilestoneSchema.parse(req.body);
+      const newMilestone = await storage.createMilestone(milestoneData);
+      
+      res.status(201).json(newMilestone);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const validationError = fromZodError(error);
+        return res.status(400).json({ message: validationError.message });
+      }
+      console.error("Error creating milestone:", error);
+      res.status(500).json({ message: "Failed to create milestone" });
+    }
+  });
+  
+  // Get user achievements
+  app.get("/api/achievements", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = req.user.id;
+      const achievements = await storage.getUserAchievements(userId);
+      res.json(achievements);
+    } catch (error) {
+      console.error("Error fetching achievements:", error);
+      res.status(500).json({ message: "Failed to fetch achievements" });
+    }
+  });
+  
+  // Track achievements for various activities
+  app.post("/api/track-achievement/:type", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = req.user.id;
+      const { type } = req.params;
+      const { increment = 1 } = req.body;
+      
+      const achievement = await storage.incrementAchievementProgress(userId, type, increment);
+      
+      if (!achievement) {
+        return res.status(400).json({ message: "Invalid achievement type" });
+      }
+      
+      res.json(achievement);
+    } catch (error) {
+      console.error("Error tracking achievement:", error);
+      res.status(500).json({ message: "Failed to track achievement" });
     }
   });
 
