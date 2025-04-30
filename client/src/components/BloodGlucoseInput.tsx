@@ -98,7 +98,7 @@ export function BloodGlucoseInput({ value, onChange }: BloodGlucoseInputProps) {
           <Label className="block text-sm font-medium text-primary/80 mb-1">
             BG in mg/dL
           </Label>
-          <div id="bg-mgdl" className="w-full px-3 py-2 rounded-md text-accent-foreground bg-accent/10 border border-accent/20 font-medium">
+          <div id="bg-mgdl" className="w-full px-3 py-2 rounded-md text-green-600 bg-accent/10 border border-accent/20 font-medium">
             {mgdlValue}
           </div>
         </div>
