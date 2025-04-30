@@ -17,6 +17,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { 
+  CalculationsIcon, 
+  TrackingIcon, 
+  NotifyIcon, 
+  VoiceInputIcon,
+  MealPresetsIcon 
+} from "@/components/FeatureIcons";
 
 // Login form schema
 const loginSchema = z.object({
@@ -261,85 +268,75 @@ export default function AuthPage() {
         </div>
       </div>
 
-      {/* Right Section - Hero */}
-      <div className="hidden md:block md:w-1/2 bg-gradient-to-br from-blue-50 to-green-100 p-12 flex items-center justify-center">
-        <div className="max-w-md space-y-6">
-          <h1 className="text-4xl font-bold tracking-tight">
+      {/* Right Section - Feature Showcase */}
+      <div className="hidden md:block md:w-1/2 bg-gradient-to-br from-blue-50 to-green-100 p-8 flex items-center justify-center overflow-y-auto">
+        <div className="w-full max-w-xl space-y-6">
+          <h1 className="text-3xl font-bold tracking-tight text-primary text-center mb-6">
             Manage Diabetes with Confidence
           </h1>
-          <div className="space-y-4">
-            <div className="flex items-start gap-3">
-              <div className="rounded-full bg-green-100 p-1">
-                <svg
-                  className="h-5 w-5 text-green-600"
-                  fill="none"
-                  height="24"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  width="24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
+
+          {/* Feature Boxes */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Feature 1: Accurate Calculations */}
+            <div className="bg-white rounded-lg border-2 border-primary/20 shadow-md p-4 flex flex-col items-center text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-primary">
+              <div className="mb-3 bg-primary/10 p-2 rounded-full">
+                <CalculationsIcon />
               </div>
-              <div>
-                <h3 className="font-medium">Accurate Calculations</h3>
-                <p className="text-sm text-muted-foreground">
-                  Get precise insulin dose calculations based on blood glucose readings and carb intake
-                </p>
-              </div>
+              <h3 className="font-bold text-md text-primary mb-1">Accurate Calculations</h3>
+              <p className="text-xs text-primary/80">
+                Precise insulin dose calculations based on BG readings and carb intake
+              </p>
             </div>
-            <div className="flex items-start gap-3">
-              <div className="rounded-full bg-green-100 p-1">
-                <svg
-                  className="h-5 w-5 text-green-600"
-                  fill="none"
-                  height="24"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  width="24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
+            
+            {/* Feature 2: Easy Tracking */}
+            <div className="bg-white rounded-lg border-2 border-accent/20 shadow-md p-4 flex flex-col items-center text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-accent">
+              <div className="mb-3 bg-accent/10 p-2 rounded-full">
+                <TrackingIcon />
               </div>
-              <div>
-                <h3 className="font-medium">Easy Tracking</h3>
-                <p className="text-sm text-muted-foreground">
-                  Keep a comprehensive log of your insulin doses and glucose readings
-                </p>
-              </div>
+              <h3 className="font-bold text-md text-primary mb-1">Easy Tracking</h3>
+              <p className="text-xs text-primary/80">
+                Keep a comprehensive log of insulin doses and blood glucose readings
+              </p>
             </div>
-            <div className="flex items-start gap-3">
-              <div className="rounded-full bg-green-100 p-1">
-                <svg
-                  className="h-5 w-5 text-green-600"
-                  fill="none"
-                  height="24"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  width="24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
+            
+            {/* Feature 3: Share with Parents */}
+            <div className="bg-white rounded-lg border-2 border-primary/20 shadow-md p-4 flex flex-col items-center text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-primary">
+              <div className="mb-3 bg-primary/10 p-2 rounded-full">
+                <NotifyIcon />
               </div>
-              <div>
-                <h3 className="font-medium">Share with Parents</h3>
-                <p className="text-sm text-muted-foreground">
-                  Automatically notify your parents of your insulin doses via SMS
-                </p>
-              </div>
+              <h3 className="font-bold text-md text-primary mb-1">SMS Notifications</h3>
+              <p className="text-xs text-primary/80">
+                Automatically notify parents of insulin doses via SMS messages
+              </p>
             </div>
+            
+            {/* Feature 4: Voice Input */}
+            <div className="bg-white rounded-lg border-2 border-accent/20 shadow-md p-4 flex flex-col items-center text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-accent">
+              <div className="mb-3 bg-accent/10 p-2 rounded-full">
+                <VoiceInputIcon />
+              </div>
+              <h3 className="font-bold text-md text-primary mb-1">Voice Input</h3>
+              <p className="text-xs text-primary/80">
+                Speak your blood glucose readings and carb values for easy entry
+              </p>
+            </div>
+            
+            {/* Feature 5: Meal Presets */}
+            <div className="bg-white rounded-lg border-2 border-primary/20 shadow-md p-4 flex flex-col items-center text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-primary col-span-full mx-auto max-w-[240px]">
+              <div className="mb-3 bg-primary/10 p-2 rounded-full">
+                <MealPresetsIcon />
+              </div>
+              <h3 className="font-bold text-md text-primary mb-1">Meal Presets</h3>
+              <p className="text-xs text-primary/80">
+                Save common foods with carb values for quick and easy selection
+              </p>
+            </div>
+          </div>
+          
+          <div className="mt-6 text-center">
+            <p className="text-sm font-medium text-primary/80">
+              Join thousands of families who manage diabetes with BEPO
+            </p>
           </div>
         </div>
       </div>
