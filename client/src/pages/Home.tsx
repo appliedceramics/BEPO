@@ -37,22 +37,25 @@ export default function Home() {
 
   return (
     <div className="min-h-screen font-sans">
-      <div className="container mx-auto px-4 py-6 max-w-6xl">
-        <header className="mb-8 flex flex-col items-center">
-          <div className="flex items-center justify-center mb-3">
+      <div className="container mx-auto px-4 py-3 max-w-6xl">
+        <header className="mb-4 flex items-center justify-center">
+          <div className="flex items-center justify-center">
             <BepoLogo />
-            <div className="ml-4">
-              <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                BEPO Insulin Calculator
-              </h1>
-              <p className="text-accent text-lg md:text-xl font-medium mt-1">
-                and Log
+            <div className="ml-2">
+              <div className="flex items-center">
+                <h1 className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+                  BEPO Insulin Calculator
+                </h1>
+                <span className="text-accent font-bold mx-2">•</span>
+                <span className="text-accent text-lg md:text-xl font-medium">
+                  Log
+                </span>
+              </div>
+              <p className="text-foreground/70 text-sm md:text-base max-w-lg">
+                Fun and easy blood glucose tracking for the whole family
               </p>
             </div>
           </div>
-          <p className="text-foreground/80 text-center mt-2 max-w-lg">
-            Calculate insulin dosage based on meals and blood glucose levels with this fun and easy-to-use tool
-          </p>
         </header>
 
         <main>
