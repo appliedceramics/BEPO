@@ -83,7 +83,7 @@ export function ResultsDisplay({
       
       {correctionRange && (
         <div id="correction-details" className="mt-4 p-3 text-sm rounded-md bg-accent/10 border border-accent/20">
-          <p className="font-medium text-accent-foreground">
+          <p className="font-medium text-green-600">
             Correction based on BG: <span id="correction-range" className="font-semibold">{correctionRange}</span>
           </p>
         </div>
