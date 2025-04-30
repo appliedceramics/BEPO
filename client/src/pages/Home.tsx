@@ -1,5 +1,6 @@
 import { Calculator } from "@/components/Calculator";
 import { InsulinLogDisplay } from "@/components/InsulinLog";
+import { InsulinChart } from "@/components/InsulinChart";
 import { useInsulinLogs } from "@/hooks/useInsulinLog";
 import { MealType } from "@shared/schema";
 import { BepoLogo } from "@/components/BepoLogo";
@@ -75,6 +76,12 @@ export default function Home() {
               onDelete={deleteLog}
             />
           </div>
+          
+          {logs.length > 0 && (
+            <div className="mt-8">
+              <InsulinChart logs={logs} />
+            </div>
+          )}
         </main>
 
         <footer className="mt-12 text-center text-sm text-foreground/70 border-t border-accent/20 pt-6">
