@@ -70,7 +70,8 @@ export function CalculatorSettings() {
   
   // Function to increment or decrement ratio by a fixed amount
   const adjustRatio = (field: 'firstMealRatio' | 'otherMealRatio', increment: boolean) => {
-    const currentValue = editableSettings[field] ?? settings[field];
+    // Make sure we're working with a number by explicitly parsing
+    const currentValue = parseFloat((editableSettings[field] ?? settings[field]).toString());
     const step = 0.5; // Use a fixed step of 0.5
     const newValue = increment ? currentValue + step : currentValue - step;
     
@@ -91,9 +92,10 @@ export function CalculatorSettings() {
   
   // Function to increment or decrement blood glucose target by a fixed amount
   const adjustTargetBg = (field: 'targetBgMin' | 'targetBgMax', increment: boolean) => {
-    const currentValue = editableSettings[field] ?? settings[field];
-    const minValue = editableSettings.targetBgMin ?? settings.targetBgMin;
-    const maxValue = editableSettings.targetBgMax ?? settings.targetBgMax;
+    // Make sure we're working with numbers by explicitly parsing
+    const currentValue = parseFloat((editableSettings[field] ?? settings[field]).toString());
+    const minValue = parseFloat((editableSettings.targetBgMin ?? settings.targetBgMin).toString());
+    const maxValue = parseFloat((editableSettings.targetBgMax ?? settings.targetBgMax).toString());
     const step = 0.1; // Use a fixed step of 0.1 for BG values
     const newValue = increment ? currentValue + step : currentValue - step;
     
