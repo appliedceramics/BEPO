@@ -6,9 +6,11 @@ import { VoiceInput } from "./VoiceInput";
 import { Button } from "@/components/ui/button";
 import { MealPresets } from "./MealPresets";
 import { FoodSearchInput } from "./FoodSearchInput";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { MealPreset } from "@shared/schema";
-import { Book } from "lucide-react";
+import { Book, MicOff, Utensils, PlusSquare } from "lucide-react";
+import { MealBuilder } from "./MealBuilder";
+import { useToast } from "@/hooks/use-toast";
 
 interface CarbInputProps {
   value: number | undefined;
@@ -17,9 +19,11 @@ interface CarbInputProps {
 }
 
 export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
+  const { toast } = useToast();
   const [error, setError] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState<string>(value?.toString() || "");
   const [isPresetsOpen, setIsPresetsOpen] = useState(false);
+  const [isMealBuilderOpen, setIsMealBuilderOpen] = useState(false);
 
   useEffect(() => {
     // Update input value when value prop changes
@@ -61,6 +65,11 @@ export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
         setInputValue(numericValue.toString());
         setError(null);
         onChange(numericValue);
+        
+        toast({
+          title: "Voice input recognized",
+          description: `${numericValue}g of carbs entered`,
+        });
       } else {
         setError("Invalid number detected in voice input");
       }
@@ -74,6 +83,60 @@ export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
     setInputValue(preset.carbValue.toString());
     onChange(preset.carbValue);
     setIsPresetsOpen(false);
+    
+    toast({
+      title: "Meal preset selected",
+      description: `${preset.name} (${preset.carbValue}g of carbs)`,
+    });
+  };
+  
+  // Handle meal builder completion
+  const handleMealBuilderComplete = (totalCarbs: number) => {
+    setInputValue(totalCarbs.toString());
+    onChange(totalCarbs);
+    setIsMealBuilderOpen(false);
+    
+    toast({
+      title: "Meal built",
+      description: `${totalCarbs}g of carbs added from your built meal`,
+    });
+  };
+  
+  // Handle saving a meal preset from the meal builder
+  const handleSaveMealPreset = (preset: { name: string, description: string, carbValue: number }) => {
+    // Call API to save preset
+    fetch("/api/meal-presets", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(preset),
+    })
+      .then(response => {
+        if (!response.ok) throw new Error("Failed to save meal preset");
+        return response.json();
+      })
+      .then(() => {
+        toast({
+          title: "Meal preset saved",
+          description: `${preset.name} saved to your meal presets`,
+        });
+        
+        // Close the dialog
+        setIsMealBuilderOpen(false);
+        
+        // Set the carb value
+        setInputValue(preset.carbValue.toString());
+        onChange(preset.carbValue);
+      })
+      .catch(error => {
+        console.error("Error saving meal preset:", error);
+        toast({
+          title: "Error saving preset",
+          description: "There was a problem saving your meal preset",
+          variant: "destructive",
+        });
+      });
   };
 
   if (hidden) {
@@ -109,6 +172,31 @@ export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
             onChange(value);
           }} 
         />
+        
+        {/* Meal Builder Button */}
+        <Dialog open={isMealBuilderOpen} onOpenChange={setIsMealBuilderOpen}>
+          <DialogTrigger asChild>
+            <Button 
+              variant="ghost" 
+              className="ml-1" 
+              size="icon"
+              title="Build a meal"
+            >
+              <Utensils className="h-5 w-5 text-primary" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Build Your Meal</DialogTitle>
+            </DialogHeader>
+            <MealBuilder 
+              onComplete={handleMealBuilderComplete} 
+              onSavePreset={handleSaveMealPreset}
+            />
+          </DialogContent>
+        </Dialog>
+        
+        {/* Meal Presets Button */}
         <Dialog open={isPresetsOpen} onOpenChange={setIsPresetsOpen}>
           <DialogTrigger asChild>
             <Button 
@@ -121,6 +209,9 @@ export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Meal Presets</DialogTitle>
+            </DialogHeader>
             <MealPresets onSelectPreset={handleSelectPreset} />
           </DialogContent>
         </Dialog>

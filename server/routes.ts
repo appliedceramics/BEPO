@@ -181,6 +181,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Query is required" });
       }
       
+      // If query is very short, just return empty result for better UX during typing
+      if (query.length < 2) {
+        return res.json([]);
+      }
+      
+      // For search queries like restaurant names or food categories, return multiple suggestions
+      if (query.length < 5 || query.includes(' ')) {
+        const suggestions = await suggestMeals(query);
+        return res.json(suggestions);
+      }
+      
+      // For specific food names, return detailed information
       const foodSuggestion = await getFoodCarbs(query);
       res.json(foodSuggestion);
     } catch (error) {

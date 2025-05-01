@@ -8,7 +8,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
-import { PlusCircle, Edit, Trash2, Check, X } from "lucide-react";
+import { PlusCircle, Edit, Trash2, Check, Utensils } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertMealPresetSchema } from "@shared/schema";
@@ -16,6 +16,7 @@ import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { MealSuggestions } from "./MealSuggestions";
+import { MealBuilder } from "./MealBuilder";
 
 interface MealPresetCardProps {
   preset: MealPreset;
