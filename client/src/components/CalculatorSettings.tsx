@@ -884,7 +884,11 @@ export function CalculatorSettings() {
                             <span className={`font-bold ${range.correction > 0 ? 'text-blue-600' : range.correction < 0 ? 'text-red-500' : 'text-gray-500'}`}>
                               {range.correction > 0 ? '+' : ''}
                               {/* Calculate adjusted correction based on ISF */}
-                              {calculateAdjustedCorrection(range.correction, parseFloat((activeSettings.insulinSensitivityFactor || 35).toString()), parseFloat(activeSettings.correctionFactor.toString()) || 1)} units
+                              {parseFloat(calculateAdjustedCorrection(
+                                range.correction,
+                                parseFloat((activeSettings.insulinSensitivityFactor || 35).toString()),
+                                parseFloat(activeSettings.correctionFactor.toString()) || 1
+                              ).toFixed(1))} units
                               {parseFloat(activeSettings.correctionFactor.toString()) !== 1 && (
                                 <div className="text-xs text-gray-500">
                                   Base: {range.correction > 0 ? '+' : ''}{range.correction} × {parseFloat(activeSettings.correctionFactor.toString()).toFixed(1)}
@@ -905,8 +909,17 @@ export function CalculatorSettings() {
                   <div>
                     <h4 className="font-semibold text-blue-800">Example calculation</h4>
                     <p className="mt-1 text-blue-700">
-                      If your blood glucose is <span className="font-bold">180 mg/dL (10.0 mmol/L)</span> at breakfast, 
-                      you would add <span className="font-bold">+2.0 units</span> of correction insulin to your meal insulin.
+                      If your blood glucose is <span className="font-bold">180 mg/dL (10.0 mmol/L)</span> at breakfast with:
+                    </p>
+                    <ul className="list-disc pl-8 mt-1 text-blue-700">
+                      <li>Default Insulin Sensitivity Factor (35 mg/dL)</li> 
+                      <li>Default Correction Factor (1.0)</li>
+                    </ul>
+                    <p className="mt-1 text-blue-700">
+                      You would add <span className="font-bold">+2.0 units</span> of correction insulin to your meal insulin.
+                    </p>
+                    <p className="mt-1 text-sm text-blue-600">
+                      <em>Note: This value adjusts automatically when you change your ISF or CF in the calculator settings.</em>
                     </p>
                   </div>
                 </div>
@@ -961,7 +974,11 @@ export function CalculatorSettings() {
                             <span className={`font-bold ${range.correction > 0 ? 'text-blue-600' : range.correction < 0 ? 'text-red-500' : 'text-gray-500'}`}>
                               {range.correction > 0 ? '+' : ''}
                               {/* Calculate adjusted correction based on ISF */}
-                              {parseFloat((range.correction * (parseFloat(activeSettings.correctionFactor.toString()) || 1)).toFixed(1))} units
+                              {parseFloat(calculateAdjustedCorrection(
+                                range.correction,
+                                parseFloat((activeSettings.insulinSensitivityFactor || 35).toString()),
+                                parseFloat(activeSettings.correctionFactor.toString()) || 1
+                              ).toFixed(1))} units
                               {parseFloat(activeSettings.correctionFactor.toString()) !== 1 && (
                                 <div className="text-xs text-gray-500">
                                   Base: {range.correction > 0 ? '+' : ''}{range.correction} × {parseFloat(activeSettings.correctionFactor.toString()).toFixed(1)}
@@ -1067,18 +1084,27 @@ export function CalculatorSettings() {
             
             <AccordionItem value="item-5" className="border-purple-200">
               <AccordionTrigger className="text-purple-800 hover:text-purple-900 py-4">
-                How does the Correction Factor affect my correction charts?
+                How do the Correction Factor and Insulin Sensitivity Factor affect my charts?
               </AccordionTrigger>
               <AccordionContent className="text-purple-700 bg-white p-4 rounded-lg border border-purple-100">
-                <p>The Correction Factor works as a multiplier for all the correction values in both the Mealtime and Bedtime correction charts.</p>
-                <p className="mt-2">For example:</p>
+                <p>Both the Correction Factor (CF) and the Insulin Sensitivity Factor (ISF) affect your insulin dose calculations:</p>
+                
+                <h4 className="font-bold mt-3 mb-1">Correction Factor:</h4>
+                <p>The Correction Factor works as a multiplier for all correction values in your charts.</p>
                 <ul className="list-disc pl-6 mt-2 space-y-1">
-                  <li>With a Correction Factor of 1.0 (default), a chart value of +2.0 units remains +2.0 units</li>
-                  <li>With a Correction Factor of 1.5, a chart value of +2.0 units becomes +3.0 units (2.0 × 1.5)</li>
-                  <li>With a Correction Factor of 0.5, a chart value of +2.0 units becomes +1.0 unit (2.0 × 0.5)</li>
+                  <li>With a CF of 1.0 (default), a chart value of +2.0 units remains +2.0 units</li>
+                  <li>With a CF of 1.5, a chart value of +2.0 units becomes +3.0 units (2.0 × 1.5)</li>
+                  <li>With a CF of 0.5, a chart value of +2.0 units becomes +1.0 unit (2.0 × 0.5)</li>
                 </ul>
-                <p className="mt-2">This allows you to easily scale all correction values up or down based on your insulin sensitivity, without having to edit each chart value individually.</p>
-                <p className="mt-2">It affects both Mealtime and Bedtime correction charts simultaneously.</p>
+                
+                <h4 className="font-bold mt-3 mb-1">Insulin Sensitivity Factor (ISF):</h4>
+                <p>The ISF indicates how much one unit of insulin lowers your blood glucose. The default is 35 mg/dL per unit.</p>
+                <ul className="list-disc pl-6 mt-2 space-y-1">
+                  <li>With a lower ISF (e.g., 25), your insulin is more powerful, so less correction insulin is needed</li>
+                  <li>With a higher ISF (e.g., 45), your insulin is less powerful, so more correction insulin is needed</li>
+                </ul>
+                
+                <p className="mt-2">Both factors work together to customize your insulin doses based on your body's unique needs, and both affect all correction values in your charts.</p>
               </AccordionContent>
             </AccordionItem>
             
