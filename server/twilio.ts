@@ -23,7 +23,7 @@ const emailTransporter = nodemailer.createTransport({
 // Configure web-push for push notifications only if keys are available
 if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   webpush.setVapidDetails(
-    'mailto:' + (process.env.SMTP_USER || 'example@example.com'),
+    'mailto:bepo@talaich.com',
     process.env.VAPID_PUBLIC_KEY,
     process.env.VAPID_PRIVATE_KEY
   );
@@ -213,7 +213,7 @@ export async function sendEmailNotifications(
   
   const sendPromises = emailAddresses.map(email => {
     return emailTransporter.sendMail({
-      from: process.env.SMTP_USER || 'BEPO Insulin Calculator <noreply@example.com>',
+      from: 'BEPO Insulin Calculator <bepo@talaich.com>',
       to: email,
       subject,
       text: textContent,

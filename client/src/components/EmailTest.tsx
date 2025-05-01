@@ -1,39 +1,38 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { apiRequest } from '@/lib/queryClient';
-import { useToast } from '@/hooks/use-toast';
-import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Loader2, Mail, Info } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/hooks/use-auth";
+import { apiRequest } from "@/lib/queryClient";
 
 export function EmailTest() {
-  const [email, setEmail] = useState('');
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
   const { toast } = useToast();
 
-  const sendTestEmail = async () => {
-    setLoading(true);
-    setSuccess(false);
-    setError(null);
-
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
     try {
-      await apiRequest('POST', '/api/send-test-email', { email: email || undefined });
-      setSuccess(true);
+      setLoading(true);
+      const res = await apiRequest("POST", "/api/send-test-email", { email: email || undefined });
+      const data = await res.json();
+      
       toast({
-        title: 'Email sent',
-        description: 'Test email was sent successfully.',
+        title: "Email Sent",
+        description: "Test email sent successfully. Please check your inbox.",
+        duration: 5000,
       });
-    } catch (err) {
-      console.error('Error sending test email:', err);
-      setError(err instanceof Error ? err.message : 'Failed to send test email');
+    } catch (error) {
+      console.error("Error sending test email:", error);
       toast({
-        title: 'Email failed',
-        description: 'Unable to send test email. Please check your SMTP configuration.',
-        variant: 'destructive',
+        title: "Email Error",
+        description: error instanceof Error ? error.message : "Failed to send test email",
+        variant: "destructive",
+        duration: 5000,
       });
     } finally {
       setLoading(false);
@@ -41,58 +40,44 @@ export function EmailTest() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Email Test</CardTitle>
+    <Card className="my-6">
+      <CardHeader className="gap-2">
+        <CardTitle className="text-lg text-primary">Email Notification Test</CardTitle>
         <CardDescription>
-          Send a test email to verify your DuoCircle SMTP configuration
+          Send a test email to verify your email notification settings
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="test-email">Test Email Address (optional)</Label>
-            <Input
-              id="test-email"
-              placeholder="Enter email address or leave empty to use your account email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+            <p className="text-sm text-muted-foreground flex items-center gap-2">
+              <Info className="h-4 w-4" />
+              Leave the field empty to use your account email ({user?.email})
+            </p>
+            <div className="flex gap-2 items-center">
+              <Input
+                type="email"
+                placeholder="Enter email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="flex-1"
+              />
+              <Button type="submit" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Mail className="mr-2 h-4 w-4" />
+                    Test Email
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
-          
-          <Button 
-            onClick={sendTestEmail} 
-            disabled={loading}
-            className="w-full"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Sending...
-              </>
-            ) : (
-              'Send Test Email'
-            )}
-          </Button>
-
-          {success && (
-            <Alert className="bg-green-50 border-green-200">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <AlertTitle className="text-green-600">Email Sent</AlertTitle>
-              <AlertDescription>
-                Test email was sent successfully. Please check your inbox.
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {error && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Failed to Send</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-        </div>
+        </form>
       </CardContent>
     </Card>
   );
