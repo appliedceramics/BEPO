@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -41,30 +41,20 @@ export function DynamicFoodSearch({
   const [isLoading, setIsLoading] = useState(false);
   const [searchResults, setSearchResults] = useState<FoodItem[]>([]);
   const debouncedSearch = useDebounce(searchTerm, 300); // Reduced debounce time for faster feedback
-  const abortControllerRef = useRef<AbortController | null>(null);
-  const lastSearchRef = useRef<string>("");
+  const [searchCounter, setSearchCounter] = useState(0);
 
   // Perform search when debounced search term changes
   useEffect(() => {
     if (debouncedSearch && debouncedSearch.length >= 2) {
-      lastSearchRef.current = debouncedSearch;
-      searchFood(debouncedSearch);
+      setSearchCounter(prev => prev + 1);
+      searchFood(debouncedSearch, searchCounter + 1);
     } else if (debouncedSearch === "") {
       setSearchResults([]);
     }
   }, [debouncedSearch]);
 
-  const searchFood = async (query: string) => {
+  const searchFood = async (query: string, requestId: number) => {
     if (!query.trim()) return;
-    
-    // Cancel any in-flight requests
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-    
-    // Create a new abort controller for this request
-    const abortController = new AbortController();
-    abortControllerRef.current = abortController;
     
     setIsLoading(true);
     try {
@@ -72,12 +62,11 @@ export function DynamicFoodSearch({
       const response = await fetch("/api/food-suggestions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query }),
-        signal: abortController.signal
+        body: JSON.stringify({ query })
       });
       
-      // If the request was aborted or a newer search was started, don't process the results
-      if (abortController.signal.aborted || query !== lastSearchRef.current) {
+      // If this is no longer the current request, ignore results
+      if (requestId !== searchCounter) {
         return;
       }
       
@@ -96,17 +85,8 @@ export function DynamicFoodSearch({
       
       // For single result, wrap in array
       const results = Array.isArray(data) ? data : [data];
-      
-      // Check if the results are for the current search term
-      if (query === lastSearchRef.current) {
-        setSearchResults(results.length > 0 ? results : []);
-      }
+      setSearchResults(results.length > 0 ? results : []);
     } catch (error: any) {
-      // Don't show errors for aborted requests
-      if (error && error.name === 'AbortError') {
-        return;
-      }
-      
       console.error("Error searching for food:", error);
       toast({
         title: "Search Error",
@@ -115,10 +95,7 @@ export function DynamicFoodSearch({
       });
       setSearchResults([]);
     } finally {
-      // Only update loading state if this is still the current search
-      if (query === lastSearchRef.current) {
-        setIsLoading(false);
-      }
+      setIsLoading(false);
     }
   };
 
@@ -135,10 +112,6 @@ export function DynamicFoodSearch({
   const handleClearSearch = () => {
     setSearchTerm("");
     setSearchResults([]);
-    // Cancel any pending requests
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
   };
 
   const handleSelectFood = (item: FoodItem) => {
