@@ -372,6 +372,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Calculator settings routes
+  app.get("/api/calculator-settings", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      // Get calculator settings for the authenticated user
+      const settings = await storage.getCalculatorSettingsByUserId(req.user.id);
+      
+      if (settings) {
+        res.json(settings);
+      } else {
+        // Return default values if no settings exist
+        res.json({
+          firstMealRatio: 10,
+          otherMealRatio: 15,
+          targetBgMin: 4.5,
+          targetBgMax: 7.0,
+          ...storage.getDefaultCalculatorSettings()
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching calculator settings:", error);
+      res.status(500).json({ message: "Failed to fetch calculator settings" });
+    }
+  });
+  
+  app.post("/api/calculator-settings", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      // Check if user already has settings
+      const existingSettings = await storage.getCalculatorSettingsByUserId(req.user.id);
+      
+      if (existingSettings) {
+        // Update existing settings
+        const updatedSettings = await storage.updateCalculatorSettings(existingSettings.id, req.body);
+        res.json(updatedSettings);
+      } else {
+        // Create new settings
+        const newSettings = await storage.createCalculatorSettings({
+          ...req.body,
+          userId: req.user.id
+        });
+        res.status(201).json(newSettings);
+      }
+    } catch (error) {
+      console.error("Error saving calculator settings:", error);
+      res.status(500).json({ message: "Failed to save calculator settings" });
+    }
+  });
+  
+  app.get("/api/default-correction-charts", isAuthenticated, (req: Request, res: Response) => {
+    try {
+      // Return default correction charts
+      res.json(storage.getDefaultCalculatorSettings());
+    } catch (error) {
+      console.error("Error fetching default correction charts:", error);
+      res.status(500).json({ message: "Failed to fetch default correction charts" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
