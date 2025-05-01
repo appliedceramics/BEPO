@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/hooks/use-auth";
 import { z } from "zod";
 import { BepoLogo } from "@/components/BepoLogo";
+import { BepoCalculatorLogo } from "@/components/BepoCalculatorLogo";
 import { Redirect, useLocation } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -92,9 +93,9 @@ export default function AuthPage() {
       {/* Header - Mobile Only */}
       <div className="md:hidden bg-gradient-to-r from-primary to-secondary py-6 px-4">
         <div className="flex justify-center items-center">
-          <BepoLogo className="w-12 h-12 mr-3" />
+          <BepoCalculatorLogo className="w-14 h-14 mr-3" />
           <div>
-            <h1 className="text-2xl font-bold text-white">BEPO</h1>
+            <h1 className="text-2xl font-bold text-white calculator-font">BEPO</h1>
             <p className="text-xs text-white/90">Insulin Calculator & Log</p>
           </div>
         </div>
@@ -105,7 +106,7 @@ export default function AuthPage() {
         <div className="w-full max-w-md space-y-6 bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-gray-100">
           <div className="text-center">
             <div className="hidden md:flex justify-center mb-4">
-              <BepoLogo className="w-16 h-16" />
+              <BepoCalculatorLogo className="w-20 h-20" />
             </div>
             <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
               Welcome Back!
@@ -326,7 +327,7 @@ export default function AuthPage() {
         <div className="w-full max-w-xl space-y-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary mb-3">
-              BEPO Insulin Calculator
+              <span className="calculator-font">BEPO</span> Insulin Calculator
             </h1>
             <p className="text-lg text-primary/80 mb-6">
               Fun for kids, peace of mind for parents
