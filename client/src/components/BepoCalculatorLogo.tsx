@@ -24,8 +24,8 @@ export function BepoCalculatorLogo({ className = '' }: BepoCalculatorLogoProps) 
         {/* Calculator Body - Updated with gradient fill */}
         <defs>
           <linearGradient id="calculatorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#6366f1" />
-            <stop offset="100%" stopColor="#a855f7" />
+            <stop offset="0%" stopColor="#9BF6FF" />
+            <stop offset="100%" stopColor="#A0C4FF" />
           </linearGradient>
         </defs>
         <rect 
@@ -50,20 +50,20 @@ export function BepoCalculatorLogo({ className = '' }: BepoCalculatorLogoProps) 
         />
         
         {/* Calculator Buttons */}
-        <rect x="20" y="46" width="12" height="10" rx="3" fill="#FFD166" />
-        <rect x="38" y="46" width="12" height="10" rx="3" fill="#FFD166" />
-        <rect x="56" y="46" width="12" height="10" rx="3" fill="#FFD166" />
-        <rect x="74" y="46" width="12" height="10" rx="3" fill="#06D6A0" />
+        <rect x="20" y="46" width="12" height="10" rx="3" fill="#FDFFB6" />
+        <rect x="38" y="46" width="12" height="10" rx="3" fill="#FDFFB6" />
+        <rect x="56" y="46" width="12" height="10" rx="3" fill="#FFD6A5" />
+        <rect x="74" y="46" width="12" height="10" rx="3" fill="#CAFFBF" />
         
-        <rect x="20" y="62" width="12" height="10" rx="3" fill="#FFD166" />
-        <rect x="38" y="62" width="12" height="10" rx="3" fill="#FFD166" />
-        <rect x="56" y="62" width="12" height="10" rx="3" fill="#FFD166" />
-        <rect x="74" y="62" width="12" height="10" rx="3" fill="#06D6A0" />
+        <rect x="20" y="62" width="12" height="10" rx="3" fill="#FDFFB6" />
+        <rect x="38" y="62" width="12" height="10" rx="3" fill="#FFD6A5" />
+        <rect x="56" y="62" width="12" height="10" rx="3" fill="#CAFFBF" />
+        <rect x="74" y="62" width="12" height="10" rx="3" fill="#9BF6FF" />
         
-        <rect x="20" y="78" width="12" height="10" rx="3" fill="#FFD166" />
-        <rect x="38" y="78" width="12" height="10" rx="3" fill="#FFD166" />
-        <rect x="56" y="78" width="12" height="10" rx="3" fill="#FFD166" />
-        <rect x="74" y="78" width="12" height="10" rx="3" fill="#06D6A0" />
+        <rect x="20" y="78" width="12" height="10" rx="3" fill="#A0C4FF" />
+        <rect x="38" y="78" width="12" height="10" rx="3" fill="#FFADAD" />
+        <rect x="56" y="78" width="12" height="10" rx="3" fill="#FDFFB6" />
+        <rect x="74" y="78" width="12" height="10" rx="3" fill="#CAFFBF" />
         
         {/* Cartoon Face Elements */}
         <g className="calculator-face">
@@ -95,8 +95,8 @@ export function BepoCalculatorLogo({ className = '' }: BepoCalculatorLogoProps) 
         {/* Display text */}
         <defs>
           <linearGradient id="bepoTextGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#3b82f6" />
-            <stop offset="100%" stopColor="#8b5cf6" />
+            <stop offset="0%" stopColor="#CAFFBF" />
+            <stop offset="100%" stopColor="#FFD6A5" />
           </linearGradient>
         </defs>
         <text x="25" y="32" fontSize="10" fontFamily="monospace" fill="url(#bepoTextGradient)" fontWeight="bold" className="calculator-display">
