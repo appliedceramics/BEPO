@@ -5,6 +5,7 @@ import { CarbsIcon } from "./AnimatedIcons";
 import { VoiceInput } from "./VoiceInput";
 import { Button } from "@/components/ui/button";
 import { MealPresets } from "./MealPresets";
+import { FoodSearchInput } from "./FoodSearchInput";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { MealPreset } from "@shared/schema";
 import { Book } from "lucide-react";
@@ -86,6 +87,12 @@ export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
           onResult={handleVoiceInput} 
           placeholder="carbohydrates" 
           fieldType="carbs" 
+        />
+        <FoodSearchInput 
+          onCarbValueSelected={(value) => {
+            setInputValue(value.toString());
+            onChange(value);
+          }} 
         />
         <Dialog open={isPresetsOpen} onOpenChange={setIsPresetsOpen}>
           <DialogTrigger asChild>

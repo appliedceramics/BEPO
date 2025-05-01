@@ -15,6 +15,7 @@ import { insertMealPresetSchema } from "@shared/schema";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { MealSuggestions } from "./MealSuggestions";
 
 interface MealPresetCardProps {
   preset: MealPreset;
@@ -91,6 +92,13 @@ function MealPresetForm({ preset, onSubmit, onCancel, isLoading }: MealPresetFor
       description: preset?.description || "",
     },
   });
+  
+  // Function to handle meal selection from AI suggestions
+  const handleMealSuggestion = (name: string, description: string, carbValue: number) => {
+    form.setValue("name", name);
+    form.setValue("description", description);
+    form.setValue("carbValue", carbValue);
+  };
 
   return (
     <Form {...form}>
@@ -147,6 +155,10 @@ function MealPresetForm({ preset, onSubmit, onCancel, isLoading }: MealPresetFor
             </FormItem>
           )}
         />
+        
+        <div className="my-4">
+          <MealSuggestions onSelectMeal={handleMealSuggestion} />
+        </div>
         
         <DialogFooter>
           <Button type="button" variant="outline" onClick={onCancel}>
