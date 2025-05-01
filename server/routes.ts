@@ -703,6 +703,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test email endpoint to verify SMTP configuration
+  app.post("/api/send-test-email", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = req.user!.id;
+      
+      const profile = await storage.getProfileByUserId(userId);
+      if (!profile) {
+        return res.status(404).json({ message: "User profile not found" });
+      }
+
+      // Use the provided email address or fall back to the user's email
+      const emailAddress = req.body.email || req.user!.email;
+      if (!emailAddress) {
+        return res.status(400).json({ message: "No email address provided" });
+      }
+
+      const subject = "BEPO Insulin Calculator - Email Test";
+      const htmlContent = `
+        <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #4a6cf7;">BEPO Insulin Calculator</h2>
+          <div style="background-color: #f9f9f9; border-radius: 10px; padding: 15px; margin: 20px 0;">
+            <p style="font-size: 16px;">This is a test email for <strong>${profile.name}</strong>.</p>
+            <p style="font-size: 16px;">Your DuoCircle SMTP configuration is working correctly!</p>
+          </div>
+          <p style="color: #666; font-size: 14px;">
+            This is an automated test message from the BEPO Insulin Calculator.
+          </p>
+        </div>
+      `;
+      const textContent = `This is a test email from BEPO Insulin Calculator for ${profile.name}. Your SMTP configuration is working correctly!`;
+
+      // Use the sendEmailNotifications function from twilio.ts
+      const { sendEmailNotifications } = await import("./twilio");
+      
+      await sendEmailNotifications([emailAddress], subject, htmlContent, textContent);
+      res.status(200).json({ message: "Test email sent successfully" });
+    } catch (error) {
+      console.error("Error sending test email:", error);
+      res.status(500).json({ 
+        message: "Failed to send test email", 
+        details: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -200,7 +200,7 @@ async function sendSmsNotifications(phoneNumbers: string[], message: string): Pr
 }
 
 // Send email notifications
-async function sendEmailNotifications(
+export async function sendEmailNotifications(
   emailAddresses: string[], 
   subject: string, 
   htmlContent: string, 
