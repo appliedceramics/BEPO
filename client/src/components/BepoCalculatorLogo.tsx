@@ -1,68 +1,95 @@
 import { useState, useEffect } from 'react';
+import { cn } from '@/lib/utils';
 
 interface BepoCalculatorLogoProps {
   className?: string;
 }
 
 export function BepoCalculatorLogo({ className = '' }: BepoCalculatorLogoProps) {
-  // State for winking animation
-  const [isWinking, setIsWinking] = useState(false);
+  const [winking, setWinking] = useState(false);
   
-  // Winking animation every few seconds
   useEffect(() => {
-    const winkInterval = setInterval(() => {
-      setIsWinking(true);
-      setTimeout(() => setIsWinking(false), 300);
-    }, 3000);
+    // Wink animation every 5 seconds
+    const interval = setInterval(() => {
+      setWinking(true);
+      setTimeout(() => setWinking(false), 300);
+    }, 5000);
     
-    return () => clearInterval(winkInterval);
+    return () => clearInterval(interval);
   }, []);
   
   return (
-    <div className={`relative ${className}`}>
-      <svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
-        {/* Calculator body */}
-        <rect x="20" y="10" width="80" height="60" rx="8" fill="#6EE7B7" stroke="#065F46" strokeWidth="2" />
+    <div className={cn('relative w-20 h-20', className)}>
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        {/* Calculator Body */}
+        <rect 
+          x="10" 
+          y="10" 
+          width="80" 
+          height="80" 
+          rx="10" 
+          fill="#FF725E" 
+          filter="drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25))"
+        />
         
-        {/* Calculator display */}
-        <rect x="30" y="20" width="60" height="15" rx="3" fill="#ECFDF5" stroke="#059669" strokeWidth="1" />
+        {/* Calculator Screen */}
+        <rect 
+          x="20" 
+          y="20" 
+          width="60" 
+          height="18" 
+          rx="4" 
+          fill="#E0FCE8" 
+          filter="drop-shadow(0px 2px 2px rgba(0, 0, 0, 0.15))"
+        />
         
-        {/* Display content */}
-        <text x="35" y="31" fontFamily="monospace" fontSize="10" fill="#065F46">BEPO</text>
+        {/* Calculator Buttons */}
+        <rect x="20" y="46" width="12" height="10" rx="3" fill="#FFD166" />
+        <rect x="38" y="46" width="12" height="10" rx="3" fill="#FFD166" />
+        <rect x="56" y="46" width="12" height="10" rx="3" fill="#FFD166" />
+        <rect x="74" y="46" width="12" height="10" rx="3" fill="#06D6A0" />
         
-        {/* Calculator face */}
-        <g transform="translate(40, 45)">
-          {/* Left eye */}
-          <circle cx="10" cy="0" r="5" fill="white" stroke="#065F46" strokeWidth="1" />
-          <circle cx="10" cy="0" r="2" fill="#065F46" />
+        <rect x="20" y="62" width="12" height="10" rx="3" fill="#FFD166" />
+        <rect x="38" y="62" width="12" height="10" rx="3" fill="#FFD166" />
+        <rect x="56" y="62" width="12" height="10" rx="3" fill="#FFD166" />
+        <rect x="74" y="62" width="12" height="10" rx="3" fill="#06D6A0" />
+        
+        <rect x="20" y="78" width="12" height="10" rx="3" fill="#FFD166" />
+        <rect x="38" y="78" width="12" height="10" rx="3" fill="#FFD166" />
+        <rect x="56" y="78" width="12" height="10" rx="3" fill="#FFD166" />
+        <rect x="74" y="78" width="12" height="10" rx="3" fill="#06D6A0" />
+        
+        {/* Cartoon Face Elements */}
+        <g className="calculator-face">
+          {/* Left Eye */}
+          <circle cx="32" cy="28" r="3" fill="#333" />
           
-          {/* Right eye - winking */}
-          {isWinking ? (
-            <path d="M30,0 Q40,3 50,0" stroke="#065F46" strokeWidth="2" fill="none" />
+          {/* Right Eye (winking) */}
+          {winking ? (
+            <path 
+              d="M68,28 Q68,25 65,25 Q62,25 62,28" 
+              stroke="#333" 
+              strokeWidth="2" 
+              fill="none"
+            />
           ) : (
-            <>
-              <circle cx="40" cy="0" r="5" fill="white" stroke="#065F46" strokeWidth="1" />
-              <circle cx="40" cy="0" r="2" fill="#065F46" />
-            </>
+            <circle cx="65" cy="28" r="3" fill="#333" />
           )}
           
-          {/* Smile - slightly raised on winking side */}
+          {/* Smile */}
           <path 
-            d={isWinking ? "M15,15 Q30,25 45,15" : "M15,15 Q30,22 45,15"} 
-            stroke="#065F46" 
+            d="M40,35 Q50,40 60,35" 
+            stroke="#333" 
             strokeWidth="2" 
-            fill="none" 
+            fill="none"
+            className={winking ? 'animate-bounce-small' : ''}
           />
         </g>
         
-        {/* Calculator buttons */}
-        <circle cx="35" cy="50" r="5" fill="#F0FDFA" stroke="#065F46" strokeWidth="1" />
-        <circle cx="55" cy="50" r="5" fill="#F0FDFA" stroke="#065F46" strokeWidth="1" />
-        <circle cx="75" cy="50" r="5" fill="#F0FDFA" stroke="#065F46" strokeWidth="1" />
-        
-        <circle cx="35" cy="65" r="5" fill="#F0FDFA" stroke="#065F46" strokeWidth="1" />
-        <circle cx="55" cy="65" r="5" fill="#F0FDFA" stroke="#065F46" strokeWidth="1" />
-        <circle cx="75" cy="65" r="5" fill="#F0FDFA" stroke="#065F46" strokeWidth="1" />
+        {/* Display text */}
+        <text x="25" y="32" fontSize="10" fontFamily="monospace" fill="#333" className="calculator-display">
+          BEPO
+        </text>
       </svg>
     </div>
   );

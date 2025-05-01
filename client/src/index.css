@@ -152,6 +152,34 @@
     }
   }
   
+  /* Animations for calculator logo and icons */
+  @keyframes bounce-small {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-2px); }
+  }
+  
+  .animate-bounce-small {
+    animation: bounce-small 0.3s ease-in-out;
+  }
+  
+  @keyframes spin-slow {
+    0% { transform: rotate(210deg); }
+    100% { transform: rotate(570deg); }
+  }
+  
+  @keyframes spin-very-slow {
+    0% { transform: rotate(60deg); }
+    100% { transform: rotate(420deg); }
+  }
+  
+  .animate-spin-slow {
+    animation: spin-slow 2s ease-in-out;
+  }
+  
+  .animate-spin-very-slow {
+    animation: spin-very-slow 2s ease-in-out;
+  }
+  
   .bepo-input {
     @apply border-2 rounded-md transition-all duration-300;
     border-color: hsl(var(--accent) / 0.6); /* Darker border for input */

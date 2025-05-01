@@ -3,7 +3,7 @@ import { InsulinLogDisplay } from "@/components/InsulinLog";
 import { InsulinChart } from "@/components/InsulinChart";
 import { useInsulinLogs } from "@/hooks/useInsulinLog";
 import { MealType } from "@shared/schema";
-import { BepoLogo } from "@/components/BepoLogo";
+import { BepoCalculatorLogo } from "@/components/BepoCalculatorLogo";
 import { LogIcon } from "@/components/AnimatedIcons";
 import { Navigation } from "@/components/Navigation";
 import { useAuth } from "@/hooks/use-auth";
@@ -66,7 +66,7 @@ export default function Home() {
       <div className="container mx-auto px-4 py-3 max-w-6xl flex-1">
         <header className="mb-4 flex items-center justify-center">
           <div className="flex items-center justify-center">
-            <BepoLogo />
+            <BepoCalculatorLogo />
             <div className="ml-2">
               <div className="flex items-center">
                 <h1 className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
