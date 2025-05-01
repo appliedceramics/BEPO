@@ -68,8 +68,8 @@ export function TotalForMe({ onFinalTotal }: TotalForMeProps) {
         const transcript = event.results[0][0].transcript.trim().toLowerCase();
         console.log("Voice input result:", transcript);
         
-        // Check for "total" command to finish
-        if (transcript === "total" || transcript === "finish" || transcript === "done" || transcript === "calculate") {
+        // Check for "total for me" command to finish
+        if (transcript === "total for me" || transcript === "total" || transcript === "finish" || transcript === "done" || transcript === "calculate") {
           finishTotalCalculation();
           return;
         }
@@ -113,7 +113,7 @@ export function TotalForMe({ onFinalTotal }: TotalForMeProps) {
               });
               
               listeningStateRef.current = 'food';
-              setCurrentItem("Next food item? (or say 'total' to finish)");
+              setCurrentItem("Next food item? (or say 'Total For Me' to finish)");
               
               // Start listening again for next food
               setTimeout(() => {
@@ -415,7 +415,7 @@ export function TotalForMe({ onFinalTotal }: TotalForMeProps) {
             
             <div className="mt-3 text-center border-t pt-3">
               <div className="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 shadow-sm">
-                <span className="text-xs font-medium text-white">Say "total" to finish</span>
+                <span className="text-xs font-medium text-white">Say "Total For Me" to finish</span>
               </div>
             </div>
           </div>

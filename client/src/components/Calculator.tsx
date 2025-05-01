@@ -27,6 +27,11 @@ export function Calculator({ onLogInsulin, isLogging }: CalculatorProps) {
   const [bgValue, setBgValue] = useState<number | undefined>(undefined);
   const [calculationResult, setCalculationResult] = useState<CalculationResult | null>(null);
   
+  // Log state changes for debugging
+  useEffect(() => {
+    console.log('State updated: mealType =', mealType, ', carbValue =', carbValue, ', bgValue =', bgValue);
+  }, [mealType, carbValue, bgValue]);
+  
   // Get calculator settings for long-acting insulin dosage
   const { settings, isLoading: settingsLoading } = useCalculatorSettings();
   
