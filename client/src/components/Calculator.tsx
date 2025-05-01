@@ -6,7 +6,7 @@ import { BloodGlucoseInput } from "./BloodGlucoseInput";
 import { ResultsDisplay } from "./ResultsDisplay";
 import { Button } from "@/components/ui/button";
 import { calculateInsulin, CalculationResult } from "@/lib/insulinCalculator";
-import { useCalculatorSettings } from "@/hooks/use-calculator-settings";
+import { useCalculatorSettings } from "@/hooks/use-calculator-settings.tsx";
 
 interface CalculatorProps {
   onLogInsulin: (data: {
