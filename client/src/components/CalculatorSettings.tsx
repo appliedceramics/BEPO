@@ -778,7 +778,8 @@ export function CalculatorSettings() {
                   <p className="font-bold text-blue-800">What are Correction Charts?</p>
                   <p className="mt-2">These charts tell you how much extra insulin to add or subtract based on your current blood glucose level.</p>
                   <p className="mt-2">For example, if your blood glucose is higher than your target range, you may need to add correction insulin to bring it down.</p>
-                  <p className="mt-2">These are personalized for each person and should be set by your healthcare provider.</p>
+                  <p className="mt-2"><span className="font-bold">Base values:</span> The "Base" number shown under each correction value is the standard amount of insulin for that blood glucose range before any adjustments. The calculator multiplies this by your Insulin Sensitivity Factor to determine the final correction dose.</p>
+                  <p className="mt-2">These charts are personalized for each person and should be set by your healthcare provider.</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -888,9 +889,18 @@ export function CalculatorSettings() {
                                 range.correction,
                                 parseFloat((activeSettings.insulinSensitivityFactor || 35).toString()),
                               ).toFixed(1))} units
-                              <div className="text-xs text-gray-500">
-                                Base: {range.correction > 0 ? '+' : ''}{range.correction}
-                              </div>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div className="text-xs text-gray-500 cursor-help">
+                                      Base: {range.correction > 0 ? '+' : ''}{range.correction}
+                                    </div>
+                                  </TooltipTrigger>
+                                  <TooltipContent className="max-w-xs p-2 text-xs border border-gray-200">
+                                    <p>This is the standard insulin value for this blood glucose range before any ISF adjustments.</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
                             </span>
                           )}
                         </TableCell>
@@ -975,11 +985,18 @@ export function CalculatorSettings() {
                                 range.correction,
                                 parseFloat((activeSettings.insulinSensitivityFactor || 35).toString()),
                               ).toFixed(1))} units
-                              {parseFloat(activeSettings.correctionFactor.toString()) !== 1 && (
-                                <div className="text-xs text-gray-500">
-                                  Base: {range.correction > 0 ? '+' : ''}{range.correction} × {parseFloat(activeSettings.correctionFactor.toString()).toFixed(1)}
-                                </div>
-                              )}
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div className="text-xs text-gray-500 cursor-help">
+                                      Base: {range.correction > 0 ? '+' : ''}{range.correction}
+                                    </div>
+                                  </TooltipTrigger>
+                                  <TooltipContent className="max-w-xs p-2 text-xs border border-gray-200">
+                                    <p>This is the standard insulin value for this blood glucose range before any ISF adjustments.</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
                             </span>
                           )}
                         </TableCell>
