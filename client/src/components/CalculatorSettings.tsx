@@ -35,7 +35,7 @@ export function CalculatorSettings() {
       setEditableSettings({
         firstMealRatio: settings.firstMealRatio,
         otherMealRatio: settings.otherMealRatio,
-        longActingDosage: settings.longActingDosage || 0,
+        longActingDosage: settings.longActingDosage || '0',
         mealCorrectionRanges: settings.mealCorrectionRanges,
         bedtimeCorrectionRanges: settings.bedtimeCorrectionRanges,
         targetBgMin: settings.targetBgMin,
@@ -124,7 +124,7 @@ export function CalculatorSettings() {
       return {
         firstMealRatio: editableSettings.firstMealRatio ?? settings.firstMealRatio,
         otherMealRatio: editableSettings.otherMealRatio ?? settings.otherMealRatio,
-        longActingDosage: editableSettings.longActingDosage ?? (settings.longActingDosage || 0),
+        longActingDosage: editableSettings.longActingDosage ?? (settings.longActingDosage || '0'),
         mealCorrectionRanges: editableSettings.mealCorrectionRanges ?? settings.mealCorrectionRanges,
         bedtimeCorrectionRanges: editableSettings.bedtimeCorrectionRanges ?? settings.bedtimeCorrectionRanges,
         targetBgMin: editableSettings.targetBgMin ?? settings.targetBgMin,
@@ -133,7 +133,7 @@ export function CalculatorSettings() {
     }
     return {
       ...settings,
-      longActingDosage: settings.longActingDosage || 0
+      longActingDosage: settings.longActingDosage || '0'
     };
   };
 

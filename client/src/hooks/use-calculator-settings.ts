@@ -2,9 +2,8 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import type { CalculatorSettings, UpdateCalculatorSettings } from '@shared/schema';
 import { queryClient } from '@/lib/queryClient';
 
-export interface EnhancedCalculatorSettings extends CalculatorSettings {
-  longActingDosage: number;
-}
+// We don't need to extend CalculatorSettings since longActingDosage is already in the schema
+export type EnhancedCalculatorSettings = CalculatorSettings;
 
 export function useCalculatorSettings() {
   const { data: settings, isLoading, error } = useQuery<EnhancedCalculatorSettings>({

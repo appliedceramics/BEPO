@@ -35,7 +35,8 @@ export function Calculator({ onLogInsulin, isLogging }: CalculatorProps) {
     if (mealType && bgValue !== undefined) {
       // For long-acting insulin, use the fixed dosage from settings
       if (mealType === "longActing" && settings) {
-        const longActingDosage = parseFloat(settings.longActingDosage.toString());
+        // Parse the longActingDosage from settings and ensure it's a number
+        const longActingDosage = settings.longActingDosage ? parseFloat(settings.longActingDosage.toString()) : 0;
         const result = calculateInsulin({
           mealType,
           bgValue,

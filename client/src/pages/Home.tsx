@@ -3,6 +3,7 @@ import { InsulinLogDisplay } from "@/components/InsulinLog";
 import { InsulinChart } from "@/components/InsulinChart";
 import { useInsulinLogs } from "@/hooks/useInsulinLog";
 import { MealType } from "@shared/schema";
+import { BepoLogo } from "@/components/BepoLogo";
 import { BepoCalculatorLogo } from "@/components/BepoCalculatorLogo";
 import { LogIcon } from "@/components/AnimatedIcons";
 import { Navigation } from "@/components/Navigation";
