@@ -73,6 +73,10 @@ export const profilesRelations = relations(profiles, ({ one }) => ({
     fields: [profiles.userId],
     references: [users.id],
   }),
+  calculatorSettings: one(calculatorSettings, {
+    fields: [profiles.userId],
+    references: [calculatorSettings.userId],
+  }),
 }));
 
 export const insertProfileSchema = createInsertSchema(profiles).omit({
@@ -127,6 +131,38 @@ export const correctionRangeSchema = z.object({
 });
 
 export type CorrectionRange = z.infer<typeof correctionRangeSchema>;
+
+// Calculator Settings table schema
+export const calculatorSettings = pgTable("calculator_settings", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }).unique(),
+  firstMealRatio: numeric("first_meal_ratio").notNull().default("10"),  // Insulin to carb ratio for first meal
+  otherMealRatio: numeric("other_meal_ratio").notNull().default("15"), // Insulin to carb ratio for other meals
+  mealCorrectionRanges: json("meal_correction_ranges").$type<CorrectionRange[]>().notNull(),
+  bedtimeCorrectionRanges: json("bedtime_correction_ranges").$type<CorrectionRange[]>().notNull(),
+  targetBgMin: numeric("target_bg_min").notNull().default("4.5"),  // Target blood glucose minimum (mmol/L)
+  targetBgMax: numeric("target_bg_max").notNull().default("7.0"),  // Target blood glucose maximum (mmol/L)
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const calculatorSettingsRelations = relations(calculatorSettings, ({ one }) => ({
+  user: one(users, {
+    fields: [calculatorSettings.userId],
+    references: [users.id],
+  }),
+}));
+
+export const insertCalculatorSettingsSchema = createInsertSchema(calculatorSettings).omit({
+  id: true,
+  userId: true,
+  updatedAt: true,
+});
+
+export const updateCalculatorSettingsSchema = insertCalculatorSettingsSchema;
+
+export type InsertCalculatorSettings = z.infer<typeof insertCalculatorSettingsSchema>;
+export type UpdateCalculatorSettings = z.infer<typeof updateCalculatorSettingsSchema>;
+export type CalculatorSettings = typeof calculatorSettings.$inferSelect;
 
 // Meal Presets
 export const mealPresets = pgTable("meal_presets", {
