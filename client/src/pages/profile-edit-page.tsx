@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Navigation } from "@/components/Navigation";
 import { PushNotificationSettings } from "@/components/PushNotificationSettings";
+import { EmailTest } from "@/components/EmailTest";
 import { getQueryFn } from "@/lib/queryClient";
 import { useEffect } from "react";
 
@@ -605,6 +606,9 @@ export default function ProfileEditPage() {
 
               {/* Push notification settings */}
               <PushNotificationSettings />
+              
+              {/* Email test component */}
+              <EmailTest />
               
               <div className="flex gap-4">
                 <Button

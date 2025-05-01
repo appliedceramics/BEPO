@@ -5,7 +5,7 @@ import { insertInsulinLogSchema, insertMealPresetSchema, insertMilestoneSchema }
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { setupAuth, isAuthenticated, hasProfile } from "./auth";
-import { notifyContacts, sendPushNotification } from "./twilio";
+import { notifyContacts, sendPushNotification, sendEmailNotifications } from "./twilio";
 import webpush from "web-push";
 import { getFoodCarbs, suggestMeals, generateMealPlan } from "./openai";
 
@@ -734,9 +734,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       `;
       const textContent = `This is a test email from BEPO Insulin Calculator for ${profile.name}. Your SMTP configuration is working correctly!`;
 
-      // Use the sendEmailNotifications function from twilio.ts
-      const { sendEmailNotifications } = await import("./twilio");
-      
+      // Use the sendEmailNotifications function imported from twilio.ts
       await sendEmailNotifications([emailAddress], subject, htmlContent, textContent);
       res.status(200).json({ message: "Test email sent successfully" });
     } catch (error) {
