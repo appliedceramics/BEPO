@@ -9,19 +9,21 @@ const twilioClient = twilio(
   process.env.TWILIO_AUTH_TOKEN
 );
 
-// Setup Nodemailer for email notifications
+// Setup Nodemailer for email notifications with DuoCircle SMTP
 const emailTransporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: process.env.SMTP_HOST,
+  port: parseInt(process.env.SMTP_PORT || '587'),
+  secure: process.env.SMTP_PORT === '465', // true for port 465, false for other ports
   auth: {
-    user: process.env.EMAIL_USER || '',
-    pass: process.env.EMAIL_PASSWORD || ''
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASSWORD
   }
 });
 
 // Configure web-push for push notifications only if keys are available
 if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   webpush.setVapidDetails(
-    'mailto:' + (process.env.EMAIL_USER || 'example@example.com'),
+    'mailto:' + (process.env.SMTP_USER || 'example@example.com'),
     process.env.VAPID_PUBLIC_KEY,
     process.env.VAPID_PRIVATE_KEY
   );
@@ -211,7 +213,7 @@ async function sendEmailNotifications(
   
   const sendPromises = emailAddresses.map(email => {
     return emailTransporter.sendMail({
-      from: process.env.EMAIL_USER || 'BEPO Insulin Calculator <noreply@example.com>',
+      from: process.env.SMTP_USER || 'BEPO Insulin Calculator <noreply@example.com>',
       to: email,
       subject,
       text: textContent,
