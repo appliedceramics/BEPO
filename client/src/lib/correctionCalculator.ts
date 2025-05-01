@@ -49,7 +49,7 @@ export const bedtimeCorrectionChart: CorrectionRange[] = [
 ];
 
 // Get correction insulin based on blood glucose in mg/dL and meal type
-export function getCorrectionInsulin(bgMgdl: number, mealType?: MealType): {
+export function getCorrectionInsulin(bgMgdl: number, mealType?: MealType, correctionFactor: number = 1.0): {
   correction: number;
   range: string;
 } {
@@ -62,9 +62,12 @@ export function getCorrectionInsulin(bgMgdl: number, mealType?: MealType): {
   );
   
   if (range) {
+    // Apply the correction factor to adjust sensitivity
+    const adjustedCorrection = Math.round(range.correction * correctionFactor * 10) / 10;
+    
     return {
-      correction: range.correction,
-      range: `${range.min} to ${range.max} mg/dL = ${range.correction > 0 ? '+' : ''}${range.correction} units`
+      correction: adjustedCorrection,
+      range: `${range.min} to ${range.max} mg/dL = ${adjustedCorrection > 0 ? '+' : ''}${adjustedCorrection} units (factor: ${correctionFactor}x)`
     };
   }
   

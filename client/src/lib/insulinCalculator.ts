@@ -13,10 +13,11 @@ export interface CalculationParams {
   mealType: MealType;
   carbValue?: number;
   bgValue: number;
+  correctionFactor?: number;
 }
 
 export function calculateInsulin(params: CalculationParams): CalculationResult {
-  const { mealType, carbValue, bgValue } = params;
+  const { mealType, carbValue, bgValue, correctionFactor = 1.0 } = params;
   
   // Convert BG from mmol/L to mg/dL
   const bgMgdl = convertBgToMgdl(bgValue);
@@ -35,7 +36,7 @@ export function calculateInsulin(params: CalculationParams): CalculationResult {
   // For bedtime, we only use correction insulin without any meal insulin component
   else if (mealType === "bedtime") {
     // Calculate correction insulin based on BG and meal type
-    const { correction: correctionInsulin, range: correctionRange } = getCorrectionInsulin(bgMgdl, mealType);
+    const { correction: correctionInsulin, range: correctionRange } = getCorrectionInsulin(bgMgdl, mealType, correctionFactor);
     
     // For bedtime, total insulin is just the correction insulin
     return {
