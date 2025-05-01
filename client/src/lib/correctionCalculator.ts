@@ -49,9 +49,15 @@ export const bedtimeCorrectionChart: CorrectionRange[] = [
 ];
 
 // Get correction insulin based on blood glucose in mg/dL and meal type
-export function getCorrectionInsulin(bgMgdl: number, mealType?: MealType, correctionFactor: number = 1.0): {
+export function getCorrectionInsulin(
+  bgMgdl: number, 
+  mealType?: MealType, 
+  correctionFactor: number = 1.0,
+  insulinSensitivityFactor: number = 35
+): {
   correction: number;
   range: string;
+  baseCorrection: number;
 } {
   // Select the appropriate correction chart based on meal type
   const correctionChart = mealType === "bedtime" ? bedtimeCorrectionChart : mealCorrectionChart;
@@ -62,18 +68,28 @@ export function getCorrectionInsulin(bgMgdl: number, mealType?: MealType, correc
   );
   
   if (range) {
-    // Apply the correction factor to adjust sensitivity
-    const adjustedCorrection = Math.round(range.correction * correctionFactor * 10) / 10;
+    // 1. Get the base correction from the chart
+    const baseCorrection = range.correction;
+    
+    // 2. Apply the correction factor multiplier (user setting)
+    const cfAdjusted = baseCorrection * correctionFactor;
+    
+    // 3. Apply insulin sensitivity factor adjustment
+    // When ISF is lower than the default 35, insulin is more powerful, so we need less
+    const isfAdjustment = 35 / insulinSensitivityFactor;
+    const fullyAdjustedCorrection = Math.round(cfAdjusted * isfAdjustment * 10) / 10;
     
     return {
-      correction: adjustedCorrection,
-      range: `${range.min} to ${range.max} mg/dL = ${adjustedCorrection > 0 ? '+' : ''}${adjustedCorrection} units (factor: ${correctionFactor}x)`
+      correction: fullyAdjustedCorrection,
+      baseCorrection: baseCorrection,
+      range: `${range.min} to ${range.max} mg/dL = ${fullyAdjustedCorrection > 0 ? '+' : ''}${fullyAdjustedCorrection} units`
     };
   }
   
   // Default if no range found (should not happen with our ranges)
   return {
     correction: 0,
+    baseCorrection: 0,
     range: 'No correction needed'
   };
 }
@@ -81,4 +97,19 @@ export function getCorrectionInsulin(bgMgdl: number, mealType?: MealType, correc
 // Convert blood glucose from mmol/L to mg/dL
 export function convertBgToMgdl(bgMmolL: number): number {
   return bgMmolL * 18;
+}
+
+// Calculate adjusted correction based on ISF and CF
+export function calculateAdjustedCorrection(
+  baseCorrection: number,
+  insulinSensitivityFactor: number = 35,
+  correctionFactor: number = 1.0
+): number {
+  // 1. Apply the correction factor multiplier (user setting)
+  const cfAdjusted = baseCorrection * correctionFactor;
+  
+  // 2. Apply insulin sensitivity factor adjustment
+  // When ISF is lower than the default 35, insulin is more powerful, so we need less
+  const isfAdjustment = 35 / insulinSensitivityFactor;
+  return Math.round(cfAdjusted * isfAdjustment * 10) / 10;
 }
