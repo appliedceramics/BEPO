@@ -129,6 +129,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (user) {
         const updatedUser = { ...user, profile };
         queryClient.setQueryData(["/api/user"], updatedUser);
+        // Also update the profile in the profile query
+        queryClient.setQueryData(["/api/profile"], profile);
+        // Invalidate the profile query to ensure fresh data
+        queryClient.invalidateQueries({ queryKey: ["/api/profile"] });
       }
       toast({
         title: "Profile updated",
@@ -136,6 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     },
     onError: (error: Error) => {
+      console.error("Profile update error:", error);
       toast({
         title: "Profile update failed",
         description: error.message,

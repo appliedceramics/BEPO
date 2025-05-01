@@ -214,7 +214,7 @@ export function setupAuth(app: Express) {
       console.log('Received profile update request:', req.body);
       
       // Clean up empty string fields
-      const cleanData = Object.entries(req.body).reduce((acc, [key, value]) => {
+      const cleanData = Object.entries(req.body).reduce((acc: Record<string, any>, [key, value]) => {
         // Don't include empty strings, but keep boolean false values
         if (value === '') {
           return acc;
