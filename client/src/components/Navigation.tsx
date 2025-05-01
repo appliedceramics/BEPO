@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Loader2, User, LogOut, Settings } from "lucide-react";
+import { Loader2, User, LogOut, Settings, Calculator } from "lucide-react";
 
 export function Navigation() {
   const { user, logoutMutation, isLoading } = useAuth();
@@ -52,6 +52,13 @@ export function Navigation() {
                   <Link href="/achievements" className="flex w-full cursor-pointer items-center">
                     <span className="mr-2 text-lg">🏆</span>
                     <span>Achievements</span>
+                  </Link>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem asChild>
+                  <Link href="/calculator-settings" className="flex w-full cursor-pointer items-center">
+                    <Calculator className="mr-2 h-4 w-4" />
+                    <span>Calculator Settings</span>
                   </Link>
                 </DropdownMenuItem>
 

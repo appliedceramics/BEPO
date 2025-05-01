@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 
-export function BepoLogo() {
+interface BepoLogoProps {
+  className?: string;
+}
+
+export function BepoLogo({ className = '' }: BepoLogoProps) {
   const [smile, setSmile] = useState(false);
   const [thumbsUp, setThumbsUp] = useState(false);
   
@@ -24,7 +28,7 @@ export function BepoLogo() {
   }, []);
 
   return (
-    <div className="w-24 h-24 md:w-40 md:h-40 relative">
+    <div className={`w-24 h-24 md:w-40 md:h-40 relative ${className}`}>
       <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
         {/* White background outline for sticker effect */}
         <path

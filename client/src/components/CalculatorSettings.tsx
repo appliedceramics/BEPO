@@ -30,7 +30,7 @@ export function CalculatorSettings() {
   const [editableSettings, setEditableSettings] = useState<Partial<CalculatorSettings>>({});
   
   // Initialize editable settings when original settings are loaded
-  useState(() => {
+  useEffect(() => {
     if (settings && Object.keys(editableSettings).length === 0) {
       setEditableSettings({
         firstMealRatio: settings.firstMealRatio,
@@ -41,7 +41,7 @@ export function CalculatorSettings() {
         targetBgMax: settings.targetBgMax,
       });
     }
-  });
+  }, [settings, editableSettings]);
 
   if (isLoading) {
     return <div className="flex justify-center p-8">Loading settings...</div>;

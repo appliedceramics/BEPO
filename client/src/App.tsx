@@ -11,6 +11,7 @@ import AuthPage from "@/pages/auth-page";
 import ProfilePage from "@/pages/profile-page";
 import ProfileEditPage from "@/pages/profile-edit-page";
 import AchievementsPage from "@/pages/achievements-page";
+import CalculatorSettingsPage from "@/pages/calculator-settings-page";
 
 function Router() {
   return (
@@ -20,6 +21,7 @@ function Router() {
       <ProtectedRoute path="/profile" component={ProfilePage} />
       <ProtectedRoute path="/profile/edit" component={ProfileEditPage} />
       <ProtectedRoute path="/achievements" component={AchievementsPage} />
+      <ProtectedRoute path="/calculator-settings" component={CalculatorSettingsPage} />
       <Route component={NotFound} />
     </Switch>
   );
