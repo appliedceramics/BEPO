@@ -185,7 +185,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(foodSuggestion);
     } catch (error) {
       console.error("Error getting food suggestions:", error);
-      res.status(500).json({ message: "Failed to get food suggestions" });
+      // Using 200 status with error object for graceful handling in UI
+      res.json({ 
+        error: true,
+        name: query || "Food",
+        description: "Could not find carb information",
+        portions: {
+          small: { description: "Small portion", carbValue: 0 },
+          medium: { description: "Medium portion", carbValue: 0 },
+          large: { description: "Large portion", carbValue: 0 }
+        }
+      });
     }
   });
 
@@ -200,7 +210,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(suggestions);
     } catch (error) {
       console.error("Error getting meal suggestions:", error);
-      res.status(500).json({ message: "Failed to get meal suggestions" });
+      // Return empty array instead of error status for graceful UI handling
+      res.json([]);
     }
   });
 
