@@ -7,7 +7,7 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Slider } from "@/components/ui/slider";
 import { HelpCircle, Save, RefreshCw, Calculator, ChevronRight, Edit, CheckCircle2 } from "lucide-react";
-import { useCalculatorSettings, type CalculatorSettings } from "@/hooks/use-calculator-settings.tsx";
+import { useCalculatorSettings, type CalculatorSettings } from "@/hooks/use-calculator-settings";
 import { CorrectionRange } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
