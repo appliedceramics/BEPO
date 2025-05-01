@@ -130,8 +130,9 @@
 
   /* Enhance label contrast */
   label {
-    @apply font-medium;
+    @apply font-semibold;
     color: hsl(200, 80%, 20%);
+    letter-spacing: 0.01em;
   }
 }
 
@@ -141,6 +142,13 @@
     border: 2px solid hsl(var(--accent) / 0.3); /* More visible border */
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), /* Stronger shadow for depth */
                 0 0 0 2px hsl(var(--accent) / 0.2);
+  }
+  
+  /* Card titles styling */
+  .bepo-card h2, .bepo-card h3 {
+    @apply font-semibold text-lg mb-3;
+    color: hsl(200, 80%, 20%);
+    letter-spacing: 0.01em;
   }
   
   .bepo-button {
@@ -181,12 +189,24 @@
   }
   
   .bepo-input {
-    @apply border-2 rounded-md transition-all duration-300;
-    border-color: hsl(var(--accent) / 0.6); /* Darker border for input */
+    @apply border-2 rounded-md transition-all duration-300 font-medium px-3 py-2;
+    border-color: hsl(var(--primary)); /* Blue outline for better visibility */
+    color: hsl(200, 80%, 20%); /* Match card title font color */
+    background-color: rgba(255, 255, 255, 0.9);
     &:focus {
       border-color: hsl(var(--primary));
       box-shadow: 0 0 0 3px hsl(var(--primary) / 0.3); /* Stronger focus ring */
+      background-color: white;
     }
+    &::placeholder {
+      color: hsl(200, 50%, 60%); /* Lighter color for placeholder text */
+    }
+  }
+  
+  /* Number input specific styling */
+  input[type="number"].bepo-input {
+    @apply text-lg text-center font-semibold;
+    min-height: 2.5rem;
   }
   
   .result-highlight {
