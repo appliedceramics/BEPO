@@ -226,8 +226,10 @@ export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
             </DialogHeader>
             <TotalForMe 
               onFinalTotal={(total) => {
+                console.log('TotalForMe returned value:', total);
                 setInputValue(total.toString());
-                onChange(total);
+                // Ensure the onChange callback is triggered with the numeric value
+                onChange(Number(total));
                 setIsTotalForMeOpen(false);
               }} 
             />

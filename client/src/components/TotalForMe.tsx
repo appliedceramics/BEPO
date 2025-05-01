@@ -228,14 +228,17 @@ export function TotalForMe({ onFinalTotal }: TotalForMeProps) {
     setProgress(0);
     
     if (foodItems.length > 0) {
+      // Calculate the total as a number
       const total = foodItems.reduce((sum, item) => sum + item.carbs, 0);
+      console.log('TotalForMe calculating final total:', total, 'from items:', foodItems);
       
       toast({
         title: "Total calculated",
         description: `Your total carbs: ${total}g`,
       });
       
-      onFinalTotal(total);
+      // Pass the numeric value to the callback
+      onFinalTotal(Number(total));
     } else {
       toast({
         title: "No items to total",

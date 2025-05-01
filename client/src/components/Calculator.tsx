@@ -44,6 +44,7 @@ export function Calculator({ onLogInsulin, isLogging }: CalculatorProps) {
 
   // Recalculate when inputs change
   useEffect(() => {
+    console.log('Calculator detected input change - mealType:', mealType, 'carbValue:', carbValue, 'bgValue:', bgValue);
     if (mealType && bgValue !== undefined && settings) {
       // Parse settings values to the correct types
       const parseNumericSetting = (value: any, defaultValue: number): number => {
