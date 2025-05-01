@@ -210,23 +210,40 @@ export function setupAuth(app: Express) {
 
       const userId = req.user.id;
       const existingProfile = await storage.getProfileByUserId(userId);
+      
+      console.log('Received profile update request:', req.body);
+      
+      // Clean up empty string fields
+      const cleanData = Object.entries(req.body).reduce((acc, [key, value]) => {
+        // Don't include empty strings, but keep boolean false values
+        if (value === '') {
+          return acc;
+        }
+        acc[key] = value;
+        return acc;
+      }, {});
+      
+      console.log('Cleaned profile data:', cleanData);
 
       if (existingProfile) {
         // Update existing profile
         const updatedProfile = await storage.updateProfile(existingProfile.id, {
-          ...req.body,
+          ...cleanData,
           userId
         });
+        console.log('Updated profile:', updatedProfile);
         return res.status(200).json(updatedProfile);
       } else {
         // Create new profile
         const newProfile = await storage.createProfile({
-          ...req.body,
+          ...cleanData,
           userId
         });
+        console.log('Created new profile:', newProfile);
         return res.status(201).json(newProfile);
       }
     } catch (error) {
+      console.error('Profile update error:', error);
       if (error instanceof ZodError) {
         const validationError = fromZodError(error);
         return res.status(400).json({ error: validationError.message });

@@ -164,16 +164,36 @@ export default function ProfileEditPage() {
 
   // Handle profile update
   const onSubmit = (data: ProfileFormValues) => {
+    // Log form data before submission
+    console.log("Submitting profile data:", data);
+    
     // Convert number fields to string format expected by the API
     const formData = {
       ...data,
-      weight: data.weight !== undefined ? String(data.weight) : undefined
+      weight: data.weight !== undefined ? String(data.weight) : undefined,
+      // Clean empty string values from parent/caregiver fields
+      parent1Name: data.parent1Name || undefined,
+      parent1Phone: data.parent1Phone || undefined,
+      parent1Email: data.parent1Email || undefined,
+      parent2Name: data.parent2Name || undefined,
+      parent2Phone: data.parent2Phone || undefined,
+      parent2Email: data.parent2Email || undefined,
+      caregiverName: data.caregiverName || undefined,
+      caregiverPhone: data.caregiverPhone || undefined,
+      caregiverEmail: data.caregiverEmail || undefined
     };
     
+    // Log processed form data
+    console.log("Processed form data:", formData);
+    
     updateProfileMutation.mutate(formData, {
-      onSuccess: () => {
+      onSuccess: (profile) => {
+        console.log("Profile updated successfully:", profile);
         navigate("/");
       },
+      onError: (error) => {
+        console.error("Profile update error:", error);
+      }
     });
   };
 
