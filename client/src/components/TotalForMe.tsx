@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Mic, StopCircle, Plus, Loader2 } from "lucide-react";
+import { Mic, StopCircle, Plus, Loader2, Hash, Pizza, Utensils, Apple } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
@@ -287,9 +287,22 @@ export function TotalForMe({ onFinalTotal }: TotalForMeProps) {
       </div>
       
       {isListening && (
-        <div className="mt-2">
-          <p className="text-sm text-muted-foreground">{currentItem}</p>
-          <Progress value={progress} className="h-1 mt-1" />
+        <div className="mt-4">
+          {listeningStateRef.current === 'food' ? (
+            <div className="flex flex-col items-center justify-center p-4 border rounded-lg bg-accent/10 overflow-hidden">
+              <Pizza className="h-12 w-12 text-primary mb-2 animate-pulse" />
+              <h3 className="text-xl font-bold text-center mb-1">Say Food</h3>
+              <p className="text-sm text-muted-foreground text-center">Speak the name of a food item</p>
+              <Progress value={progress} className="h-1 mt-3 w-full" />
+            </div>
+          ) : listeningStateRef.current === 'carbs' ? (
+            <div className="flex flex-col items-center justify-center p-4 border rounded-lg bg-accent/10 overflow-hidden">
+              <Hash className="h-12 w-12 text-primary mb-2 animate-pulse" />
+              <h3 className="text-xl font-bold text-center mb-1">Say Carb #</h3>
+              <p className="text-sm text-muted-foreground text-center">For <span className="font-medium">{currentFoodRef.current}</span>, speak the carb amount</p>
+              <Progress value={progress} className="h-1 mt-3 w-full" />
+            </div>
+          ) : null}
         </div>
       )}
       
@@ -305,17 +318,30 @@ export function TotalForMe({ onFinalTotal }: TotalForMeProps) {
           <ScrollArea className="h-24 border rounded-md p-2">
             <div className="space-y-2">
               {foodItems.map((item, index) => (
-                <div key={index} className="flex items-center justify-between text-sm">
-                  <span>{item.name}</span>
-                  <Badge variant="outline">{item.carbs}g</Badge>
+                <div key={index} className="flex items-center justify-between text-sm py-1">
+                  <div className="flex items-center">
+                    <span className="bg-accent/20 p-1 rounded-full mr-2">
+                      <Utensils className="h-3.5 w-3.5 text-primary" />
+                    </span>
+                    <span className="font-medium">{item.name}</span>
+                  </div>
+                  <Badge variant="outline" className="ml-2">{item.carbs}g</Badge>
                 </div>
               ))}
             </div>
           </ScrollArea>
           
-          <div className="mt-3 flex items-center justify-between">
-            <span className="text-sm font-medium">Current Total:</span>
-            <Badge className="bg-primary">{calculateCurrentTotal()}g</Badge>
+          <div className="mt-3 flex flex-col">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Current Total:</span>
+              <Badge className="bg-primary">{calculateCurrentTotal()}g</Badge>
+            </div>
+            <div className="w-full bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full mt-2">
+              <div 
+                className="bg-gradient-to-r from-blue-300 to-purple-400 h-2 rounded-full transition-all duration-500 ease-in-out" 
+                style={{ width: `${Math.min(100, (foodItems.length / 5) * 100)}%` }}
+              />
+            </div>
           </div>
         </div>
       )}
@@ -331,10 +357,38 @@ export function TotalForMe({ onFinalTotal }: TotalForMeProps) {
       )}
       
       {!isListening && foodItems.length === 0 && (
-        <p className="text-sm text-muted-foreground mt-2">
-          Click Start and speak the names of food items and their carb values.
-          Say "total" when done to calculate the sum.
-        </p>
+        <div className="mt-3 space-y-3">
+          <p className="text-sm text-muted-foreground">
+            Click Start and speak the names of food items and their carb values.
+            Say "total" when done to calculate the sum.
+          </p>
+          <div className="border rounded-md p-3 bg-accent/5">
+            <div className="text-center mb-2">
+              <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Voice Commands</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="flex items-center p-1">
+                <Pizza className="h-4 w-4 mr-2 text-accent-foreground" />
+                <span>"pizza"</span>
+              </div>
+              <div className="flex items-center p-1">
+                <Hash className="h-4 w-4 mr-2 text-accent-foreground" />
+                <span>"45"</span>
+              </div>
+              <div className="flex items-center p-1">
+                <Utensils className="h-4 w-4 mr-2 text-accent-foreground" />
+                <span>"french fries"</span>
+              </div>
+              <div className="flex items-center p-1">
+                <Hash className="h-4 w-4 mr-2 text-accent-foreground" />
+                <span>"30"</span>
+              </div>
+              <div className="flex items-center p-1 col-span-2 border-t pt-2 mt-1 justify-center">
+                <span className="font-medium">Say "total" to finish</span>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

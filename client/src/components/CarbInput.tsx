@@ -197,6 +197,9 @@ export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Total For Me</DialogTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                Easily calculate total carbs using your voice. Simply speak food names and carb amounts.
+              </p>
             </DialogHeader>
             <TotalForMe 
               onFinalTotal={(total) => {
