@@ -974,6 +974,7 @@ export function CalculatorSettings() {
                               {parseFloat(calculateAdjustedCorrection(
                                 range.correction,
                                 parseFloat((activeSettings.insulinSensitivityFactor || 35).toString()),
+                                parseFloat(activeSettings.correctionFactor.toString()) || 1
                               ).toFixed(1))} units
                               {parseFloat(activeSettings.correctionFactor.toString()) !== 1 && (
                                 <div className="text-xs text-gray-500">
