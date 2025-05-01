@@ -11,6 +11,9 @@ export type MealType = z.infer<typeof mealTypeEnum>;
 export const sexEnum = z.enum(["male", "female"]);
 export type Sex = z.infer<typeof sexEnum>;
 
+export const bgUnitEnum = z.enum(["mmol/L", "mg/dL"]);
+export type BgUnit = z.infer<typeof bgUnitEnum>;
+
 // Users table for authentication
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -62,6 +65,7 @@ export const profiles = pgTable("profiles", {
   age: integer("age").notNull(),
   sex: text("sex").notNull(),
   weight: numeric("weight"), // Weight in kg
+  bgUnit: text("bg_unit").default("mmol/L"), // Blood glucose unit preference (mmol/L or mg/dL)
   motherName: text("mother_name"),
   motherPhone: text("mother_phone"),
   fatherName: text("father_name"),

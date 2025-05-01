@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
-import { sexEnum, type InsertProfile, type Profile } from "@shared/schema";
+import { sexEnum, bgUnitEnum, type InsertProfile, type Profile, type BgUnit } from "@shared/schema";
 import { z } from "zod";
 import { useLocation, Redirect } from "wouter";
 import {
@@ -37,6 +37,9 @@ const profileSchema = z.object({
     required_error: "Please select a gender",
   }),
   weight: z.coerce.number().min(1, "Weight must be at least 1").max(300, "Weight must be valid").optional(),
+  bgUnit: z.enum(["mmol/L", "mg/dL"], {
+    required_error: "Please select a blood glucose unit",
+  }).default("mmol/L"),
   motherName: z.string().optional(),
   motherPhone: z.string().optional(),
   fatherName: z.string().optional(),
