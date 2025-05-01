@@ -8,8 +8,9 @@ import { MealPresets } from "./MealPresets";
 import { FoodSearchInput } from "./FoodSearchInput";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { MealPreset } from "@shared/schema";
-import { Book, MicOff, Utensils, PlusSquare } from "lucide-react";
+import { Book, Calculator, Utensils, PlusSquare } from "lucide-react";
 import { FoodBasketSearch } from "./FoodBasketSearch";
+import { TotalForMe } from "./TotalForMe";
 import { useToast } from "@/hooks/use-toast";
 
 interface CarbInputProps {
@@ -24,6 +25,7 @@ export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
   const [inputValue, setInputValue] = useState<string>(value?.toString() || "");
   const [isPresetsOpen, setIsPresetsOpen] = useState(false);
   const [isFoodBasketOpen, setIsFoodBasketOpen] = useState(false);
+  const [isTotalForMeOpen, setIsTotalForMeOpen] = useState(false);
 
   useEffect(() => {
     // Update input value when value prop changes
@@ -176,6 +178,32 @@ export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
             </DialogHeader>
             <FoodBasketSearch 
               onSavePreset={handleSaveMealPreset}
+            />
+          </DialogContent>
+        </Dialog>
+        
+        {/* Total For Me Button */}
+        <Dialog open={isTotalForMeOpen} onOpenChange={setIsTotalForMeOpen}>
+          <DialogTrigger asChild>
+            <Button 
+              variant="ghost" 
+              className="ml-1" 
+              size="icon"
+              title="Total For Me - Voice Calculator"
+            >
+              <Calculator className="h-5 w-5 text-accent-foreground" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Total For Me</DialogTitle>
+            </DialogHeader>
+            <TotalForMe 
+              onFinalTotal={(total) => {
+                setInputValue(total.toString());
+                onChange(total);
+                setIsTotalForMeOpen(false);
+              }} 
             />
           </DialogContent>
         </Dialog>
