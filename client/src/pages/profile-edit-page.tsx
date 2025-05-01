@@ -62,9 +62,7 @@ const profileSchema = z.object({
   notificationMethod: z.enum(["sms", "email", "push"]).default("sms"),
   // Legacy fields for backward compatibility
   motherName: z.string().optional(),
-  motherPhone: z.string().optional(),
   fatherName: z.string().optional(),
-  fatherPhone: z.string().optional(),
   notifyParents: z.boolean().default(false),
 });
 
@@ -110,9 +108,7 @@ export default function ProfileEditPage() {
       notificationMethod: "sms",
       // Legacy fields
       motherName: "",
-      motherPhone: "",
       fatherName: "",
-      fatherPhone: "",
       notifyParents: false,
     },
   });
@@ -148,26 +144,12 @@ export default function ProfileEditPage() {
         Object.assign(resetData, {
           motherName: profile.motherName || "",
         });
-        
-        // Only set the motherPhone if that property exists
-        if ('motherPhone' in profile && typeof profile.motherPhone !== 'undefined') {
-          Object.assign(resetData, {
-            motherPhone: profile.motherPhone || "",
-          });
-        }
       }
       
       if ('fatherName' in profile && typeof profile.fatherName !== 'undefined') {
         Object.assign(resetData, {
           fatherName: profile.fatherName || "",
         });
-        
-        // Only set the fatherPhone if that property exists
-        if ('fatherPhone' in profile && typeof profile.fatherPhone !== 'undefined') {
-          Object.assign(resetData, {
-            fatherPhone: profile.fatherPhone || "",
-          });
-        }
       }
       
       if ('notifyParents' in profile) {
