@@ -95,7 +95,7 @@ export default function AuthPage() {
         <div className="flex justify-center items-center">
           <BepoCalculatorLogo className="w-14 h-14 mr-3" />
           <div>
-            <h1 className="text-2xl font-bold text-white calculator-font">BEPO</h1>
+            <h1 className="text-2xl font-bold calculator-font text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-600">BEPO</h1>
             <p className="text-xs text-white/90">Insulin Calculator & Log</p>
           </div>
         </div>

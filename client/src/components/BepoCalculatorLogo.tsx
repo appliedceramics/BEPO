@@ -21,14 +21,20 @@ export function BepoCalculatorLogo({ className = '' }: BepoCalculatorLogoProps) 
   return (
     <div className={cn('relative w-20 h-20', className)}>
       <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        {/* Calculator Body */}
+        {/* Calculator Body - Updated with gradient fill */}
+        <defs>
+          <linearGradient id="calculatorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#6366f1" />
+            <stop offset="100%" stopColor="#a855f7" />
+          </linearGradient>
+        </defs>
         <rect 
           x="10" 
           y="10" 
           width="80" 
           height="80" 
           rx="10" 
-          fill="#FF725E" 
+          fill="url(#calculatorGradient)" 
           filter="drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25))"
         />
         
@@ -87,7 +93,13 @@ export function BepoCalculatorLogo({ className = '' }: BepoCalculatorLogoProps) 
         </g>
         
         {/* Display text */}
-        <text x="25" y="32" fontSize="10" fontFamily="monospace" fill="#333" className="calculator-display">
+        <defs>
+          <linearGradient id="bepoTextGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#3b82f6" />
+            <stop offset="100%" stopColor="#8b5cf6" />
+          </linearGradient>
+        </defs>
+        <text x="25" y="32" fontSize="10" fontFamily="monospace" fill="url(#bepoTextGradient)" fontWeight="bold" className="calculator-display">
           BEPO
         </text>
       </svg>

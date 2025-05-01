@@ -26,7 +26,10 @@ export function Navigation() {
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
             <BepoCalculatorLogo className="w-8 h-8" />
-            <span className="font-bold text-lg hidden sm:inline-block"><span className="calculator-font">BEPO</span> Insulin Calculator</span>
+            <span className="font-bold text-lg hidden sm:inline-block">
+              <span className="calculator-font text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-600 mr-1">BEPO</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-primary">Insulin Calculator</span>
+            </span>
           </Link>
         </div>
 

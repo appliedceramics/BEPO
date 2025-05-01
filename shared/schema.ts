@@ -204,11 +204,26 @@ export const insertCalculatorSettingsSchema = createInsertSchema(calculatorSetti
   updatedAt: true,
 });
 
+// Make sure longActingDosage is recognized in TypeScript by explicitly defining shape
+export const calculatorSettingsSchema = z.object({
+  id: z.number().optional(),
+  userId: z.number().optional(),
+  firstMealRatio: z.number().or(z.string()),
+  otherMealRatio: z.number().or(z.string()),
+  longActingDosage: z.number().or(z.string()),
+  mealCorrectionRanges: z.array(correctionRangeSchema).nullable().optional(),
+  bedtimeCorrectionRanges: z.array(correctionRangeSchema).nullable().optional(),
+  targetBgMin: z.number().or(z.string()),
+  targetBgMax: z.number().or(z.string()),
+  updatedAt: z.date().optional(),
+});
+
 export const updateCalculatorSettingsSchema = insertCalculatorSettingsSchema;
 
 export type InsertCalculatorSettings = z.infer<typeof insertCalculatorSettingsSchema>;
 export type UpdateCalculatorSettings = z.infer<typeof updateCalculatorSettingsSchema>;
-export type CalculatorSettings = typeof calculatorSettings.$inferSelect;
+// Use the explicit Zod schema for CalculatorSettings to ensure longActingDosage is included
+export type CalculatorSettings = z.infer<typeof calculatorSettingsSchema>;
 
 // Meal Presets
 export const mealPresets = pgTable("meal_presets", {

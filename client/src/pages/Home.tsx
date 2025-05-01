@@ -70,8 +70,9 @@ export default function Home() {
             <BepoCalculatorLogo />
             <div className="ml-2">
               <div className="flex items-center">
-                <h1 className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                  <span className="calculator-font">BEPO</span> Insulin Calculator
+                <h1 className="text-2xl md:text-3xl font-bold">
+                  <span className="calculator-font text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-600 mr-1">BEPO</span>
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-primary">Insulin Calculator</span>
                 </h1>
                 <span className="text-accent font-bold mx-2">•</span>
                 <span className="text-accent text-lg md:text-xl font-medium">
