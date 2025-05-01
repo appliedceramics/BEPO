@@ -16,7 +16,14 @@ import {
   type InsertMilestone,
   achievements,
   type Achievement,
-  type InsertAchievement
+  type InsertAchievement,
+  calculatorSettings,
+  type CalculatorSettings,
+  type InsertCalculatorSettings,
+  type UpdateCalculatorSettings,
+  mealCorrectionChart,
+  bedtimeCorrectionChart,
+  type CorrectionRange
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, isNull } from "drizzle-orm";
@@ -62,6 +69,12 @@ export interface IStorage {
   createOrUpdateAchievement(achievement: Partial<InsertAchievement>): Promise<Achievement>;
   incrementAchievementProgress(userId: number, type: string, increment?: number): Promise<Achievement | undefined>;
   checkAndCompleteAchievement(achievementId: number): Promise<Achievement | undefined>;
+  
+  // Calculator settings operations
+  getCalculatorSettingsByUserId(userId: number): Promise<CalculatorSettings | undefined>;
+  createCalculatorSettings(settings: Partial<InsertCalculatorSettings> & { userId: number }): Promise<CalculatorSettings>;
+  updateCalculatorSettings(id: number, settings: Partial<UpdateCalculatorSettings>): Promise<CalculatorSettings>;
+  getDefaultCalculatorSettings(): { mealCorrectionRanges: CorrectionRange[], bedtimeCorrectionRanges: CorrectionRange[] };
   
   // Session store for auth
   sessionStore: session.SessionStore;
@@ -414,6 +427,64 @@ export class DatabaseStorage implements IStorage {
         )
       )
       .orderBy(desc(insulinLogs.timestamp));
+  }
+
+  // Calculator settings operations
+  async getCalculatorSettingsByUserId(userId: number): Promise<CalculatorSettings | undefined> {
+    const [settings] = await db
+      .select()
+      .from(calculatorSettings)
+      .where(eq(calculatorSettings.userId, userId));
+    
+    // If not found, return undefined
+    if (!settings) return undefined;
+    
+    // If correction ranges are null, set them to default values
+    if (!settings.mealCorrectionRanges) {
+      settings.mealCorrectionRanges = mealCorrectionChart;
+    }
+    
+    if (!settings.bedtimeCorrectionRanges) {
+      settings.bedtimeCorrectionRanges = bedtimeCorrectionChart;
+    }
+    
+    return settings;
+  }
+  
+  async createCalculatorSettings(settings: Partial<InsertCalculatorSettings> & { userId: number }): Promise<CalculatorSettings> {
+    // Set default values for correction ranges if not provided
+    const valuesToInsert = {
+      ...settings,
+      mealCorrectionRanges: settings.mealCorrectionRanges || mealCorrectionChart,
+      bedtimeCorrectionRanges: settings.bedtimeCorrectionRanges || bedtimeCorrectionChart
+    };
+    
+    const [newSettings] = await db
+      .insert(calculatorSettings)
+      .values(valuesToInsert)
+      .returning();
+    
+    return newSettings;
+  }
+  
+  async updateCalculatorSettings(id: number, settings: Partial<UpdateCalculatorSettings>): Promise<CalculatorSettings> {
+    const [updatedSettings] = await db
+      .update(calculatorSettings)
+      .set({
+        ...settings,
+        updatedAt: new Date()
+      })
+      .where(eq(calculatorSettings.id, id))
+      .returning();
+    
+    return updatedSettings;
+  }
+  
+  getDefaultCalculatorSettings(): { mealCorrectionRanges: CorrectionRange[], bedtimeCorrectionRanges: CorrectionRange[] } {
+    return {
+      mealCorrectionRanges: mealCorrectionChart,
+      bedtimeCorrectionRanges: bedtimeCorrectionChart
+    };
   }
 }
 

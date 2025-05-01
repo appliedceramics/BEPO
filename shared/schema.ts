@@ -22,6 +22,7 @@ export const users = pgTable("users", {
 
 export const usersRelations = relations(users, ({ one, many }) => ({
   profile: one(profiles),
+  calculatorSettings: one(calculatorSettings),
   insulinLogs: many(insulinLogs),
   achievements: many(achievements),
 }));
@@ -72,10 +73,6 @@ export const profilesRelations = relations(profiles, ({ one }) => ({
   user: one(users, {
     fields: [profiles.userId],
     references: [users.id],
-  }),
-  calculatorSettings: one(calculatorSettings, {
-    fields: [profiles.userId],
-    references: [calculatorSettings.userId],
   }),
 }));
 
@@ -132,14 +129,62 @@ export const correctionRangeSchema = z.object({
 
 export type CorrectionRange = z.infer<typeof correctionRangeSchema>;
 
+// Define the correction chart for meals (breakfast, lunch, dinner)
+export const mealCorrectionChart: CorrectionRange[] = [
+  { min: 0, max: 70, correction: -0.5 },
+  { min: 70, max: 100, correction: -0.5 },
+  { min: 101, max: 120, correction: 0 },
+  { min: 121, max: 138, correction: 0.5 },
+  { min: 139, max: 155, correction: 1 },
+  { min: 156, max: 173, correction: 1.5 },
+  { min: 174, max: 190, correction: 2 },
+  { min: 191, max: 208, correction: 2.5 },
+  { min: 209, max: 225, correction: 3 },
+  { min: 226, max: 243, correction: 3.5 },
+  { min: 244, max: 260, correction: 4 },
+  { min: 261, max: 278, correction: 4.5 },
+  { min: 279, max: 295, correction: 5 },
+  { min: 296, max: 313, correction: 5.5 },
+  { min: 314, max: 330, correction: 6 },
+  { min: 331, max: 348, correction: 6.5 },
+  { min: 349, max: 365, correction: 7 },
+  { min: 366, max: 383, correction: 7.5 },
+  { min: 384, max: 400, correction: 8 },
+  { min: 401, max: 999, correction: 8.5 } // Upper bound for extreme high values
+];
+
+// Define the correction chart for bedtime
+export const bedtimeCorrectionChart: CorrectionRange[] = [
+  { min: 0, max: 70, correction: -0.5 },
+  { min: 70, max: 100, correction: -0.5 },
+  { min: 101, max: 150, correction: 0 },   // Different from meal chart
+  { min: 151, max: 168, correction: 0.5 }, // Different from meal chart
+  { min: 169, max: 185, correction: 1 },   // Different from meal chart
+  { min: 186, max: 203, correction: 1.5 }, // Different from meal chart
+  { min: 204, max: 220, correction: 2 },   // Different from meal chart
+  { min: 221, max: 238, correction: 2.5 }, // Different from meal chart
+  { min: 239, max: 255, correction: 3 },   // Different from meal chart
+  { min: 256, max: 273, correction: 3.5 }, // Different from meal chart
+  { min: 274, max: 290, correction: 4 },   // Different from meal chart
+  { min: 291, max: 308, correction: 4.5 }, // Different from meal chart
+  { min: 309, max: 325, correction: 5 },   // Different from meal chart
+  { min: 326, max: 343, correction: 5.5 }, // Different from meal chart
+  { min: 344, max: 360, correction: 6 },   // Different from meal chart
+  { min: 361, max: 378, correction: 6.5 }, // Different from meal chart
+  { min: 379, max: 395, correction: 7 },   // Different from meal chart
+  { min: 396, max: 413, correction: 7.5 }, // Different from meal chart
+  { min: 414, max: 430, correction: 8 },   // Different from meal chart
+  { min: 431, max: 999, correction: 8.5 }  // Upper bound for extreme high values
+];
+
 // Calculator Settings table schema
 export const calculatorSettings = pgTable("calculator_settings", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }).unique(),
   firstMealRatio: numeric("first_meal_ratio").notNull().default("10"),  // Insulin to carb ratio for first meal
   otherMealRatio: numeric("other_meal_ratio").notNull().default("15"), // Insulin to carb ratio for other meals
-  mealCorrectionRanges: json("meal_correction_ranges").$type<CorrectionRange[]>().notNull(),
-  bedtimeCorrectionRanges: json("bedtime_correction_ranges").$type<CorrectionRange[]>().notNull(),
+  mealCorrectionRanges: json("meal_correction_ranges").$type<CorrectionRange[]>(),
+  bedtimeCorrectionRanges: json("bedtime_correction_ranges").$type<CorrectionRange[]>(),
   targetBgMin: numeric("target_bg_min").notNull().default("4.5"),  // Target blood glucose minimum (mmol/L)
   targetBgMax: numeric("target_bg_max").notNull().default("7.0"),  // Target blood glucose maximum (mmol/L)
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
