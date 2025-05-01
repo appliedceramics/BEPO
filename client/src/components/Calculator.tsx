@@ -29,6 +29,18 @@ export function Calculator({ onLogInsulin, isLogging }: CalculatorProps) {
   
   // Get calculator settings for long-acting insulin dosage
   const { settings, isLoading: settingsLoading } = useCalculatorSettings();
+  
+  // Custom handler for meal type change to handle special cases
+  const handleMealTypeChange = (newMealType: MealType) => {
+    setMealType(newMealType);
+    
+    // For long-acting insulin, we'll auto-set a default blood glucose value 
+    // since it doesn't actually matter for the calculation
+    if (newMealType === "longActing" && bgValue === undefined) {
+      // Use a normal blood glucose value in the target range
+      setBgValue(settings?.targetBgMin ? parseFloat(settings.targetBgMin.toString()) + 1 : 5.5);
+    }
+  };
 
   // Recalculate when inputs change
   useEffect(() => {
@@ -103,7 +115,7 @@ export function Calculator({ onLogInsulin, isLogging }: CalculatorProps) {
       <div className="mb-6">
         <DosagePurposeSelector
           value={mealType}
-          onChange={setMealType}
+          onChange={handleMealTypeChange}
         />
       </div>
       
@@ -118,11 +130,13 @@ export function Calculator({ onLogInsulin, isLogging }: CalculatorProps) {
         </div>
       )}
 
-      {/* Blood Glucose Input */}
-      <BloodGlucoseInput
-        value={bgValue}
-        onChange={setBgValue}
-      />
+      {/* Blood Glucose Input - Hide for Long Acting insulin */}
+      {mealType !== "longActing" && (
+        <BloodGlucoseInput
+          value={bgValue}
+          onChange={setBgValue}
+        />
+      )}
 
       {/* Results Display */}
       <ResultsDisplay

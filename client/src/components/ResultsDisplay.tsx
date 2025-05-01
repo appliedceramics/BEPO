@@ -16,8 +16,13 @@ export function ResultsDisplay({
 }: ResultsDisplayProps) {
   const totalRef = useRef<HTMLParagraphElement>(null);
   
-  // Check if this is a bedtime calculation (meal insulin is exactly 0, not undefined)
-  const isBedtime = mealInsulin === 0 && correctionInsulin !== undefined;
+  // Check if this is a bedtime calculation (meal insulin is exactly 0, not undefined and correction insulin is not 0)
+  const isBedtime = mealInsulin === 0 && correctionInsulin !== undefined && correctionInsulin !== 0;
+  
+  // Check if this is a long-acting insulin calculation (meal insulin equals total insulin and correction is 0)
+  const isLongActing = mealInsulin !== undefined && totalInsulin !== undefined && 
+                       mealInsulin === totalInsulin && 
+                       (correctionInsulin === 0 || correctionInsulin === undefined);
   
   // Format insulin values with 1 decimal place
   const mealInsulinFormatted = mealInsulin !== undefined ? mealInsulin.toFixed(1) : "--";
@@ -44,7 +49,9 @@ export function ResultsDisplay({
       <div className="flex items-center mb-4">
         <InsulinIcon />
         <h3 className="ml-2 text-xl font-bold text-primary">
-          {isBedtime ? "Bedtime Correction" : "Calculation Results"}
+          {isBedtime ? "Bedtime Correction" : 
+           isLongActing ? "Long Acting Dosage" : 
+           "Calculation Results"}
         </h3>
       </div>
       
