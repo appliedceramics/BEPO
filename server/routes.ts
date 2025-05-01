@@ -172,6 +172,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // AI Food suggestions
+  app.post("/api/food-suggestions", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const { query } = req.body;
+      if (!query || typeof query !== 'string') {
+        return res.status(400).json({ message: "Query is required" });
+      }
+      
+      const foodSuggestion = await getFoodCarbs(query);
+      res.json(foodSuggestion);
+    } catch (error) {
+      console.error("Error getting food suggestions:", error);
+      res.status(500).json({ message: "Failed to get food suggestions" });
+    }
+  });
+
+  app.post("/api/meal-suggestions", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const { query } = req.body;
+      if (!query || typeof query !== 'string') {
+        return res.status(400).json({ message: "Query is required" });
+      }
+      
+      const suggestions = await suggestMeals(query);
+      res.json(suggestions);
+    } catch (error) {
+      console.error("Error getting meal suggestions:", error);
+      res.status(500).json({ message: "Failed to get meal suggestions" });
+    }
+  });
+
   // Meal presets routes
   app.get("/api/meal-presets", isAuthenticated, async (req: Request, res: Response) => {
     try {
