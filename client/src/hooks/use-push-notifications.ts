@@ -179,7 +179,16 @@ export function usePushNotifications() {
 
   // Send a test notification
   const sendTestNotification = async () => {
-    if (!user || !subscription) {
+    if (!user) {
+      toast({
+        title: 'Not logged in',
+        description: 'You must be logged in to send test notifications.',
+        variant: 'destructive',
+      });
+      return false;
+    }
+    
+    if (!subscription) {
       toast({
         title: 'Not subscribed',
         description: 'You must be subscribed to push notifications first.',
@@ -189,7 +198,16 @@ export function usePushNotifications() {
     }
 
     try {
-      await apiRequest('POST', '/api/send-test-notification');
+      // We'll only send the subscription in the request if it's not already stored on the server
+      // The server will try to use its stored subscription first, then fall back to this one
+      await apiRequest('POST', '/api/send-test-notification', {
+        subscription: subscription.toJSON()
+      });
+      
+      toast({
+        title: 'Test sent',
+        description: 'Test notification has been sent.',
+      });
       return true;
     } catch (error) {
       console.error('Error sending test notification:', error);

@@ -144,18 +144,30 @@ export default function ProfileEditPage() {
       
       // Set legacy fields if we're in a transition period and the profile has them
       // This is just for backward compatibility during migration
-      if ('motherName' in profile) {
+      if ('motherName' in profile && typeof profile.motherName !== 'undefined') {
         Object.assign(resetData, {
           motherName: profile.motherName || "",
-          motherPhone: profile.motherPhone || "",
         });
+        
+        // Only set the motherPhone if that property exists
+        if ('motherPhone' in profile && typeof profile.motherPhone !== 'undefined') {
+          Object.assign(resetData, {
+            motherPhone: profile.motherPhone || "",
+          });
+        }
       }
       
-      if ('fatherName' in profile) {
+      if ('fatherName' in profile && typeof profile.fatherName !== 'undefined') {
         Object.assign(resetData, {
           fatherName: profile.fatherName || "",
-          fatherPhone: profile.fatherPhone || "", 
         });
+        
+        // Only set the fatherPhone if that property exists
+        if ('fatherPhone' in profile && typeof profile.fatherPhone !== 'undefined') {
+          Object.assign(resetData, {
+            fatherPhone: profile.fatherPhone || "",
+          });
+        }
       }
       
       if ('notifyParents' in profile) {

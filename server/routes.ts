@@ -598,6 +598,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Web Push subscription endpoints
+  // Store user's push notification subscription
+  // In a full implementation, this would be stored in a database table
+  const userPushSubscriptions = new Map<number, any>();
+
   app.post("/api/push-subscription", isAuthenticated, async (req: Request, res: Response) => {
     try {
       if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
@@ -609,14 +613,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid subscription data" });
       }
 
-      // Here you would store the subscription in the database linked to the user or contact
-      // For now, we'll just acknowledge it
-      console.log('Push subscription received:', subscription.endpoint);
+      const userId = req.user!.id;
+      
+      // Store the subscription in memory (in a real app, this would go in the database)
+      userPushSubscriptions.set(userId, subscription);
+      console.log(`Push subscription saved for user ${userId}: ${subscription.endpoint}`);
       
       res.status(201).json({ message: "Subscription saved successfully" });
     } catch (error) {
       console.error("Error saving push subscription:", error);
       res.status(500).json({ message: "Failed to save push subscription" });
+    }
+  });
+  
+  // Retrieve user's push notification subscription
+  app.get("/api/push-subscription", isAuthenticated, (req: Request, res: Response) => {
+    try {
+      const userId = req.user!.id;
+      const subscription = userPushSubscriptions.get(userId);
+      
+      if (subscription) {
+        res.json({ subscription });
+      } else {
+        res.status(404).json({ message: "No subscription found for this user" });
+      }
+    } catch (error) {
+      console.error("Error retrieving push subscription:", error);
+      res.status(500).json({ message: "Failed to retrieve push subscription" });
     }
   });
 
@@ -634,12 +657,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(501).json({ message: "Push notifications are not configured on the server" });
       }
 
-      const { subscription } = req.body;
+      const userId = req.user!.id;
+
+      // Check if subscription is in the request body first
+      let subscription = null;
+      if (req.body && req.body.subscription) {
+        subscription = req.body.subscription;
+      } else {
+        // Try to get it from our stored subscriptions
+        subscription = userPushSubscriptions.get(userId);
+        
+        if (!subscription) {
+          return res.status(400).json({ 
+            message: "No subscription found. Please subscribe to push notifications first."
+          });
+        }
+      }
+      
       if (!subscription || !subscription.endpoint) {
         return res.status(400).json({ message: "Invalid subscription data" });
       }
 
-      const userId = req.user!.id;
       const profile = await storage.getProfileByUserId(userId);
       if (!profile) {
         return res.status(404).json({ message: "User profile not found" });
@@ -647,12 +685,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const payload = {
         title: "BEPO Test Notification",
-        body: `This is a test notification for ${profile.name}`,
-        icon: "/icons/app-icon-192.png",
+        message: `This is a test notification for ${profile.name}`,
+        icon: "/images/notification-icon.svg",
+        badge: "/images/notification-badge.svg",
         data: {
           dateOfTest: new Date().toISOString(),
           url: "/"
-        }
+        },
+        requireInteraction: true
       };
 
       await sendPushNotification(subscription, payload);
