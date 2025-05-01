@@ -1,6 +1,4 @@
-import React from 'react';
 import { cn } from '@/lib/utils';
-import { Skeleton } from './loading';
 
 /**
  * Props for the ContentSkeleton component
@@ -24,28 +22,11 @@ export function ContentSkeleton({
   imagePosition = 'left',
   hasAction = false,
   isCard = false,
-  lineWidths = [],
+  lineWidths,
   rounded = false,
   className,
   ...props
 }: ContentSkeletonProps) {
-  // Generate default line widths if none provided
-  const generatedLineWidths = lineWidths.length ? 
-    lineWidths : 
-    Array(lines)
-      .fill(0)
-      .map((_, i) => {
-        // First line is often the title, so make it longer
-        if (i === 0) return 'w-3/4';
-        
-        // Last line is often shorter
-        if (i === lines - 1 && lines > 1) return 'w-2/3';
-        
-        // Random width for others between 60% and 95%
-        const randomWidth = Math.floor(Math.random() * 35) + 60;
-        return `w-[${randomWidth}%]`;
-      });
-
   // Determine image dimensions based on size
   const getImageDimensions = () => {
     switch (imageSize) {
@@ -64,79 +45,77 @@ export function ContentSkeleton({
     }
   };
 
-  const Container = ({ children }: { children: React.ReactNode }) => (
-    <div
-      className={cn(
-        'animate-pulse',
-        isCard ? 'p-4 border rounded-lg bg-card' : '',
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </div>
+  // Generate random widths for lines if not provided
+  const getLineWidth = (index: number) => {
+    if (lineWidths && lineWidths[index]) {
+      return lineWidths[index];
+    }
+
+    // Last line is shorter
+    if (index === lines - 1) {
+      return 'w-2/3';
+    }
+
+    // Other lines random between 70% and 100%
+    const randomWidth = Math.floor(Math.random() * 30) + 70;
+    return `w-[${randomWidth}%]`;
+  };
+
+  const renderLines = () => {
+    return Array.from({ length: lines }).map((_, index) => (
+      <div
+        key={index}
+        className={cn(
+          'h-4 bg-gray-200 animate-pulse rounded',
+          getLineWidth(index),
+          index !== 0 && 'mt-2'
+        )}
+      />
+    ));
+  };
+
+  const renderImage = () => {
+    if (imageSize === 'none') return null;
+    return (
+      <div
+        className={cn(
+          'bg-gray-200 animate-pulse',
+          getImageDimensions(),
+          rounded && (imageSize === 'small' || imageSize === 'medium' || imageSize === 'large') && 'rounded-md'
+        )}
+      />
+    );
+  };
+
+  const renderAction = () => {
+    if (!hasAction) return null;
+    return (
+      <div className="h-9 w-24 bg-gray-200 animate-pulse rounded-md mt-4" />
+    );
+  };
+
+  const wrapperClasses = cn(
+    'flex',
+    isCard && 'p-4 border rounded-lg shadow-sm',
+    imagePosition === 'top' ? 'flex-col' : 'items-start',
+    className
   );
 
-  if (imagePosition === 'top' && imageSize !== 'none') {
-    return (
-      <Container>
-        {imageSize !== 'none' && (
-          <div className="mb-4">
-            <Skeleton
-              className={cn(
-                getImageDimensions(),
-                rounded && imageSize !== 'avatar' ? 'rounded-lg' : ''
-              )}
-            />
-          </div>
-        )}
-        <div className="space-y-2">
-          {Array(lines)
-            .fill(0)
-            .map((_, i) => (
-              <Skeleton
-                key={i}
-                className={cn('h-4', generatedLineWidths[i] || 'w-full')}
-              />
-            ))}
-        </div>
-        {hasAction && (
-          <div className="mt-4 flex justify-end">
-            <Skeleton className="h-9 w-20 rounded-md" />
-          </div>
-        )}
-      </Container>
-    );
-  }
+  const contentClasses = cn(
+    'flex flex-col',
+    imagePosition === 'left' && 'ml-4',
+    imagePosition === 'top' && 'mt-4',
+    imageSize !== 'none' ? 'flex-1' : 'w-full'
+  );
 
   return (
-    <Container>
-      <div className="flex gap-4">
-        {imageSize !== 'none' && imagePosition === 'left' && (
-          <Skeleton
-            className={cn(
-              getImageDimensions(),
-              rounded && imageSize !== 'avatar' ? 'rounded-lg' : ''
-            )}
-          />
-        )}
-        <div className="flex-1 space-y-2">
-          {Array(lines)
-            .fill(0)
-            .map((_, i) => (
-              <Skeleton
-                key={i}
-                className={cn('h-4', generatedLineWidths[i] || 'w-full')}
-              />
-            ))}
-          {hasAction && (
-            <div className="mt-4 flex justify-end">
-              <Skeleton className="h-9 w-20 rounded-md" />
-            </div>
-          )}
-        </div>
+    <div className={wrapperClasses} {...props}>
+      {renderImage()}
+      <div className={contentClasses}>
+        {renderLines()}
+        {renderAction()}
       </div>
-    </Container>
+    </div>
   );
 }
 
@@ -145,40 +124,26 @@ export function ContentSkeleton({
  */
 export function CardSkeleton({
   hasImage = true,
-  hasFooter = true,
-  lines = 2,
+  hasAction = true,
+  lines = 3,
   className,
+  ...props
 }: {
   hasImage?: boolean;
-  hasFooter?: boolean;
+  hasAction?: boolean;
   lines?: number;
   className?: string;
-}) {
+} & React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn('rounded-lg border bg-card', className)}>
-      {hasImage && (
-        <Skeleton className="h-48 w-full rounded-t-lg" />
-      )}
-      <div className="p-4 space-y-3">
-        <Skeleton className="h-5 w-3/4" />
-        <div className="space-y-2">
-          {Array(lines)
-            .fill(0)
-            .map((_, i) => (
-              <Skeleton
-                key={i}
-                className={cn('h-4', i === lines - 1 ? 'w-2/3' : 'w-full')}
-              />
-            ))}
-        </div>
-      </div>
-      {hasFooter && (
-        <div className="border-t p-4 flex justify-between items-center">
-          <Skeleton className="h-5 w-20" />
-          <Skeleton className="h-9 w-24 rounded-md" />
-        </div>
-      )}
-    </div>
+    <ContentSkeleton
+      isCard
+      rounded
+      lines={lines}
+      imageSize={hasImage ? 'medium' : 'none'}
+      hasAction={hasAction}
+      className={className}
+      {...props}
+    />
   );
 }
 
@@ -188,38 +153,28 @@ export function CardSkeleton({
 export function GridSkeleton({
   columns = 3,
   rows = 2,
-  cardProps = {},
+  gap = 4,
+  itemProps,
   className,
-  columnClassName,
+  ...props
 }: {
   columns?: number;
   rows?: number;
-  cardProps?: Partial<React.ComponentProps<typeof CardSkeleton>>;
+  gap?: number;
+  itemProps?: ContentSkeletonProps;
   className?: string;
-  columnClassName?: string;
-}) {
+} & React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={cn(
-        'grid gap-4',
-        {
-          'grid-cols-1': columns === 1,
-          'grid-cols-2 sm:grid-cols-2': columns === 2,
-          'grid-cols-1 sm:grid-cols-2 md:grid-cols-3': columns === 3,
-          'grid-cols-2 sm:grid-cols-3 md:grid-cols-4': columns === 4,
-          'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5': columns === 5,
-          'grid-cols-2 sm:grid-cols-3 lg:grid-cols-6': columns >= 6,
-        },
+        `grid grid-cols-1 sm:grid-cols-2 md:grid-cols-${columns} gap-${gap}`,
         className
       )}
+      {...props}
     >
-      {Array(rows * columns)
-        .fill(0)
-        .map((_, i) => (
-          <div key={i} className={columnClassName}>
-            <CardSkeleton {...cardProps} />
-          </div>
-        ))}
+      {Array.from({ length: rows * columns }).map((_, i) => (
+        <CardSkeleton key={i} {...itemProps} />
+      ))}
     </div>
   );
 }
@@ -231,70 +186,49 @@ export function TableSkeleton({
   rows = 5,
   columns = 4,
   hasHeader = true,
-  hasActions = false,
   className,
+  ...props
 }: {
   rows?: number;
   columns?: number;
   hasHeader?: boolean;
-  hasActions?: boolean;
   className?: string;
-}) {
-  // Calculate column widths based on whether there are actions
-  const effectiveColumns = hasActions ? columns - 1 : columns;
-  
+} & React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn('w-full overflow-hidden', className)}>
-      <div className="rounded-md border">
-        <div className="relative w-full overflow-auto">
-          <table className="w-full caption-bottom text-sm">
-            {hasHeader && (
-              <thead className="border-b bg-muted/50">
-                <tr className="hover:bg-muted/50">
-                  {Array(effectiveColumns)
-                    .fill(0)
-                    .map((_, i) => (
-                      <th key={i} className="p-3 text-left align-middle font-medium">
-                        <Skeleton className="h-4 w-20" />
-                      </th>
-                    ))}
-                  {hasActions && (
-                    <th className="p-3 text-left align-middle font-medium">
-                      <Skeleton className="h-4 w-16 ml-auto" />
-                    </th>
-                  )}
-                </tr>
-              </thead>
-            )}
-            <tbody>
-              {Array(rows)
-                .fill(0)
-                .map((_, rowIndex) => (
-                  <tr key={rowIndex} className="border-b hover:bg-muted/50">
-                    {Array(effectiveColumns)
-                      .fill(0)
-                      .map((_, colIndex) => (
-                        <td key={colIndex} className="p-3 align-middle">
-                          <Skeleton 
-                            className={cn(
-                              'h-4',
-                              colIndex === 0 ? 'w-28' : 'w-20'
-                            )}
-                          />
-                        </td>
-                      ))}
-                    {hasActions && (
-                      <td className="p-3 align-middle text-right">
-                        <div className="flex justify-end gap-2">
-                          <Skeleton className="h-8 w-8 rounded-md" />
-                          <Skeleton className="h-8 w-8 rounded-md" />
-                        </div>
-                      </td>
+    <div
+      className={cn('border rounded-md overflow-hidden', className)}
+      {...props}
+    >
+      <div className="min-w-full divide-y divide-gray-200">
+        {hasHeader && (
+          <div className="bg-gray-100">
+            <div className="flex">
+              {Array.from({ length: columns }).map((_, i) => (
+                <div key={`header-${i}`} className="px-4 py-3 flex-1">
+                  <div className="h-4 bg-gray-200 animate-pulse rounded w-3/4" />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        <div className="bg-white divide-y divide-gray-200">
+          {Array.from({ length: rows }).map((_, rowIndex) => (
+            <div key={`row-${rowIndex}`} className="flex">
+              {Array.from({ length: columns }).map((_, colIndex) => (
+                <div
+                  key={`cell-${rowIndex}-${colIndex}`}
+                  className="px-4 py-3 flex-1"
+                >
+                  <div
+                    className={cn(
+                      'h-4 bg-gray-200 animate-pulse rounded',
+                      Math.random() > 0.5 ? 'w-full' : 'w-2/3'
                     )}
-                  </tr>
-                ))}
-            </tbody>
-          </table>
+                  />
+                </div>
+              ))}
+            </div>
+          ))}
         </div>
       </div>
     </div>

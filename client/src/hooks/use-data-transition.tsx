@@ -1,100 +1,117 @@
 import { useState, useEffect } from 'react';
 
+interface UseDataTransitionOptions {
+  /**
+   * Duration of the fade out animation in milliseconds
+   */
+  fadeOutDuration?: number;
+  /**
+   * Duration to wait before showing new data in milliseconds
+   */
+  switchDuration?: number;
+  /**
+   * Duration of the fade in animation in milliseconds
+   */
+  fadeInDuration?: number;
+  /**
+   * Whether to disable all transitions (for testing or when transitions are not desired)
+   */
+  disableTransitions?: boolean;
+}
+
+interface UseDataTransitionReturn<T> {
+  /**
+   * The visible data that should be rendered (may be previous data during transition)
+   */
+  visibleData: T | null;
+  /**
+   * Whether the transition is currently in progress
+   */
+  isTransitioning: boolean;
+  /**
+   * CSS classes for the transition container
+   */
+  transitionClasses: string;
+}
+
 /**
- * Hook for handling transition states when data changes
- * @param data The data to watch for changes
- * @param options Configuration options
- * @returns Transition state and the data to display
+ * Hook for smooth transitions when data changes
  */
 export function useDataTransition<T>(
-  data: T | undefined,
-  options: {
-    /**
-     * Duration of the transition in milliseconds
-     * @default 300
-     */
-    duration?: number;
-    
-    /**
-     * Whether to show transition when data first loads
-     * @default true
-     */
-    transitionOnMount?: boolean;
-    
-    /**
-     * Whether to show loading state when data is undefined
-     * @default true
-     */
-    showLoadingOnUndefined?: boolean;
-    
-    /**
-     * Custom function to compare previous and current data to determine if data has changed
-     * By default, uses JSON.stringify for comparison
-     */
-    compareData?: (prevData: T | undefined, newData: T | undefined) => boolean;
-  } = {}
-) {
+  data: T | null,
+  isLoading: boolean,
+  options: UseDataTransitionOptions = {}
+): UseDataTransitionReturn<T> {
   const {
-    duration = 300,
-    transitionOnMount = true,
-    showLoadingOnUndefined = true,
-    compareData = (prev, next) => JSON.stringify(prev) === JSON.stringify(next),
+    fadeOutDuration = 200,
+    switchDuration = 100,
+    fadeInDuration = 300,
+    disableTransitions = false
   } = options;
-  
-  // Previous data used for transitions
-  const [prevData, setPrevData] = useState<T | undefined>(undefined);
-  
-  // Data to display (may be previous data during transition)
-  const [displayData, setDisplayData] = useState<T | undefined>(data);
-  
-  // State for transition animation
+
+  const [visibleData, setVisibleData] = useState<T | null>(data);
+  const [previousData, setPreviousData] = useState<T | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  
-  // Whether the component has mounted
-  const [hasMounted, setHasMounted] = useState(false);
-  
+  const [transitionPhase, setTransitionPhase] = useState<'idle' | 'fadeOut' | 'switch' | 'fadeIn'>('idle');
+
   useEffect(() => {
-    // If this is the first render, mark as mounted
-    if (!hasMounted) {
-      setHasMounted(true);
+    if (disableTransitions) {
+      setVisibleData(data);
       return;
     }
 
-    // If data is the same as previous, no need to transition
-    if (compareData(prevData, data)) {
-      return;
+    // If loading, don't change the visible data yet
+    if (isLoading) return;
+
+    // If no data change, do nothing
+    if (JSON.stringify(data) === JSON.stringify(visibleData)) return;
+
+    let timeoutId: NodeJS.Timeout;
+
+    if (transitionPhase === 'idle') {
+      // Save the current data for transitioning
+      setPreviousData(visibleData);
+      setIsTransitioning(true);
+      setTransitionPhase('fadeOut');
+
+      timeoutId = setTimeout(() => {
+        setTransitionPhase('switch');
+
+        timeoutId = setTimeout(() => {
+          // Update to the new data
+          setVisibleData(data);
+          setTransitionPhase('fadeIn');
+
+          timeoutId = setTimeout(() => {
+            setIsTransitioning(false);
+            setTransitionPhase('idle');
+          }, fadeInDuration);
+        }, switchDuration);
+      }, fadeOutDuration);
     }
-    
-    // Start transition
-    setIsTransitioning(true);
-    
-    // Store previous data for animation
-    if (data !== undefined) {
-      setPrevData(data);
+
+    return () => clearTimeout(timeoutId);
+  }, [data, visibleData, isLoading, transitionPhase, fadeOutDuration, switchDuration, fadeInDuration, disableTransitions]);
+
+  // Compute classes based on transition phase
+  const getTransitionClasses = () => {
+    if (disableTransitions) return '';
+
+    switch (transitionPhase) {
+      case 'fadeOut':
+        return `transition-opacity duration-${fadeOutDuration} opacity-0`;
+      case 'switch':
+        return 'opacity-0';
+      case 'fadeIn':
+        return `transition-opacity duration-${fadeInDuration} opacity-100`;
+      default:
+        return 'opacity-100';
     }
-    
-    // Update the display data after the transition duration
-    const timer = setTimeout(() => {
-      setDisplayData(data);
-      setIsTransitioning(false);
-    }, duration);
-    
-    return () => clearTimeout(timer);
-  }, [data, duration, compareData, prevData, hasMounted]);
-  
-  // Handle initial mount
-  useEffect(() => {
-    if (!transitionOnMount) {
-      setDisplayData(data);
-    }
-  }, [transitionOnMount, data]);
-  
-  const isLoading = showLoadingOnUndefined && data === undefined;
-  
+  };
+
   return {
+    visibleData,
     isTransitioning,
-    isLoading,
-    displayData: isTransitioning ? prevData : displayData,
-    hasData: displayData !== undefined,
+    transitionClasses: getTransitionClasses()
   };
 }

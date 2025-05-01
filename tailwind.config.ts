@@ -79,6 +79,18 @@ export default {
             height: "0",
           },
         },
+        "pulse-delay-0": {
+          '0%, 100%': { opacity: '0.6' },
+          '50%': { opacity: '1' },
+        },
+        "pulse-delay-1": {
+          '0%, 100%': { opacity: '0.6' },
+          '50%': { opacity: '1' },
+        },
+        "pulse-delay-2": {
+          '0%, 100%': { opacity: '0.6' },
+          '50%': { opacity: '1' },
+        },
         wave: {
           '0%, 100%': { transform: 'scaleY(0.5)' },
           '50%': { transform: 'scaleY(1.0)' },
@@ -125,6 +137,9 @@ export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "pulse": "pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "pulse-delay-0": "pulse-delay-0 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "pulse-delay-1": "pulse-delay-1 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite 0.3s",
+        "pulse-delay-2": "pulse-delay-2 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite 0.6s",
         "bounce": "bounce 1s infinite",
         "wave": "wave 1.2s linear infinite",
         "fade-in": "fade-in 0.3s ease-out",
