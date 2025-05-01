@@ -119,7 +119,8 @@ export default function ProfileEditPage() {
   // Update form with profile data when available
   useEffect(() => {
     if (profile) {
-      form.reset({
+      // Create a typed reset object with only valid fields
+      const resetData: Partial<ProfileFormValues> = {
         name: profile.name,
         age: profile.age,
         sex: profile.sex as "male" | "female",
@@ -137,14 +138,32 @@ export default function ProfileEditPage() {
         caregiverEmail: profile.caregiverEmail || "",
         // Notification preferences
         notifyContacts: profile.notifyContacts || false,
-        notificationMethod: (profile.notificationMethod as "sms" | "email" | "push") || "sms",
-        // Legacy fields - for backward compatibility
-        motherName: profile.motherName || "",
-        motherPhone: profile.motherPhone || "",
-        fatherName: profile.fatherName || "",
-        fatherPhone: profile.fatherPhone || "",
-        notifyParents: profile.notifyParents || false,
-      });
+        notificationMethod: (profile.notificationMethod as "sms" | "email" | "push") || "sms"
+      };
+      
+      // Set legacy fields if we're in a transition period and the profile has them
+      // This is just for backward compatibility during migration
+      if ('motherName' in profile) {
+        Object.assign(resetData, {
+          motherName: profile.motherName || "",
+          motherPhone: profile.motherPhone || "",
+        });
+      }
+      
+      if ('fatherName' in profile) {
+        Object.assign(resetData, {
+          fatherName: profile.fatherName || "",
+          fatherPhone: profile.fatherPhone || "", 
+        });
+      }
+      
+      if ('notifyParents' in profile) {
+        Object.assign(resetData, {
+          notifyParents: profile.notifyParents || false
+        });
+      }
+      
+      form.reset(resetData);
     }
   }, [profile, form]);
 
@@ -163,7 +182,7 @@ export default function ProfileEditPage() {
     });
   };
 
-  // Get the notify parents value for conditional rendering
+  // For backward compatibility during the transition period
   const notifyParents = form.watch("notifyParents");
 
   if (profileLoading) {
