@@ -107,7 +107,7 @@ export function usePushNotifications() {
         setSubscriptionStatus('denied');
         toast({
           title: 'Permission denied',
-          description: 'Please allow notifications in your browser settings.',
+          description: 'Notifications blocked. You need to update your browser settings to enable them.',
           variant: 'destructive',
         });
         return false;

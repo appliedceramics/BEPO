@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Bell, BellOff, CheckCircle, AlertCircle, Smartphone } from 'lucide-react';
+import { BrowserNotificationInstructions } from './BrowserNotificationInstructions';
 
 export function PushNotificationSettings() {
   const {
@@ -86,7 +87,10 @@ export function PushNotificationSettings() {
 
         {isDenied && (
           <div className="rounded-md bg-amber-50 p-4 text-sm text-amber-700">
-            Notifications are blocked. Please update your browser settings to allow notifications from this site.
+            <p className="mb-2">
+              Notifications are blocked. Please update your browser settings to allow notifications from this site.
+            </p>
+            <BrowserNotificationInstructions />
           </div>
         )}
 
