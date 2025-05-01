@@ -53,15 +53,30 @@ export function BloodGlucoseInput({ value, onChange }: BloodGlucoseInputProps) {
   };
 
   // Handle voice input result
-  const handleVoiceInput = (value: number) => {
-    // Update the input value
-    setInputValue(value.toString());
-    setError(null);
-    onChange(value);
+  const handleVoiceInput = (transcript: string) => {
+    console.log('Voice input for BG:', transcript);
     
-    // Update mg/dL conversion
-    const mgdl = convertBgToMgdl(value).toFixed(1);
-    setMgdlValue(`${mgdl} mg/dL`);
+    // Try to extract a number from the transcript
+    // This regex will match the first number in the string (with optional decimal point)
+    const match = transcript.match(/\d+(\.\d+)?/);
+    
+    if (match) {
+      const numericValue = parseFloat(match[0]);
+      if (!isNaN(numericValue) && numericValue >= 0) {
+        // Update the input value
+        setInputValue(numericValue.toString());
+        setError(null);
+        onChange(numericValue);
+        
+        // Update mg/dL conversion
+        const mgdl = convertBgToMgdl(numericValue).toFixed(1);
+        setMgdlValue(`${mgdl} mg/dL`);
+      } else {
+        setError("Invalid number detected in voice input");
+      }
+    } else {
+      setError("Could not detect a number in your voice input");
+    }
   };
 
   return (
