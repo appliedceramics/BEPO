@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Loader2, Plus, Search, X, Trash2, Check, ChevronUp, ChevronDown, Edit } from "lucide-react";
+import { Loader2, Plus, Minus, Search, X, Trash2, Check, ChevronUp, ChevronDown, Edit } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useDebounce } from "../hooks/use-debounce";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -17,6 +17,7 @@ import { FoodItem, Portion } from "./DynamicFoodSearch";
 interface BasketItem extends FoodItem {
   id: string;
   portionSize: "small" | "medium" | "large";
+  quantity: number;
 }
 
 interface FoodBasketSearchProps {
@@ -46,9 +47,9 @@ export function FoodBasketSearch({ onSavePreset }: FoodBasketSearchProps) {
   // Calculate total carbs whenever basket items change
   useEffect(() => {
     const total = basketItems.reduce((sum, item) => {
-      return sum + item.portions[item.portionSize].carbValue;
+      return sum + (item.portions[item.portionSize].carbValue * item.quantity);
     }, 0);
-    setTotalCarbs(total);
+    setTotalCarbs(Math.round(total));
   }, [basketItems]);
 
   // Perform search when debounced search term changes
@@ -133,7 +134,8 @@ export function FoodBasketSearch({ onSavePreset }: FoodBasketSearchProps) {
     const newItem: BasketItem = {
       ...item,
       id: `${item.name}-${Date.now()}`,
-      portionSize: "medium"
+      portionSize: "medium",
+      quantity: 1
     };
 
     setBasketItems(prev => [...prev, newItem]);
@@ -158,6 +160,15 @@ export function FoodBasketSearch({ onSavePreset }: FoodBasketSearchProps) {
   const handlePortionChange = (id: string, size: "small" | "medium" | "large") => {
     setBasketItems(prev => prev.map(item => 
       item.id === id ? { ...item, portionSize: size } : item
+    ));
+  };
+  
+  const handleQuantityChange = (id: string, newQuantity: number) => {
+    // Ensure quantity is at least 1
+    const quantity = Math.max(1, newQuantity);
+    
+    setBasketItems(prev => prev.map(item => 
+      item.id === id ? { ...item, quantity } : item
     ));
   };
 
@@ -314,34 +325,64 @@ export function FoodBasketSearch({ onSavePreset }: FoodBasketSearchProps) {
                             <div className="flex-1">
                               <div className="flex justify-between">
                                 <h4 className="font-medium text-sm">{item.name}</h4>
-                                <Badge className="ml-2">
-                                  {item.portions[item.portionSize].carbValue}g
-                                </Badge>
+                                <div className="flex items-center gap-1">
+                                  {item.quantity > 1 && (
+                                    <span className="text-xs text-muted-foreground">
+                                      {item.quantity}×
+                                    </span>
+                                  )}
+                                  <Badge className="ml-2">
+                                    {Math.round(item.portions[item.portionSize].carbValue * item.quantity)}g
+                                  </Badge>
+                                </div>
                               </div>
                               
                               <div className="flex items-center mt-1">
-                                <Select 
-                                  value={item.portionSize} 
-                                  onValueChange={(value) => handlePortionChange(
-                                    item.id, 
-                                    value as "small" | "medium" | "large"
-                                  )}
-                                >
-                                  <SelectTrigger className="h-7 text-xs w-28">
-                                    <SelectValue placeholder="Portion size" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="small">
-                                      Small ({item.portions.small.carbValue}g)
-                                    </SelectItem>
-                                    <SelectItem value="medium">
-                                      Medium ({item.portions.medium.carbValue}g)
-                                    </SelectItem>
-                                    <SelectItem value="large">
-                                      Large ({item.portions.large.carbValue}g)
-                                    </SelectItem>
-                                  </SelectContent>
-                                </Select>
+                                <div className="flex gap-2 items-center">
+                                  <Select 
+                                    value={item.portionSize} 
+                                    onValueChange={(value) => handlePortionChange(
+                                      item.id, 
+                                      value as "small" | "medium" | "large"
+                                    )}
+                                  >
+                                    <SelectTrigger className="h-7 text-xs w-28">
+                                      <SelectValue placeholder="Portion size" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="small">
+                                        Small ({item.portions.small.carbValue}g)
+                                      </SelectItem>
+                                      <SelectItem value="medium">
+                                        Medium ({item.portions.medium.carbValue}g)
+                                      </SelectItem>
+                                      <SelectItem value="large">
+                                        Large ({item.portions.large.carbValue}g)
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  
+                                  <div className="flex items-center h-7 border rounded-md">
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-7 w-7 p-0"
+                                      onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                                      disabled={item.quantity <= 1}
+                                    >
+                                      <Minus className="h-3 w-3" />
+                                    </Button>
+                                    <span className="text-xs px-1 min-w-[20px] text-center">{item.quantity}</span>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-7 w-7 p-0"
+                                      onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                                    >
+                                      <Plus className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                </div>
                                 
                                 <div className="flex ml-auto gap-1">
                                   <Button
@@ -438,10 +479,10 @@ export function FoodBasketSearch({ onSavePreset }: FoodBasketSearchProps) {
                       {basketItems.map((item) => (
                         <div key={item.id} className="flex justify-between text-sm py-1">
                           <span>
-                            {item.name} ({item.portionSize})
+                            {item.quantity > 1 ? `${item.quantity}× ` : ''}{item.name} ({item.portionSize})
                           </span>
                           <Badge variant="outline">
-                            {item.portions[item.portionSize].carbValue}g
+                            {Math.round(item.portions[item.portionSize].carbValue * item.quantity)}g
                           </Badge>
                         </div>
                       ))}
