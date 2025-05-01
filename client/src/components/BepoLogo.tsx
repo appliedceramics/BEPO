@@ -49,14 +49,14 @@ export function BepoLogo({ className = '' }: BepoLogoProps) {
           strokeWidth="4"
         />
         
-        {/* Cap */}
+        {/* Military Cap */}
         <path
           d="M40,60 C40,40 70,20 100,20 C130,20 160,40 160,60 
              L160,70 C160,70 140,65 130,70 
              C130,70 120,65 110,70
              C110,70 90,65 80,70
              C80,70 60,65 40,70 L40,60 Z"
-          fill="#A0C4FF"
+          fill="#4B6043"
           stroke="black"
           strokeWidth="4"
         />
@@ -75,7 +75,7 @@ export function BepoLogo({ className = '' }: BepoLogoProps) {
           cy="42"
           rx="12"
           ry="8"
-          fill="#9BF6FF"
+          fill="#4B6043"
           stroke="black"
           strokeWidth="2"
         />
@@ -146,9 +146,9 @@ export function BepoLogo({ className = '' }: BepoLogoProps) {
         
       </svg>
       
-      {/* Add animated waves effect around the logo - updated colors */}
-      <div className="absolute inset-0 -z-10 animate-pulse rounded-full bg-[#FFC6FF] opacity-30"></div>
-      <div className="absolute inset-0 -z-20 animate-pulse delay-300 rounded-full bg-[#FDFFB6] opacity-20"></div>
+      {/* Add animated waves effect around the logo */}
+      <div className="absolute inset-0 -z-10 animate-pulse rounded-full bg-green-200 opacity-30"></div>
+      <div className="absolute inset-0 -z-20 animate-pulse delay-300 rounded-full bg-blue-200 opacity-20"></div>
     </div>
   );
 }

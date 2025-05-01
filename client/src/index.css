@@ -66,28 +66,26 @@
 }
 
 :root {
-  /* Base theme variables (keeping the existing structure) */
-  --background: 0 0% 100%;
-  --foreground: 222.2 47.4% 11.2%;
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
+  /* Enhanced contrast colors */
+  --background: 120 40% 98%;
+  --foreground: 200 90% 10%; /* Darker text for better contrast */
+  --muted: 120 20% 96%;
+  --muted-foreground: 200 50% 30%; /* Darker muted text */
   --popover: 0 0% 100%;
-  --popover-foreground: 222.2 47.4% 11.2%;
+  --popover-foreground: 200 90% 10%;
   --card: 0 0% 100%;
-  --card-foreground: 222.2 47.4% 11.2%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  
-  /* Using the palette colors for primary/accent/etc */
-  --primary: 199 100% 81%; /* #9BF6FF (cyan) */
-  --primary-foreground: 210 40% 98%;
-  --secondary: 217 100% 82%; /* #A0C4FF (light blue) */
-  --secondary-foreground: 222.2 47.4% 11.2%;
-  --accent: 126 68% 75%; /* #CAFFBF (light green) */
-  --accent-foreground: 222.2 47.4% 11.2%;
-  --destructive: 0 84.2% 86%; /* #FFADAD (light red) */
-  --destructive-foreground: 210 40% 98%;
-  --ring: 126 68% 75%;
+  --card-foreground: 200 90% 10%;
+  --border: 120 30% 80%; /* Darker border */
+  --input: 120 30% 95%;
+  --primary: 200 90% 40%; /* Darker primary for better contrast */
+  --primary-foreground: 210 100% 99%;
+  --secondary: 120 70% 40%; /* Darker secondary */
+  --secondary-foreground: 120 60% 99%;
+  --accent: 130 70% 40%; /* Darker accent */
+  --accent-foreground: 130 60% 99%;
+  --destructive: 0 84.2% 50.2%; /* Darker destructive */
+  --destructive-foreground: 60 9.1% 97.8%;
+  --ring: 130 70% 40%;
   --radius: 0.75rem;
 }
 
@@ -121,7 +119,7 @@
 
   body {
     @apply font-sans antialiased text-foreground;
-    background: linear-gradient(135deg, #CAFFBF 0%, #9BF6FF 100%);
+    background: linear-gradient(135deg, hsl(120, 60%, 90%) 0%, hsl(120, 50%, 85%) 100%);
   }
 
   /* Enhance headings contrast */
