@@ -289,18 +289,22 @@ export function TotalForMe({ onFinalTotal }: TotalForMeProps) {
       {isListening && (
         <div className="mt-4">
           {listeningStateRef.current === 'food' ? (
-            <div className="flex flex-col items-center justify-center p-4 border rounded-lg bg-accent/10 overflow-hidden">
-              <Pizza className="h-12 w-12 text-primary mb-2 animate-pulse" />
-              <h3 className="text-xl font-bold text-center mb-1">Say Food</h3>
+            <div className="flex flex-col items-center justify-center p-5 border rounded-xl bg-gradient-to-br from-green-50 to-emerald-50 overflow-hidden shadow-sm">
+              <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-4 rounded-full mb-3 shadow-md">
+                <Pizza className="h-12 w-12 text-white animate-pulse" />
+              </div>
+              <h3 className="text-xl font-bold text-center mb-1 bg-gradient-to-r from-green-600 to-emerald-700 text-transparent bg-clip-text">Say Food</h3>
               <p className="text-sm text-muted-foreground text-center">Speak the name of a food item</p>
-              <Progress value={progress} className="h-1 mt-3 w-full" />
+              <Progress value={progress} className="h-2 mt-4 w-full bg-green-200" />
             </div>
           ) : listeningStateRef.current === 'carbs' ? (
-            <div className="flex flex-col items-center justify-center p-4 border rounded-lg bg-accent/10 overflow-hidden">
-              <Hash className="h-12 w-12 text-primary mb-2 animate-pulse" />
-              <h3 className="text-xl font-bold text-center mb-1">Say Carb #</h3>
-              <p className="text-sm text-muted-foreground text-center">For <span className="font-medium">{currentFoodRef.current}</span>, speak the carb amount</p>
-              <Progress value={progress} className="h-1 mt-3 w-full" />
+            <div className="flex flex-col items-center justify-center p-5 border rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 overflow-hidden shadow-sm">
+              <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-4 rounded-full mb-3 shadow-md">
+                <Hash className="h-12 w-12 text-white animate-pulse" />
+              </div>
+              <h3 className="text-xl font-bold text-center mb-1 bg-gradient-to-r from-blue-600 to-indigo-700 text-transparent bg-clip-text">Say Carb #</h3>
+              <p className="text-sm text-muted-foreground text-center">For <span className="font-semibold text-indigo-700">{currentFoodRef.current}</span>, speak the carb amount</p>
+              <Progress value={progress} className="h-2 mt-4 w-full bg-blue-200" />
             </div>
           ) : null}
         </div>
@@ -357,34 +361,58 @@ export function TotalForMe({ onFinalTotal }: TotalForMeProps) {
       )}
       
       {!isListening && foodItems.length === 0 && (
-        <div className="mt-3 space-y-3">
-          <p className="text-sm text-muted-foreground">
-            Click Start and speak the names of food items and their carb values.
-            Say "total" when done to calculate the sum.
-          </p>
-          <div className="border rounded-md p-3 bg-accent/5">
-            <div className="text-center mb-2">
-              <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Voice Commands</span>
+        <div className="mt-4 space-y-4">
+          <div className="flex items-center justify-center">
+            <div className="p-3 rounded-full bg-primary/10 mr-3">
+              <Mic className="h-5 w-5 text-primary" />
             </div>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div className="flex items-center p-1">
-                <Pizza className="h-4 w-4 mr-2 text-accent-foreground" />
-                <span>"pizza"</span>
+            <p className="text-sm text-muted-foreground">
+              Click Start and use voice commands to add food items and their carb values
+            </p>
+          </div>
+          
+          <div className="border rounded-xl p-4 bg-gradient-to-br from-slate-50 to-slate-100 shadow-sm">
+            <div className="text-center mb-3">
+              <span className="text-xs font-semibold uppercase tracking-wider bg-gradient-to-r from-primary to-purple-600 text-transparent bg-clip-text">Voice Commands</span>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="flex flex-col items-center p-2 border rounded-lg bg-green-50 shadow-sm transition-all duration-200 hover:shadow-md">
+                <div className="bg-green-500 p-2 rounded-full mb-1">
+                  <Pizza className="h-6 w-6 text-white" />
+                </div>
+                <span className="font-medium text-green-700 text-xs">Say a food name</span>
+                <span className="text-xs text-muted-foreground">"pizza"</span>
               </div>
-              <div className="flex items-center p-1">
-                <Hash className="h-4 w-4 mr-2 text-accent-foreground" />
-                <span>"45"</span>
+              
+              <div className="flex flex-col items-center p-2 border rounded-lg bg-blue-50 shadow-sm transition-all duration-200 hover:shadow-md">
+                <div className="bg-blue-500 p-2 rounded-full mb-1">
+                  <Hash className="h-6 w-6 text-white" />
+                </div>
+                <span className="font-medium text-blue-700 text-xs">Say a carb amount</span>
+                <span className="text-xs text-muted-foreground">"45"</span>
               </div>
-              <div className="flex items-center p-1">
-                <Utensils className="h-4 w-4 mr-2 text-accent-foreground" />
-                <span>"french fries"</span>
+              
+              <div className="flex flex-col items-center p-2 border rounded-lg bg-amber-50 shadow-sm transition-all duration-200 hover:shadow-md">
+                <div className="bg-amber-500 p-2 rounded-full mb-1">
+                  <Utensils className="h-6 w-6 text-white" />
+                </div>
+                <span className="font-medium text-amber-700 text-xs">Say a food name</span>
+                <span className="text-xs text-muted-foreground">"french fries"</span>
               </div>
-              <div className="flex items-center p-1">
-                <Hash className="h-4 w-4 mr-2 text-accent-foreground" />
-                <span>"30"</span>
+              
+              <div className="flex flex-col items-center p-2 border rounded-lg bg-indigo-50 shadow-sm transition-all duration-200 hover:shadow-md">
+                <div className="bg-indigo-500 p-2 rounded-full mb-1">
+                  <Hash className="h-6 w-6 text-white" />
+                </div>
+                <span className="font-medium text-indigo-700 text-xs">Say a carb amount</span>
+                <span className="text-xs text-muted-foreground">"30"</span>
               </div>
-              <div className="flex items-center p-1 col-span-2 border-t pt-2 mt-1 justify-center">
-                <span className="font-medium">Say "total" to finish</span>
+            </div>
+            
+            <div className="mt-3 text-center border-t pt-3">
+              <div className="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 shadow-sm">
+                <span className="text-xs font-medium text-white">Say "total" to finish</span>
               </div>
             </div>
           </div>

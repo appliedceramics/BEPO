@@ -34,9 +34,10 @@ interface FoodSuggestion {
 
 interface FoodSearchInputProps {
   onCarbValueSelected: (value: number) => void;
+  id?: string;
 }
 
-export function FoodSearchInput({ onCarbValueSelected }: FoodSearchInputProps) {
+export function FoodSearchInput({ onCarbValueSelected, id }: FoodSearchInputProps) {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -123,6 +124,7 @@ export function FoodSearchInput({ onCarbValueSelected }: FoodSearchInputProps) {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
+          id={id}
           variant="ghost"
           size="icon"
           className="ml-1 rounded-full bg-primary/10 hover:bg-primary/20 transition-all duration-200"

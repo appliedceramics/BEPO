@@ -8,7 +8,7 @@ import { MealPresets } from "./MealPresets";
 import { FoodSearchInput } from "./FoodSearchInput";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { MealPreset } from "@shared/schema";
-import { Book, Calculator, Utensils, PlusSquare } from "lucide-react";
+import { Book, Calculator, Utensils, Apple, PlusSquare } from "lucide-react";
 import { FoodBasketSearch } from "./FoodBasketSearch";
 import { TotalForMe } from "./TotalForMe";
 import { useToast } from "@/hooks/use-toast";
@@ -132,13 +132,16 @@ export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
 
   return (
     <div id="carb-input-container" className="bepo-card">
-      <div className="flex items-center mb-2">
-        <CarbsIcon />
-        <Label htmlFor="carb-input" className="ml-2 text-sm font-medium text-primary">
-          Total Carbohydrates (g)
-        </Label>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center">
+          <CarbsIcon />
+          <Label htmlFor="carb-input" className="ml-2 text-sm font-medium text-primary">
+            Total Carbohydrates (g)
+          </Label>
+        </div>
       </div>
-      <div className="flex items-center">
+      
+      <div className="flex items-center mb-3">
         <Input
           type="number"
           id="carb-input"
@@ -153,24 +156,41 @@ export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
           placeholder="carbohydrates" 
           fieldType="carbs" 
         />
-        <FoodSearchInput 
-          onCarbValueSelected={(value) => {
-            setInputValue(value.toString());
-            onChange(value);
-          }} 
-        />
+      </div>
+      
+      {/* Carb Input Tools */}
+      <div className="grid grid-cols-4 gap-2 w-full">
+        {/* Food Search Button */}
+        <div className="flex flex-col items-center">
+          <Button 
+            variant="ghost" 
+            className="flex flex-col items-center justify-center h-16 w-full rounded-md bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-all duration-200"
+            onClick={() => {
+              const foodSearchBtn = document.querySelector('#food-search-btn') as HTMLButtonElement;
+              if (foodSearchBtn) foodSearchBtn.click();
+            }}
+          >
+            <div className="bg-blue-500 text-white p-1.5 rounded-full">
+              <Apple className="h-5 w-5" />
+            </div>
+            <span className="text-xs mt-1 font-medium text-blue-700">Food Search</span>
+          </Button>
+        </div>
         
         {/* Food Basket Button */}
         <Dialog open={isFoodBasketOpen} onOpenChange={setIsFoodBasketOpen}>
           <DialogTrigger asChild>
-            <Button 
-              variant="ghost" 
-              className="ml-1" 
-              size="icon"
-              title="Create meal from multiple food items"
-            >
-              <Utensils className="h-5 w-5 text-primary" />
-            </Button>
+            <div className="flex flex-col items-center">
+              <Button 
+                variant="ghost" 
+                className="flex flex-col items-center justify-center h-16 w-full rounded-md bg-green-50 hover:bg-green-100 border border-green-200 transition-all duration-200"
+              >
+                <div className="bg-green-500 text-white p-1.5 rounded-full">
+                  <Utensils className="h-5 w-5" />
+                </div>
+                <span className="text-xs mt-1 font-medium text-green-700">Food Basket</span>
+              </Button>
+            </div>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -185,14 +205,17 @@ export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
         {/* Total For Me Button */}
         <Dialog open={isTotalForMeOpen} onOpenChange={setIsTotalForMeOpen}>
           <DialogTrigger asChild>
-            <Button 
-              variant="ghost" 
-              className="ml-1" 
-              size="icon"
-              title="Total For Me - Voice Calculator"
-            >
-              <Calculator className="h-5 w-5 text-accent-foreground" />
-            </Button>
+            <div className="flex flex-col items-center">
+              <Button 
+                variant="ghost" 
+                className="flex flex-col items-center justify-center h-16 w-full rounded-md bg-purple-50 hover:bg-purple-100 border border-purple-200 transition-all duration-200"
+              >
+                <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-1.5 rounded-full">
+                  <Calculator className="h-5 w-5" />
+                </div>
+                <span className="text-xs mt-1 font-medium text-purple-700">Total For Me</span>
+              </Button>
+            </div>
           </DialogTrigger>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
@@ -214,14 +237,17 @@ export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
         {/* Meal Presets Button */}
         <Dialog open={isPresetsOpen} onOpenChange={setIsPresetsOpen}>
           <DialogTrigger asChild>
-            <Button 
-              variant="ghost" 
-              className="ml-1" 
-              size="icon"
-              title="Select from meal presets"
-            >
-              <Book className="h-5 w-5" />
-            </Button>
+            <div className="flex flex-col items-center">
+              <Button 
+                variant="ghost" 
+                className="flex flex-col items-center justify-center h-16 w-full rounded-md bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-all duration-200"
+              >
+                <div className="bg-amber-500 text-white p-1.5 rounded-full">
+                  <Book className="h-5 w-5" />
+                </div>
+                <span className="text-xs mt-1 font-medium text-amber-700">My Meals</span>
+              </Button>
+            </div>
           </DialogTrigger>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
@@ -231,7 +257,18 @@ export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
           </DialogContent>
         </Dialog>
       </div>
-      {error && <p className="mt-1 text-sm text-red-600 animate-pulse">{error}</p>}
+      
+      <div className="hidden">
+        <FoodSearchInput 
+          id="food-search-btn"
+          onCarbValueSelected={(value) => {
+            setInputValue(value.toString());
+            onChange(value);
+          }} 
+        />
+      </div>
+      
+      {error && <p className="mt-3 text-sm text-red-600 animate-pulse">{error}</p>}
     </div>
   );
 }
