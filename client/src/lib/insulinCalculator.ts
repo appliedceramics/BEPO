@@ -93,13 +93,10 @@ export function calculateInsulin(params: CalculationParams): CalculationResult {
       // Base correction using Insulin Sensitivity Factor
       const baseCorrection = bgDifference / insulinSensitivityFactor;
       
-      // Apply correction factor multiplier (from settings)
-      const cfAdjusted = baseCorrection * correctionFactor;
-      
       // For bedtime, we typically use a more conservative approach
-      let rawCorrectionInsulin = cfAdjusted;
-      if (mealType === "bedtime" && cfAdjusted > 0) {
-        rawCorrectionInsulin = cfAdjusted * 0.75; // 25% reduction for bedtime
+      let rawCorrectionInsulin = baseCorrection;
+      if (mealType === "bedtime" && baseCorrection > 0) {
+        rawCorrectionInsulin = baseCorrection * 0.75; // 25% reduction for bedtime
       }
       
       // Apply insulin rounding rules
@@ -109,9 +106,7 @@ export function calculateInsulin(params: CalculationParams): CalculationResult {
       correctionCalculationDetails = 
         `(${bgMgdl.toFixed(0)} - ${targetBgMgdl.toFixed(0)}) ÷ ${insulinSensitivityFactor}`;
       
-      if (correctionFactor !== 1.0) {
-        correctionCalculationDetails += ` × ${correctionFactor.toFixed(1)} (CF)`;
-      }
+      // No longer using correction factor multiplier
       
       if (mealType === "bedtime" && bgDifference > 0) {
         correctionCalculationDetails += ` × 0.75 (bedtime)`;
