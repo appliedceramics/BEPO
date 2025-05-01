@@ -3,6 +3,9 @@ import { InsulinLog as InsulinLogType } from "@shared/schema";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { LogIcon } from "./AnimatedIcons";
+import { Loading } from "@/components/ui/loading";
+import { DataTransition } from "@/components/ui/transition";
+import { TableSkeleton } from "@/components/ui/content-skeleton";
 
 interface InsulinLogProps {
   logs: InsulinLogType[];
@@ -50,10 +53,7 @@ export function InsulinLogDisplay({ logs, isLoading, onDelete }: InsulinLogProps
         }`}
       >
         {isLoading ? (
-          <div className="py-8 text-center">
-            <div className="inline-block animate-spin h-8 w-8 border-4 border-primary/30 border-t-primary rounded-full"></div>
-            <p className="mt-2 text-primary/70 font-medium">Loading log entries...</p>
-          </div>
+          <Loading text="Loading log history..." variant="wave" className="py-8" />
         ) : logs.length > 0 ? (
           <div className="overflow-x-auto rounded-lg border-2 border-accent/30 shadow-md">
             <table className="min-w-full divide-y divide-accent/20">

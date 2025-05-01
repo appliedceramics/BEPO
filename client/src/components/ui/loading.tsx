@@ -1,211 +1,76 @@
-import React from 'react';
-import { ChevronUpCircle, CircleCheck, Heart, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-type LoadingVariant = 'spinner' | 'pulse' | 'dots' | 'wave' | 'heart' | 'success';
-
-interface LoadingProps {
-  variant?: LoadingVariant;
-  size?: 'sm' | 'md' | 'lg';
-  color?: string;
+interface LoadingProps extends React.HTMLAttributes<HTMLDivElement> {
+  /**
+   * The text to display under the loading spinner
+   */
   text?: string;
-  className?: string;
+  /**
+   * The variant of the loading animation
+   */
+  variant?: "pulse" | "wave" | "spinner";
+  /**
+   * Whether to display the loading animation as a card
+   */
+  isCard?: boolean;
 }
 
+/**
+ * A component for displaying loading states with animations
+ */
 export function Loading({
-  variant = 'spinner',
-  size = 'md',
-  color,
   text,
-  className
+  variant = "spinner",
+  className,
+  isCard = false,
+  ...props
 }: LoadingProps) {
-  // Maps size string to actual pixel size
-  const sizeMap = {
-    sm: 'h-4 w-4',
-    md: 'h-8 w-8',
-    lg: 'h-12 w-12'
-  };
+  const containerClass = cn(
+    "flex flex-col items-center justify-center",
+    isCard ? "bepo-card" : "p-4",
+    className
+  );
 
-  // Maps size to text size
-  const textSizeMap = {
-    sm: 'text-xs',
-    md: 'text-sm',
-    lg: 'text-base'
-  };
-
-  const colorClass = color ? color : 'text-primary';
-
-  // Define different loading variants
   const renderLoadingIndicator = () => {
     switch (variant) {
-      case 'spinner':
+      case "pulse":
         return (
-          <Loader2 className={cn(sizeMap[size], colorClass, 'animate-spin')} />
-        );
-      case 'pulse':
-        return (
-          <div
-            className={cn(
-              'rounded-full bg-current animate-pulse',
-              sizeMap[size],
-              colorClass
-            )}
-          />
-        );
-      case 'dots':
-        return (
-          <div className="flex space-x-1">
-            <div
-              className={cn(
-                'rounded-full bg-current animate-bounce',
-                size === 'sm' ? 'h-1 w-1' : size === 'md' ? 'h-2 w-2' : 'h-3 w-3',
-                colorClass,
-                'animation-delay-0'
-              )}
-            />
-            <div
-              className={cn(
-                'rounded-full bg-current animate-bounce',
-                size === 'sm' ? 'h-1 w-1' : size === 'md' ? 'h-2 w-2' : 'h-3 w-3',
-                colorClass,
-                'animation-delay-100'
-              )}
-            />
-            <div
-              className={cn(
-                'rounded-full bg-current animate-bounce',
-                size === 'sm' ? 'h-1 w-1' : size === 'md' ? 'h-2 w-2' : 'h-3 w-3',
-                colorClass,
-                'animation-delay-200'
-              )}
-            />
-          </div>
-        );
-      case 'wave':
-        return (
-          <div className="flex items-end space-x-1 h-full">
-            {[0, 1, 2, 3, 4].map((i) => (
+          <div className="flex space-x-2">
+            {[...Array(3)].map((_, i) => (
               <div
                 key={i}
-                className={cn(
-                  'bg-current animate-wave',
-                  size === 'sm' ? 'w-1' : size === 'md' ? 'w-1.5' : 'w-2',
-                  colorClass,
-                  `animation-delay-${i * 100}`
-                )}
-                style={{
-                  height: `${Math.max(20, 30 + Math.sin(i / 4) * 10)}%`,
-                  animationDelay: `${i * 0.1}s`
-                }}
+                className={`h-3 w-3 bg-primary rounded-full animate-pulse-delay-${i}`}
               />
             ))}
           </div>
         );
-      case 'heart':
+      case "wave":
         return (
-          <Heart 
-            className={cn(
-              sizeMap[size], 
-              colorClass, 
-              'animate-pulse'
-            )} 
-            fill="currentColor" 
-          />
-        );
-      case 'success':
-        return (
-          <div className="relative">
-            <CircleCheck 
-              className={cn(
-                sizeMap[size], 
-                colorClass,
-                'animate-success-appear'
-              )} 
-            />
-            <ChevronUpCircle 
-              className={cn(
-                'absolute top-0 left-0 animate-success-disappear opacity-0',
-                sizeMap[size], 
-                colorClass
-              )} 
-            />
+          <div className="flex h-10 items-end space-x-1">
+            {[...Array(5)].map((_, i) => (
+              <div
+                key={i}
+                style={{ animationDelay: `${i * 0.1}s` }}
+                className="bg-primary/80 w-2 h-5 rounded-full animate-wave"
+              />
+            ))}
           </div>
         );
+      case "spinner":
       default:
         return (
-          <Loader2 className={cn(sizeMap[size], colorClass, 'animate-spin')} />
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         );
     }
   };
 
   return (
-    <div
-      className={cn(
-        'flex flex-col items-center justify-center gap-2',
-        className
-      )}
-    >
+    <div className={containerClass} {...props}>
       {renderLoadingIndicator()}
-      {text && <span className={cn('text-muted-foreground', textSizeMap[size])}>{text}</span>}
-    </div>
-  );
-}
-
-export function FullPageLoading({
-  variant = 'spinner',
-  size = 'lg',
-  color = 'text-primary',
-  text = 'Loading...',
-  className
-}: LoadingProps) {
-  return (
-    <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-50">
-      <Loading
-        variant={variant}
-        size={size}
-        color={color}
-        text={text}
-        className={className}
-      />
-    </div>
-  );
-}
-
-export function LoadingOverlay({
-  isLoading,
-  children,
-  variant = 'spinner',
-  text
-}: {
-  isLoading: boolean;
-  children: React.ReactNode;
-  variant?: LoadingVariant;
-  text?: string;
-}) {
-  return (
-    <div className="relative">
-      {children}
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-[1px] rounded-lg z-10">
-          <Loading variant={variant} text={text} />
-        </div>
+      {text && (
+        <p className="mt-3 text-sm text-primary/80 font-medium">{text}</p>
       )}
     </div>
-  );
-}
-
-// Component for skeleton loading states
-export function Skeleton({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      className={cn(
-        'animate-pulse rounded-md bg-muted',
-        className
-      )}
-      {...props}
-    />
   );
 }
