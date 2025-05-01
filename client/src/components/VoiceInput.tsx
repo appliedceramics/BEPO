@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff, Loader2 } from "lucide-react";
+import { Mic, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface VoiceInputProps {
@@ -20,55 +20,10 @@ export function VoiceInput({
 }: VoiceInputProps) {
   const { toast } = useToast();
   const [isListening, setIsListening] = useState(false);
-  const [speechRecognition, setSpeechRecognition] = useState<SpeechRecognition | null>(null);
 
-  useEffect(() => {
+  const startListening = () => {
     // Check if browser supports speech recognition
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      console.warn("Speech recognition not supported in this browser");
-      return;
-    }
-
-    // Initialize speech recognition
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = 'en-US';
-
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      console.log("Voice input result:", transcript);
-      onResult(transcript);
-      setIsListening(false);
-    };
-
-    recognition.onerror = (event) => {
-      console.error("Speech recognition error", event.error);
-      toast({
-        title: "Voice input error",
-        description: `Error: ${event.error}. Please try again.`,
-        variant: "destructive",
-      });
-      setIsListening(false);
-    };
-
-    recognition.onend = () => {
-      setIsListening(false);
-    };
-
-    setSpeechRecognition(recognition);
-
-    return () => {
-      if (speechRecognition) {
-        speechRecognition.abort();
-      }
-    };
-  }, [onResult, toast]);
-
-  const toggleListening = () => {
-    if (!speechRecognition) {
       toast({
         title: "Voice input not available",
         description: "Speech recognition is not supported in your browser",
@@ -77,25 +32,52 @@ export function VoiceInput({
       return;
     }
 
-    if (isListening) {
-      speechRecognition.stop();
-      setIsListening(false);
-    } else {
-      try {
-        speechRecognition.start();
-        setIsListening(true);
-        toast({
-          title: placeholder,
-          description: "Listening for your voice input...",
-        });
-      } catch (error) {
-        console.error("Error starting speech recognition:", error);
+    try {
+      setIsListening(true);
+      
+      // Initialize speech recognition
+      const SpeechRecognitionAPI = window.webkitSpeechRecognition || window.SpeechRecognition;
+      const recognition = new SpeechRecognitionAPI();
+      
+      recognition.lang = 'en-US';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        console.log("Voice input result:", transcript);
+        onResult(transcript);
+        setIsListening(false);
+      };
+
+      recognition.onerror = (event: any) => {
+        console.error("Speech recognition error", event.error);
         toast({
           title: "Voice input error",
-          description: "Could not start voice recognition. Please try again.",
+          description: `Error: ${event.error}. Please try again.`,
           variant: "destructive",
         });
-      }
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      toast({
+        title: placeholder,
+        description: "Listening for your voice input...",
+      });
+      
+      recognition.start();
+    } catch (error) {
+      console.error("Error starting speech recognition:", error);
+      toast({
+        title: "Voice input error",
+        description: "Could not start voice recognition. Please try again.",
+        variant: "destructive",
+      });
+      setIsListening(false);
     }
   };
 
@@ -104,8 +86,8 @@ export function VoiceInput({
       type="button"
       variant="ghost"
       size="icon"
-      onClick={toggleListening}
-      disabled={inProgress}
+      onClick={startListening}
+      disabled={inProgress || isListening}
       className="rounded-full bg-primary/10 hover:bg-primary/20 transition-all duration-200"
       title={buttonTitle}
     >
