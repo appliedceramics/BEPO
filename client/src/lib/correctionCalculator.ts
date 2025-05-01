@@ -52,7 +52,6 @@ export const bedtimeCorrectionChart: CorrectionRange[] = [
 export function getCorrectionInsulin(
   bgMgdl: number, 
   mealType?: MealType, 
-  correctionFactor: number = 1.0,
   insulinSensitivityFactor: number = 35
 ): {
   correction: number;
@@ -71,18 +70,14 @@ export function getCorrectionInsulin(
     // 1. Get the base correction from the chart
     const baseCorrection = range.correction;
     
-    // 2. Apply the correction factor multiplier (user setting)
-    const cfAdjusted = baseCorrection * correctionFactor;
-    
-    // 3. Apply insulin sensitivity factor adjustment
+    // 2. Apply insulin sensitivity factor adjustment
     // When ISF is lower than the default 35, insulin is more powerful, so we need less
-    const isfAdjustment = 35 / insulinSensitivityFactor;
-    const fullyAdjustedCorrection = Math.round(cfAdjusted * isfAdjustment * 10) / 10;
+    const adjustedValue = calculateAdjustedCorrection(baseCorrection, insulinSensitivityFactor);
     
     return {
-      correction: fullyAdjustedCorrection,
+      correction: adjustedValue,
       baseCorrection: baseCorrection,
-      range: `${range.min} to ${range.max} mg/dL = ${fullyAdjustedCorrection > 0 ? '+' : ''}${fullyAdjustedCorrection} units`
+      range: `${range.min} to ${range.max} mg/dL = ${adjustedValue > 0 ? '+' : ''}${adjustedValue} units`
     };
   }
   
@@ -99,21 +94,17 @@ export function convertBgToMgdl(bgMmolL: number): number {
   return bgMmolL * 18;
 }
 
-// Calculate adjusted correction based on ISF and CF
+// Calculate adjusted correction based on ISF only
 export function calculateAdjustedCorrection(
   baseCorrection: number,
-  insulinSensitivityFactor: number = 35,
-  correctionFactor: number = 1.0
+  insulinSensitivityFactor: number = 35
 ): number {
-  // 1. Apply the correction factor multiplier (user setting)
-  const cfAdjusted = baseCorrection * correctionFactor;
-  
-  // 2. Apply insulin sensitivity factor adjustment
+  // Apply insulin sensitivity factor adjustment
   // When ISF is lower than the default 35, insulin is more powerful, so we need less
   const isfAdjustment = 35 / insulinSensitivityFactor;
-  const rawValue = cfAdjusted * isfAdjustment;
+  const rawValue = baseCorrection * isfAdjustment;
   
-  // 3. Apply specific rounding rules for insulin dosing:
+  // Apply specific rounding rules for insulin dosing:
   // - x.1 or x.2 rounds down to x.0
   // - x.3 to x.5 rounds up to x.5
   // - x.6 or x.7 rounds down to x.5

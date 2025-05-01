@@ -157,8 +157,8 @@ export function CalculatorSettings() {
   };
 
   // Helper function to format the adjusted correction value
-  const formatAdjustedCorrection = (baseCorrection: number, isf: number = 35, cf: number = 1.0) => {
-    return calculateAdjustedCorrection(baseCorrection, isf, cf);
+  const formatAdjustedCorrection = (baseCorrection: number, isf: number = 35) => {
+    return calculateAdjustedCorrection(baseCorrection, isf);
   };
 
   const getActiveSettings = () => {
