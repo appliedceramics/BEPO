@@ -5,7 +5,8 @@ import { insertInsulinLogSchema, insertMealPresetSchema, insertMilestoneSchema }
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { setupAuth, isAuthenticated, hasProfile } from "./auth";
-import { notifyParents } from "./twilio";
+import { notifyContacts, sendPushNotification } from "./twilio";
+import webpush from "web-push";
 import { getFoodCarbs, suggestMeals, generateMealPlan } from "./openai";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -64,15 +65,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check if the user has a profile with parent notification enabled
       const profile = await storage.getProfileByUserId(userId);
-      if (profile && profile.notifyParents) {
+      if (profile && profile.notifyContacts) {
         try {
-          // Send SMS notifications to parents
-          await notifyParents(newLog, profile);
+          // Send notifications to contacts using preferred method
+          await notifyContacts(newLog, profile);
           
           // Mark the log as shared after successful notification
           await storage.markLogAsShared(newLog.id);
         } catch (notifyError) {
-          console.error("Error sending SMS notifications:", notifyError);
+          console.error("Error sending notifications:", notifyError);
           // We'll still return the log even if notifications fail
         }
       }
@@ -118,8 +119,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // SMS Notification endpoint
-  app.post("/api/notify-parents", isAuthenticated, hasProfile, async (req: Request, res: Response) => {
+  // Notification endpoint
+  app.post("/api/notify-contacts", isAuthenticated, hasProfile, async (req: Request, res: Response) => {
     try {
       const logId = parseInt(req.body.logId);
       if (isNaN(logId)) {
@@ -133,7 +134,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check if the log belongs to the current user
-      const userId = req.user.id;
+      const userId = req.user!.id;
       if (log.userId !== userId) {
         return res.status(403).json({ message: "You don't have permission to share this log" });
       }
@@ -144,12 +145,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User profile not found" });
       }
       
-      if (!profile.notifyParents) {
-        return res.status(400).json({ message: "Parent notifications are not enabled in your profile" });
+      if (!profile.notifyContacts) {
+        return res.status(400).json({ message: "Contact notifications are not enabled in your profile" });
       }
       
-      // Send SMS notification
-      await notifyParents(log, profile);
+      // Send notification based on profile preferences
+      await notifyContacts(log, profile);
+      
+      // Mark the log as shared
+      await storage.markLogAsShared(logId);
+      
+      res.status(200).json({ message: "Contacts notified successfully" });
+    } catch (error) {
+      console.error("Error notifying contacts:", error);
+      res.status(500).json({ message: "Failed to send notification" });
+    }
+  });
+  
+  // Legacy endpoint for backward compatibility
+  app.post("/api/notify-parents", isAuthenticated, hasProfile, async (req: Request, res: Response) => {
+    // Forward to the new endpoint
+    try {
+      const logId = parseInt(req.body.logId);
+      if (isNaN(logId)) {
+        return res.status(400).json({ message: "Invalid log ID" });
+      }
+      
+      // Get the insulin log
+      const log = await storage.getInsulinLog(logId);
+      if (!log) {
+        return res.status(404).json({ message: "Insulin log not found" });
+      }
+      
+      // Get the user's profile
+      const userId = req.user!.id;
+      const profile = await storage.getProfileByUserId(userId);
+      if (!profile) {
+        return res.status(404).json({ message: "User profile not found" });
+      }
+      
+      // Send notification
+      await notifyContacts(log, profile);
       
       // Mark the log as shared
       await storage.markLogAsShared(logId);
@@ -558,6 +594,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching default correction charts:", error);
       res.status(500).json({ message: "Failed to fetch default correction charts" });
+    }
+  });
+
+  // Web Push subscription endpoints
+  app.post("/api/push-subscription", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
+        return res.status(501).json({ message: "Push notifications are not configured on the server" });
+      }
+
+      const { subscription } = req.body;
+      if (!subscription || !subscription.endpoint) {
+        return res.status(400).json({ message: "Invalid subscription data" });
+      }
+
+      // Here you would store the subscription in the database linked to the user or contact
+      // For now, we'll just acknowledge it
+      console.log('Push subscription received:', subscription.endpoint);
+      
+      res.status(201).json({ message: "Subscription saved successfully" });
+    } catch (error) {
+      console.error("Error saving push subscription:", error);
+      res.status(500).json({ message: "Failed to save push subscription" });
+    }
+  });
+
+  app.get("/api/vapid-public-key", (req: Request, res: Response) => {
+    const publicKey = process.env.VAPID_PUBLIC_KEY;
+    if (!publicKey) {
+      return res.status(501).json({ message: "Push notifications are not configured on the server" });
+    }
+    res.json({ publicKey });
+  });
+
+  app.post("/api/send-test-notification", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
+        return res.status(501).json({ message: "Push notifications are not configured on the server" });
+      }
+
+      const { subscription } = req.body;
+      if (!subscription || !subscription.endpoint) {
+        return res.status(400).json({ message: "Invalid subscription data" });
+      }
+
+      const userId = req.user!.id;
+      const profile = await storage.getProfileByUserId(userId);
+      if (!profile) {
+        return res.status(404).json({ message: "User profile not found" });
+      }
+
+      const payload = {
+        title: "BEPO Test Notification",
+        body: `This is a test notification for ${profile.name}`,
+        icon: "/icons/app-icon-192.png",
+        data: {
+          dateOfTest: new Date().toISOString(),
+          url: "/"
+        }
+      };
+
+      await sendPushNotification(subscription, payload);
+      res.status(200).json({ message: "Test notification sent successfully" });
+    } catch (error) {
+      console.error("Error sending test notification:", error);
+      res.status(500).json({ message: "Failed to send test notification" });
     }
   });
 
