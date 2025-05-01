@@ -8,8 +8,8 @@ self.addEventListener('push', function(event) {
   const data = event.data?.json() ?? {};
   const title = data.title || 'BEPO Insulin Calculator';
   const message = data.message || 'New notification';
-  const icon = '/images/notification-icon.png'; // Default icon
-  const badge = '/images/notification-badge.png'; // Default badge
+  const icon = '/images/notification-icon.svg'; // Default icon
+  const badge = '/images/notification-badge.svg'; // Default badge
 
   const options = {
     body: message,

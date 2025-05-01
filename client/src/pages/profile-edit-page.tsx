@@ -589,6 +589,9 @@ export default function ProfileEditPage() {
                 </div>
               )}
 
+              {/* Push notification settings */}
+              <PushNotificationSettings />
+              
               <div className="flex gap-4">
                 <Button
                   type="submit"
