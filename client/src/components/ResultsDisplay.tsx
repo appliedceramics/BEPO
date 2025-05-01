@@ -5,7 +5,8 @@ interface ResultsDisplayProps {
   mealInsulin: number | undefined;
   correctionInsulin: number | undefined;
   totalInsulin: number | undefined;
-  correctionRange: string | undefined;
+  correctionRange?: string; // Legacy field
+  calculationMethod?: string; // New field with detailed calculation information
 }
 
 export function ResultsDisplay({
@@ -13,6 +14,7 @@ export function ResultsDisplay({
   correctionInsulin,
   totalInsulin,
   correctionRange,
+  calculationMethod,
 }: ResultsDisplayProps) {
   const totalRef = useRef<HTMLParagraphElement>(null);
   
@@ -94,7 +96,18 @@ export function ResultsDisplay({
         </div>
       </div>
       
-      {correctionRange && !isLongActing && (
+      {/* Show detailed calculation information */}
+      {calculationMethod && (
+        <div id="calculation-details" className="mt-5 p-4 text-sm rounded-md bg-blue-50 border-2 border-blue-200 shadow-sm">
+          <h4 className="font-bold text-blue-700 mb-2">Calculation Details:</h4>
+          <div className="whitespace-pre-line text-blue-800">
+            {calculationMethod}
+          </div>
+        </div>
+      )}
+      
+      {/* Legacy support for old correction range display */}
+      {!calculationMethod && correctionRange && !isLongActing && (
         <div id="correction-details" className="mt-5 p-4 text-sm rounded-md bg-blue-50 border-2 border-blue-200 shadow-sm">
           <p className="font-bold text-blue-700">
             Correction based on BG: <span id="correction-range" className="font-bold underline">{correctionRange}</span>

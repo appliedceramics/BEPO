@@ -45,41 +45,65 @@ export function Calculator({ onLogInsulin, isLogging }: CalculatorProps) {
   // Recalculate when inputs change
   useEffect(() => {
     if (mealType && bgValue !== undefined && settings) {
-      // Get the correction factor from settings
-      const correctionFactor = settings.correctionFactor ? parseFloat(settings.correctionFactor.toString()) : 1.0;
+      // Parse settings values to the correct types
+      const parseNumericSetting = (value: any, defaultValue: number): number => {
+        return value !== undefined && value !== null
+          ? parseFloat(value.toString())
+          : defaultValue;
+      };
+      
+      // Get insulin-to-carb ratios and correction settings
+      const firstMealRatio = parseNumericSetting(settings.firstMealRatio, 10);
+      const otherMealRatio = parseNumericSetting(settings.otherMealRatio, 15);
+      // For new fields that might not be present in existing database entries, use the legacy values or defaults
+      const insulinSensitivityFactor = parseNumericSetting(
+        // @ts-ignore - New field that might not be in some CalculatorSettings types
+        settings.insulinSensitivityFactor, 
+        35 // Default: 1 unit lowers BG by 35 mg/dL
+      );
+      const targetBgValue = parseNumericSetting(
+        // @ts-ignore - New field that might not be in some CalculatorSettings types
+        settings.targetBgValue, 
+        5.6 // Default target: ~100 mg/dL
+      );
+      const longActingDosage = parseNumericSetting(settings.longActingDosage, 0);
+      
+      // Legacy correction factor (used as fallback if insulin sensitivity factor is missing)
+      const legacyCorrectionFactor = parseNumericSetting(settings.correctionFactor, 1.0);
+      
+      // Create common calculation parameters
+      const calculationParams = {
+        mealType,
+        bgValue,
+        targetBgValue,
+        correctionFactor: insulinSensitivityFactor,
+        longActingDosage,
+      };
       
       // For long-acting insulin, use the fixed dosage from settings
       if (mealType === "longActing") {
-        // Parse the longActingDosage from settings and ensure it's a number
-        const longActingDosage = settings.longActingDosage ? parseFloat(settings.longActingDosage.toString()) : 0;
         const result = calculateInsulin({
-          mealType,
-          bgValue,
-          correctionFactor,
+          ...calculationParams,
         });
-        
-        // Override the calculated values with the fixed long-acting dosage
-        result.mealInsulin = longActingDosage;
-        result.totalInsulin = longActingDosage;
         
         setCalculationResult(result);
       }
       // For bedtime, calculate without carbs
       else if (mealType === "bedtime") {
         const result = calculateInsulin({
-          mealType,
-          bgValue,
-          correctionFactor,
+          ...calculationParams,
         });
         setCalculationResult(result);
       }
       // For meal types that require carbs
       else if ((mealType === "first" || mealType === "other") && carbValue !== undefined) {
+        // Use the appropriate insulin-to-carb ratio based on meal type
+        const insulinToCarbohydrateRatio = mealType === "first" ? firstMealRatio : otherMealRatio;
+        
         const result = calculateInsulin({
-          mealType,
+          ...calculationParams,
           carbValue,
-          bgValue,
-          correctionFactor,
+          insulinToCarbohydrateRatio,
         });
         setCalculationResult(result);
       }
@@ -143,7 +167,7 @@ export function Calculator({ onLogInsulin, isLogging }: CalculatorProps) {
         mealInsulin={calculationResult?.mealInsulin}
         correctionInsulin={calculationResult?.correctionInsulin}
         totalInsulin={calculationResult?.totalInsulin}
-        correctionRange={calculationResult?.correctionRange}
+        calculationMethod={calculationResult?.calculationMethod}
       />
 
       {/* Log Button */}
