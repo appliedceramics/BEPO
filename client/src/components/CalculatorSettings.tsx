@@ -33,9 +33,22 @@ export function CalculatorSettings() {
   useEffect(() => {
     if (settings && Object.keys(editableSettings).length === 0) {
       setEditableSettings({
+        // Insulin-to-carb ratios
         firstMealRatio: settings.firstMealRatio,
         otherMealRatio: settings.otherMealRatio,
+        
+        // New insulin sensitivity factor
+        // @ts-ignore - New field that might not be in some CalculatorSettings types
+        insulinSensitivityFactor: settings.insulinSensitivityFactor || 35,
+        
+        // New target blood glucose value
+        // @ts-ignore - New field that might not be in some CalculatorSettings types
+        targetBgValue: settings.targetBgValue || 5.6,
+        
+        // Long-acting insulin dosage
         longActingDosage: settings.longActingDosage || '0',
+        
+        // Legacy correction values
         correctionFactor: settings.correctionFactor || '1.0',
         mealCorrectionRanges: settings.mealCorrectionRanges,
         bedtimeCorrectionRanges: settings.bedtimeCorrectionRanges,
@@ -61,7 +74,7 @@ export function CalculatorSettings() {
     resetToDefaults(type);
   };
 
-  const updateRatioSetting = (field: 'firstMealRatio' | 'otherMealRatio' | 'longActingDosage' | 'correctionFactor', value: string | number) => {
+  const updateRatioSetting = (field: 'firstMealRatio' | 'otherMealRatio' | 'longActingDosage' | 'correctionFactor' | 'insulinSensitivityFactor' | 'targetBgValue', value: string | number) => {
     const numValue = typeof value === 'string' ? parseFloat(value) : value;
     if (!isNaN(numValue) && numValue >= 0) { // Changed from > 0 to >= 0 to allow zero for longActingDosage
       // Round differently based on the field
@@ -78,7 +91,7 @@ export function CalculatorSettings() {
   };
   
   // Function to increment or decrement ratio by a fixed amount
-  const adjustRatio = (field: 'firstMealRatio' | 'otherMealRatio' | 'longActingDosage' | 'correctionFactor', increment: boolean) => {
+  const adjustRatio = (field: 'firstMealRatio' | 'otherMealRatio' | 'longActingDosage' | 'correctionFactor' | 'insulinSensitivityFactor' | 'targetBgValue', increment: boolean) => {
     // Make sure we're working with a number by explicitly parsing
     const currentValue = parseFloat((editableSettings[field] ?? settings[field]).toString());
     
@@ -88,6 +101,10 @@ export function CalculatorSettings() {
       step = 0.1; // Small step for correction factor
     } else if (field === 'longActingDosage') {
       step = 1.0; // Whole units for long acting insulin
+    } else if (field === 'insulinSensitivityFactor') {
+      step = 1.0; // 1 unit for sensitivity factor (mg/dL)
+    } else if (field === 'targetBgValue') {
+      step = 0.1; // Small step for target BG value (mmol/L)
     } else {
       step = 0.5; // Default step for meal ratios
     }
@@ -141,9 +158,26 @@ export function CalculatorSettings() {
   const getActiveSettings = () => {
     if (isEditMode) {
       return {
+        // Insulin-to-carb ratios
         firstMealRatio: editableSettings.firstMealRatio ?? settings.firstMealRatio,
         otherMealRatio: editableSettings.otherMealRatio ?? settings.otherMealRatio,
+        
+        // New insulin sensitivity and target fields 
+        // @ts-ignore - New fields that might not be in some CalculatorSettings types
+        insulinSensitivityFactor: editableSettings.insulinSensitivityFactor ?? (
+          // @ts-ignore
+          settings.insulinSensitivityFactor || 35
+        ),
+        // @ts-ignore
+        targetBgValue: editableSettings.targetBgValue ?? (
+          // @ts-ignore
+          settings.targetBgValue || 5.6
+        ),
+        
+        // Long acting insulin dosage
         longActingDosage: editableSettings.longActingDosage ?? (settings.longActingDosage || '0'),
+        
+        // Legacy correction values
         correctionFactor: editableSettings.correctionFactor ?? (settings.correctionFactor || '1.0'),
         mealCorrectionRanges: editableSettings.mealCorrectionRanges ?? settings.mealCorrectionRanges,
         bedtimeCorrectionRanges: editableSettings.bedtimeCorrectionRanges ?? settings.bedtimeCorrectionRanges,
@@ -153,6 +187,11 @@ export function CalculatorSettings() {
     }
     return {
       ...settings,
+      // Default values for fields that might not exist in current settings
+      // @ts-ignore - New fields that might not be in some CalculatorSettings types
+      insulinSensitivityFactor: settings.insulinSensitivityFactor || 35,
+      // @ts-ignore
+      targetBgValue: settings.targetBgValue || 5.6,
       longActingDosage: settings.longActingDosage || '0',
       correctionFactor: settings.correctionFactor || '1.0'
     };
