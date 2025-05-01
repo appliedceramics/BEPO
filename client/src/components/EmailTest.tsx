@@ -13,8 +13,7 @@ export function EmailTest() {
   const [email, setEmail] = useState("");
   const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     
     try {
       setLoading(true);
@@ -48,7 +47,7 @@ export function EmailTest() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-4">
           <div className="space-y-2">
             <p className="text-sm text-muted-foreground flex items-center gap-2">
               <Info className="h-4 w-4" />
@@ -62,7 +61,11 @@ export function EmailTest() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="flex-1"
               />
-              <Button type="submit" disabled={loading}>
+              <Button 
+                type="button" 
+                onClick={handleSubmit}
+                disabled={loading}
+              >
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -77,7 +80,7 @@ export function EmailTest() {
               </Button>
             </div>
           </div>
-        </form>
+        </div>
       </CardContent>
     </Card>
   );
