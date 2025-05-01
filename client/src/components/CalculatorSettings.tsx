@@ -36,6 +36,7 @@ export function CalculatorSettings() {
         firstMealRatio: settings.firstMealRatio,
         otherMealRatio: settings.otherMealRatio,
         longActingDosage: settings.longActingDosage || '0',
+        correctionFactor: settings.correctionFactor || '1.0',
         mealCorrectionRanges: settings.mealCorrectionRanges,
         bedtimeCorrectionRanges: settings.bedtimeCorrectionRanges,
         targetBgMin: settings.targetBgMin,
@@ -60,7 +61,7 @@ export function CalculatorSettings() {
     resetToDefaults(type);
   };
 
-  const updateRatioSetting = (field: 'firstMealRatio' | 'otherMealRatio' | 'longActingDosage', value: string | number) => {
+  const updateRatioSetting = (field: 'firstMealRatio' | 'otherMealRatio' | 'longActingDosage' | 'correctionFactor', value: string | number) => {
     const numValue = typeof value === 'string' ? parseFloat(value) : value;
     if (!isNaN(numValue) && numValue > 0) {
       // Round to one decimal place for consistency
@@ -70,14 +71,15 @@ export function CalculatorSettings() {
   };
   
   // Function to increment or decrement ratio by a fixed amount
-  const adjustRatio = (field: 'firstMealRatio' | 'otherMealRatio' | 'longActingDosage', increment: boolean) => {
+  const adjustRatio = (field: 'firstMealRatio' | 'otherMealRatio' | 'longActingDosage' | 'correctionFactor', increment: boolean) => {
     // Make sure we're working with a number by explicitly parsing
     const currentValue = parseFloat((editableSettings[field] ?? settings[field]).toString());
-    const step = 0.5; // Use a fixed step of 0.5
+    const step = field === 'correctionFactor' ? 0.1 : 0.5; // Use a smaller step for correction factor
     const newValue = increment ? currentValue + step : currentValue - step;
     
-    // Don't allow values below 1
-    if (newValue >= 1) {
+    // Don't allow values below minimum (different for correction factor)
+    const minValue = field === 'correctionFactor' ? 0.5 : 1.0;
+    if (newValue >= minValue) {
       updateRatioSetting(field, newValue);
     }
   };
@@ -125,6 +127,7 @@ export function CalculatorSettings() {
         firstMealRatio: editableSettings.firstMealRatio ?? settings.firstMealRatio,
         otherMealRatio: editableSettings.otherMealRatio ?? settings.otherMealRatio,
         longActingDosage: editableSettings.longActingDosage ?? (settings.longActingDosage || '0'),
+        correctionFactor: editableSettings.correctionFactor ?? (settings.correctionFactor || '1.0'),
         mealCorrectionRanges: editableSettings.mealCorrectionRanges ?? settings.mealCorrectionRanges,
         bedtimeCorrectionRanges: editableSettings.bedtimeCorrectionRanges ?? settings.bedtimeCorrectionRanges,
         targetBgMin: editableSettings.targetBgMin ?? settings.targetBgMin,
@@ -133,7 +136,8 @@ export function CalculatorSettings() {
     }
     return {
       ...settings,
-      longActingDosage: settings.longActingDosage || '0'
+      longActingDosage: settings.longActingDosage || '0',
+      correctionFactor: settings.correctionFactor || '1.0'
     };
   };
 

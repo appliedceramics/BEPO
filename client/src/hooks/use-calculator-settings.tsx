@@ -10,6 +10,7 @@ export type CalculatorSettings = {
   firstMealRatio: number;
   otherMealRatio: number;
   longActingDosage: number | string;
+  correctionFactor: number | string;
   mealCorrectionRanges: CorrectionRange[];
   bedtimeCorrectionRanges: CorrectionRange[];
   targetBgMin: number;

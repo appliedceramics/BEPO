@@ -184,6 +184,7 @@ export const calculatorSettings = pgTable("calculator_settings", {
   firstMealRatio: numeric("first_meal_ratio").notNull().default("10"),  // Insulin to carb ratio for first meal
   otherMealRatio: numeric("other_meal_ratio").notNull().default("15"), // Insulin to carb ratio for other meals
   longActingDosage: numeric("long_acting_dosage").notNull().default("0"), // Long-acting insulin dosage for 24hr
+  correctionFactor: numeric("correction_factor").notNull().default("1.0"), // Multiplier for all correction values
   mealCorrectionRanges: json("meal_correction_ranges").$type<CorrectionRange[]>(),
   bedtimeCorrectionRanges: json("bedtime_correction_ranges").$type<CorrectionRange[]>(),
   targetBgMin: numeric("target_bg_min").notNull().default("4.5"),  // Target blood glucose minimum (mmol/L)
@@ -211,6 +212,7 @@ export const calculatorSettingsSchema = z.object({
   firstMealRatio: z.number().or(z.string()),
   otherMealRatio: z.number().or(z.string()),
   longActingDosage: z.number().or(z.string()),
+  correctionFactor: z.number().or(z.string()).default(1.0),
   mealCorrectionRanges: z.array(correctionRangeSchema).nullable().optional(),
   bedtimeCorrectionRanges: z.array(correctionRangeSchema).nullable().optional(),
   targetBgMin: z.number().or(z.string()),
