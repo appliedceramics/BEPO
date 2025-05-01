@@ -33,6 +33,7 @@ const profileSchema = z.object({
   sex: z.enum(["male", "female"], {
     required_error: "Please select a gender",
   }),
+  weight: z.coerce.number().min(1, "Weight must be at least 1").max(300, "Weight must be valid").optional(),
   motherName: z.string().optional(),
   motherPhone: z.string().optional(),
   fatherName: z.string().optional(),
@@ -53,6 +54,7 @@ export default function ProfilePage() {
       name: "",
       age: undefined,
       sex: undefined,
+      weight: undefined,
       motherName: "",
       motherPhone: "",
       fatherName: "",
@@ -63,7 +65,13 @@ export default function ProfilePage() {
 
   // Handle profile creation/update
   const onSubmit = (data: ProfileFormValues) => {
-    updateProfileMutation.mutate(data, {
+    // Convert number fields to string format expected by the API
+    const formData = {
+      ...data,
+      weight: data.weight !== undefined ? String(data.weight) : undefined
+    };
+    
+    updateProfileMutation.mutate(formData, {
       onSuccess: () => {
         navigate("/");
       },
@@ -158,6 +166,32 @@ export default function ProfilePage() {
                           <SelectItem value="female">Female</SelectItem>
                         </SelectContent>
                       </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="weight"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Weight (kg)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="Enter your weight in kg"
+                          {...field}
+                          value={field.value === undefined ? '' : field.value}
+                          onChange={(e) => {
+                            const value = e.target.value === '' ? undefined : Number(e.target.value);
+                            field.onChange(value);
+                          }}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Used for personalized meal recommendations
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -315,7 +349,7 @@ export default function ProfilePage() {
               <div>
                 <h3 className="font-medium">Personalized Experience</h3>
                 <p className="text-sm text-muted-foreground">
-                  We'll use your age and gender to provide more relevant insights about your diabetes management
+                  We'll use your age, gender, and weight to provide more relevant insights and meal recommendations for your diabetes management
                 </p>
               </div>
             </div>
