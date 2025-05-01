@@ -4,7 +4,7 @@ import { z } from "zod";
 import { relations } from "drizzle-orm";
 
 // Enum for meal types
-export const mealTypeEnum = z.enum(["first", "other", "bedtime"]);
+export const mealTypeEnum = z.enum(["first", "other", "bedtime", "longActing"]);
 export type MealType = z.infer<typeof mealTypeEnum>;
 
 // Enum for gender/sex
@@ -183,6 +183,7 @@ export const calculatorSettings = pgTable("calculator_settings", {
   userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }).unique(),
   firstMealRatio: numeric("first_meal_ratio").notNull().default("10"),  // Insulin to carb ratio for first meal
   otherMealRatio: numeric("other_meal_ratio").notNull().default("15"), // Insulin to carb ratio for other meals
+  longActingDosage: numeric("long_acting_dosage").notNull().default("0"), // Long-acting insulin dosage for 24hr
   mealCorrectionRanges: json("meal_correction_ranges").$type<CorrectionRange[]>(),
   bedtimeCorrectionRanges: json("bedtime_correction_ranges").$type<CorrectionRange[]>(),
   targetBgMin: numeric("target_bg_min").notNull().default("4.5"),  // Target blood glucose minimum (mmol/L)
