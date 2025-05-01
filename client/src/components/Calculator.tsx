@@ -82,7 +82,8 @@ export function Calculator({ onLogInsulin, isLogging }: CalculatorProps) {
         mealType,
         bgValue,
         targetBgValue,
-        correctionFactor: insulinSensitivityFactor,
+        correctionFactor: legacyCorrectionFactor, // Multiplier for correction
+        insulinSensitivityFactor, // How much 1 unit lowers blood glucose
         longActingDosage,
       };
       
