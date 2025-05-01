@@ -1,5 +1,6 @@
 import { useAuth } from "@/hooks/use-auth";
 import { BepoLogo } from "@/components/BepoLogo";
+import { BepoCalculatorLogo } from "@/components/BepoCalculatorLogo";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import {
@@ -24,8 +25,8 @@ export function Navigation() {
       <div className="container flex h-16 items-center justify-between py-4">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
-            <BepoLogo className="w-8 h-8" />
-            <span className="font-bold text-lg hidden sm:inline-block">BEPO Insulin Calculator</span>
+            <BepoCalculatorLogo className="w-8 h-8" />
+            <span className="font-bold text-lg hidden sm:inline-block"><span className="calculator-font">BEPO</span> Insulin Calculator</span>
           </Link>
         </div>
 
