@@ -1,6 +1,9 @@
 import { MealType } from "@shared/schema";
 import { convertBgToMgdl } from "./correctionCalculator";
 
+// Import the roundToInsulinDose function from correctionCalculator.ts
+import { roundToInsulinDose } from "./correctionCalculator";
+
 export interface CalculationResult {
   mealInsulin: number;
   correctionInsulin: number;
@@ -71,8 +74,9 @@ export function calculateInsulin(params: CalculationParams): CalculationResult {
       (insulinToCarbohydrateRatio || 10) : // Default 1:10 for first meal
       (insulinToCarbohydrateRatio || 15);  // Default 1:15 for other meals
     
-    mealInsulin = carbValue / ratio;
-    mealCalculationDetails = `${carbValue}g ÷ ${ratio} = ${mealInsulin.toFixed(1)} units`;
+    const rawMealInsulin = carbValue / ratio;
+    mealInsulin = roundToInsulinDose(rawMealInsulin); // Apply insulin rounding rules
+    mealCalculationDetails = `${carbValue}g ÷ ${ratio} = ${rawMealInsulin.toFixed(1)} → ${mealInsulin} units`;
   }
   
   // Step 2: Calculate correction insulin
@@ -90,12 +94,16 @@ export function calculateInsulin(params: CalculationParams): CalculationResult {
       const baseCorrection = bgDifference / insulinSensitivityFactor;
       
       // Apply correction factor multiplier (from settings)
-      correctionInsulin = baseCorrection * correctionFactor;
+      const cfAdjusted = baseCorrection * correctionFactor;
       
       // For bedtime, we typically use a more conservative approach
-      if (mealType === "bedtime" && correctionInsulin > 0) {
-        correctionInsulin = correctionInsulin * 0.75; // 25% reduction for bedtime
+      let rawCorrectionInsulin = cfAdjusted;
+      if (mealType === "bedtime" && cfAdjusted > 0) {
+        rawCorrectionInsulin = cfAdjusted * 0.75; // 25% reduction for bedtime
       }
+      
+      // Apply insulin rounding rules
+      correctionInsulin = roundToInsulinDose(rawCorrectionInsulin);
       
       // Detailed explanation of calculation for the user
       correctionCalculationDetails = 
@@ -109,13 +117,14 @@ export function calculateInsulin(params: CalculationParams): CalculationResult {
         correctionCalculationDetails += ` × 0.75 (bedtime)`;
       }
       
-      correctionCalculationDetails += ` = ${correctionInsulin.toFixed(1)} units`;
+      correctionCalculationDetails += ` = ${rawCorrectionInsulin.toFixed(1)} → ${correctionInsulin} units`;
     }
   }
   
-  // Step 3: Calculate total insulin (round to nearest 0.5 units for practical administration)
+  // Step 3: Calculate total insulin using proper insulin dosing rounding rules
   const rawTotalInsulin = mealInsulin + correctionInsulin;
-  const totalInsulin = Math.round(rawTotalInsulin * 2) / 2; // Round to nearest 0.5
+  // Import the roundToInsulinDose function from correctionCalculator
+  const totalInsulin = roundToInsulinDose(rawTotalInsulin); // Use proper insulin rounding
   
   // Build a description of the calculation method used
   const calculationMethod = 
@@ -124,8 +133,8 @@ export function calculateInsulin(params: CalculationParams): CalculationResult {
     `Total: ${mealInsulin.toFixed(1)} + ${correctionInsulin.toFixed(1)} = ${rawTotalInsulin.toFixed(1)} → ${totalInsulin} units`;
   
   return {
-    mealInsulin: Math.round(mealInsulin * 10) / 10, // Round to 1 decimal place
-    correctionInsulin: Math.round(correctionInsulin * 10) / 10, // Round to 1 decimal place
+    mealInsulin, // Already rounded using proper insulin rounding rules
+    correctionInsulin, // Already rounded using proper insulin rounding rules
     totalInsulin,
     bgMgdl,
     calculationMethod

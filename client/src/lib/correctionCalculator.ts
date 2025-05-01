@@ -111,5 +111,40 @@ export function calculateAdjustedCorrection(
   // 2. Apply insulin sensitivity factor adjustment
   // When ISF is lower than the default 35, insulin is more powerful, so we need less
   const isfAdjustment = 35 / insulinSensitivityFactor;
-  return Math.round(cfAdjusted * isfAdjustment * 10) / 10;
+  const rawValue = cfAdjusted * isfAdjustment;
+  
+  // 3. Apply specific rounding rules for insulin dosing:
+  // - x.1 or x.2 rounds down to x.0
+  // - x.3 to x.5 rounds up to x.5
+  // - x.6 or x.7 rounds down to x.5
+  // - x.8 or x.9 rounds up to y.0
+  return roundToInsulinDose(rawValue);
+}
+
+/**
+ * Rounds a number according to insulin dosing rules:
+ * - x.1 or x.2 rounds down to x.0
+ * - x.3 to x.5 rounds up to x.5
+ * - x.6 or x.7 rounds down to x.5
+ * - x.8 or x.9 rounds up to y.0
+ */
+export function roundToInsulinDose(value: number): number {
+  // Get the integer part and decimal part
+  const integerPart = Math.floor(value);
+  const decimalPart = value - integerPart;
+  
+  // Apply rounding rules
+  if (decimalPart <= 0.2) {
+    // Round down to the nearest integer
+    return integerPart;
+  } else if (decimalPart <= 0.5) {
+    // Round up to x.5
+    return integerPart + 0.5;
+  } else if (decimalPart <= 0.7) {
+    // Round down to x.5
+    return integerPart + 0.5;
+  } else {
+    // Round up to the next integer
+    return integerPart + 1;
+  }
 }
