@@ -11,15 +11,17 @@ const PageHeader = ({ title, description }: { title: string; description?: strin
 
 export default function AchievementsPage() {
   return (
-    <div className="container max-w-md mx-auto p-4">
-      <PageHeader
-        title="Achievements"
-        description="Track your progress and earn rewards!"
-      />
-      <div className="mb-6">
-        <Achievements />
-      </div>
+    <div className="min-h-screen font-sans flex flex-col">
       <Navigation />
+      <div className="container max-w-md mx-auto px-4 py-8 flex-1">
+        <PageHeader
+          title="Achievements"
+          description="Track your progress and earn rewards!"
+        />
+        <div className="mb-6">
+          <Achievements />
+        </div>
+      </div>
     </div>
   );
 }
