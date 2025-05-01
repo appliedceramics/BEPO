@@ -186,28 +186,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json([]);
       }
       
+      console.log(`Food suggestion request for: "${query}"`);
+      
+      let result;
+      
       // For search queries like restaurant names or food categories, return multiple suggestions
       if (query.length < 5 || query.includes(' ')) {
-        const suggestions = await suggestMeals(query);
-        return res.json(suggestions);
+        try {
+          const suggestions = await suggestMeals(query);
+          result = suggestions;
+          console.log(`Found ${suggestions.length} meal suggestions`);
+        } catch (suggestionError) {
+          console.error("Error getting meal suggestions:", suggestionError);
+          result = [];
+        }
+      } else {
+        // For specific food names, return detailed information
+        try {
+          const foodSuggestion = await getFoodCarbs(query);
+          result = [foodSuggestion]; // Wrap single result in array for consistent handling
+          console.log(`Found specific food information for ${foodSuggestion.name}`);
+        } catch (foodError) {
+          console.error("Error getting specific food:", foodError);
+          result = [];
+        }
       }
       
-      // For specific food names, return detailed information
-      const foodSuggestion = await getFoodCarbs(query);
-      res.json(foodSuggestion);
+      // Ensure we're returning an array
+      if (!Array.isArray(result)) {
+        result = result ? [result] : [];
+      }
+      
+      res.json(result);
     } catch (error) {
-      console.error("Error getting food suggestions:", error);
-      // Using 200 status with error object for graceful handling in UI
-      res.json({ 
-        error: true,
-        name: req.body.query || "Food",
-        description: "Could not find carb information",
-        portions: {
-          small: { description: "Small portion", carbValue: 0 },
-          medium: { description: "Medium portion", carbValue: 0 },
-          large: { description: "Large portion", carbValue: 0 }
-        }
-      });
+      console.error("Error processing food suggestions:", error);
+      // Return empty array instead of error object for better client-side handling
+      res.json([]);
     }
   });
 

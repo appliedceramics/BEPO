@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -40,13 +40,16 @@ export function DynamicFoodSearch({
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [searchResults, setSearchResults] = useState<FoodItem[]>([]);
-  const debouncedSearch = useDebounce(searchTerm, 500);
+  const debouncedSearch = useDebounce(searchTerm, 300); // Reduced debounce time for faster feedback
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const lastSearchRef = useRef<string>("");
 
   // Perform search when debounced search term changes
   useEffect(() => {
     if (debouncedSearch && debouncedSearch.length >= 2) {
+      lastSearchRef.current = debouncedSearch;
       searchFood(debouncedSearch);
-    } else {
+    } else if (debouncedSearch === "") {
       setSearchResults([]);
     }
   }, [debouncedSearch]);
@@ -54,10 +57,36 @@ export function DynamicFoodSearch({
   const searchFood = async (query: string) => {
     if (!query.trim()) return;
     
+    // Cancel any in-flight requests
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
+    // Create a new abort controller for this request
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+    
     setIsLoading(true);
     try {
-      const response = await apiRequest("POST", "/api/food-suggestions", { query });
+      console.log(`Searching for: ${query}`);
+      const response = await fetch("/api/food-suggestions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query }),
+        signal: abortController.signal
+      });
+      
+      // If the request was aborted or a newer search was started, don't process the results
+      if (abortController.signal.aborted || query !== lastSearchRef.current) {
+        return;
+      }
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
+      console.log("Search results:", data);
       
       // Check if the response has an error flag
       if (data.error) {
@@ -67,8 +96,17 @@ export function DynamicFoodSearch({
       
       // For single result, wrap in array
       const results = Array.isArray(data) ? data : [data];
-      setSearchResults(results);
-    } catch (error) {
+      
+      // Check if the results are for the current search term
+      if (query === lastSearchRef.current) {
+        setSearchResults(results.length > 0 ? results : []);
+      }
+    } catch (error: any) {
+      // Don't show errors for aborted requests
+      if (error && error.name === 'AbortError') {
+        return;
+      }
+      
       console.error("Error searching for food:", error);
       toast({
         title: "Search Error",
@@ -77,17 +115,30 @@ export function DynamicFoodSearch({
       });
       setSearchResults([]);
     } finally {
-      setIsLoading(false);
+      // Only update loading state if this is still the current search
+      if (query === lastSearchRef.current) {
+        setIsLoading(false);
+      }
     }
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
+    const newValue = e.target.value;
+    setSearchTerm(newValue);
+    
+    // Clear results immediately when search is cleared
+    if (newValue === "") {
+      setSearchResults([]);
+    }
   };
 
   const handleClearSearch = () => {
     setSearchTerm("");
     setSearchResults([]);
+    // Cancel any pending requests
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
   };
 
   const handleSelectFood = (item: FoodItem) => {
@@ -116,6 +167,7 @@ export function DynamicFoodSearch({
             <button
               className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               onClick={handleClearSearch}
+              type="button"
             >
               <X className="h-4 w-4" />
             </button>
@@ -131,39 +183,45 @@ export function DynamicFoodSearch({
       )}
 
       {/* Search results */}
-      {searchResults.length > 0 && !isLoading && (
+      {searchTerm.length >= 2 && !isLoading && (
         <ScrollArea className="mt-2 max-h-[200px] overflow-y-auto rounded-md border">
           <div className="p-2 space-y-2">
-            {searchResults.map((item, index) => (
-              <Card 
-                key={`${item.name}-${index}`} 
-                className="cursor-pointer hover:bg-accent/50 transition-colors"
-              >
-                <CardContent className="p-3 flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="flex justify-between">
-                      <h4 className="font-medium text-sm">{item.name}</h4>
-                      <Badge variant="outline" className="ml-2">
-                        {item.portions.medium.carbValue}g
-                      </Badge>
+            {searchResults.length > 0 ? (
+              searchResults.map((item, index) => (
+                <Card 
+                  key={`${item.name}-${index}`} 
+                  className="cursor-pointer hover:bg-accent/50 transition-colors"
+                >
+                  <CardContent className="p-3 flex justify-between items-start">
+                    <div className="flex-1">
+                      <div className="flex justify-between">
+                        <h4 className="font-medium text-sm">{item.name}</h4>
+                        <Badge variant="outline" className="ml-2">
+                          {item.portions.medium.carbValue}g
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground line-clamp-1">
+                        {item.description}
+                      </p>
                     </div>
-                    <p className="text-xs text-muted-foreground line-clamp-1">
-                      {item.description}
-                    </p>
-                  </div>
-                  {showAddButton && (
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="ml-2 h-7 w-7" 
-                      onClick={() => handleSelectFood(item)}
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+                    {showAddButton && (
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="ml-2 h-7 w-7" 
+                        onClick={() => handleSelectFood(item)}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <div className="p-4 text-center text-sm text-muted-foreground">
+                No results found for "{searchTerm}"
+              </div>
+            )}
           </div>
         </ScrollArea>
       )}
