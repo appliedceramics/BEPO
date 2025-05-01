@@ -24,12 +24,16 @@ export function ResultsDisplay({
                        mealInsulin === totalInsulin && 
                        (correctionInsulin === 0 || correctionInsulin === undefined);
   
-  // Format insulin values with 1 decimal place
-  const mealInsulinFormatted = mealInsulin !== undefined ? mealInsulin.toFixed(1) : "--";
+  // Format insulin values - decimals for normal insulin, whole numbers for long acting
+  const mealInsulinFormatted = mealInsulin !== undefined 
+    ? isLongActing ? Math.round(mealInsulin).toString() : mealInsulin.toFixed(1) 
+    : "--";
   const correctionFormatted = correctionInsulin !== undefined
     ? (correctionInsulin > 0 ? "+" : "") + correctionInsulin.toFixed(1)
     : "--";
-  const totalInsulinFormatted = totalInsulin !== undefined ? totalInsulin.toFixed(1) : "--";
+  const totalInsulinFormatted = totalInsulin !== undefined 
+    ? isLongActing ? Math.round(totalInsulin).toString() : totalInsulin.toFixed(1) 
+    : "--";
 
   // Add pulse animation when total insulin changes
   useEffect(() => {
@@ -58,7 +62,9 @@ export function ResultsDisplay({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white p-4 rounded-lg shadow-md border-2 border-accent/30">
           <p className="text-sm font-bold text-primary/80">
-            {isBedtime ? "Bedtime Insulin" : "Meal Insulin"}
+            {isBedtime ? "Bedtime Insulin" : 
+             isLongActing ? "Long Acting Insulin" : 
+             "Meal Insulin"}
           </p>
           <p id="meal-insulin" className="text-2xl font-bold text-primary">
             {mealInsulinFormatted} <span className="text-lg">units</span>
@@ -88,7 +94,7 @@ export function ResultsDisplay({
         </div>
       </div>
       
-      {correctionRange && (
+      {correctionRange && !isLongActing && (
         <div id="correction-details" className="mt-5 p-4 text-sm rounded-md bg-blue-50 border-2 border-blue-200 shadow-sm">
           <p className="font-bold text-blue-700">
             Correction based on BG: <span id="correction-range" className="font-bold underline">{correctionRange}</span>
@@ -101,6 +107,15 @@ export function ResultsDisplay({
           <p className="font-bold text-orange-800">
             <span className="inline-block mr-2">⚠️</span>
             If correcting at bedtime, re-check blood glucose in 2 hours
+          </p>
+        </div>
+      )}
+      
+      {isLongActing && (
+        <div className="mt-5 p-4 text-sm rounded-md bg-blue-100 border-2 border-blue-300 shadow-sm">
+          <p className="font-bold text-blue-800">
+            <span className="inline-block mr-2">💊</span>
+            Using your daily long-acting insulin dosage from settings
           </p>
         </div>
       )}
