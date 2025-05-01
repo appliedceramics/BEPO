@@ -468,6 +468,147 @@ export function CalculatorSettings() {
         </CardContent>
       </Card>
 
+      {/* Insulin Sensitivity and Target BG Card */}
+      <Card className="mb-8 border-2 border-purple-200 shadow-lg bg-purple-50">
+        <CardHeader className="bg-gradient-to-r from-purple-200 to-purple-100">
+          <CardTitle className="flex items-center text-purple-800">
+            <span className="text-2xl mr-2">📊</span> 
+            Insulin Sensitivity & Target BG
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="ml-2">
+                    <HelpCircle className="h-4 w-4 text-purple-600" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-sm bg-white p-4 border-2 border-purple-200 rounded-lg shadow-lg">
+                  <p className="font-bold text-purple-800">What is Insulin Sensitivity Factor?</p>
+                  <p className="mt-2">This is how much 1 unit of insulin will lower your blood glucose.</p>
+                  <p className="mt-2">For example, if your sensitivity factor is 35, one unit of insulin will lower your blood glucose by 35 mg/dL (or about 2 mmol/L).</p>
+                  <hr className="my-3 border-purple-200" />
+                  <p className="font-bold text-purple-800">What is Target Blood Glucose?</p>
+                  <p className="mt-2">This is the desired blood glucose level you're aiming for.</p>
+                  <p className="mt-2">The calculator uses this to determine correction doses - if your BG is above target, you'll need correction insulin.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </CardTitle>
+          <CardDescription className="text-purple-700">
+            Set how your body responds to insulin and your target blood glucose
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Insulin Sensitivity Factor */}
+            <div className="bg-white p-4 rounded-lg border border-purple-200 shadow">
+              <div className="flex items-center mb-2">
+                <h3 className="font-bold text-purple-800">Insulin Sensitivity Factor</h3>
+                <Badge variant="outline" className="ml-2 bg-purple-100 text-purple-800 border-purple-300">
+                  Correction power
+                </Badge>
+              </div>
+              <div className="flex items-center gap-4">
+                {/* @ts-ignore - New field might not be in some CalculatorSettings types */}
+                <span className="text-3xl font-bold text-purple-600">{isEditMode ? editableSettings.insulinSensitivityFactor ?? activeSettings.insulinSensitivityFactor : activeSettings.insulinSensitivityFactor} mg/dL</span>
+                {isEditMode && (
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        size="lg"
+                        variant="outline"
+                        className="h-14 w-14 rounded-full border-2 border-purple-300 text-2xl font-bold"
+                        onClick={() => adjustRatio('insulinSensitivityFactor', false)}
+                      >
+                        -
+                      </Button>
+                      <div className="w-20 text-center">
+                        <span className="text-2xl font-bold">
+                          {/* @ts-ignore - New field might not be in some CalculatorSettings types */}
+                          {parseFloat((editableSettings.insulinSensitivityFactor ?? activeSettings.insulinSensitivityFactor).toString()).toFixed(0)}
+                        </span>
+                      </div>
+                      <Button
+                        type="button"
+                        size="lg"
+                        variant="outline"
+                        className="h-14 w-14 rounded-full border-2 border-purple-300 text-2xl font-bold"
+                        onClick={() => adjustRatio('insulinSensitivityFactor', true)}
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                <div className="text-purple-700 text-sm">
+                  <p>1 unit of insulin lowers BG by this many mg/dL</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Target Blood Glucose */}
+            <div className="bg-white p-4 rounded-lg border border-purple-200 shadow">
+              <div className="flex items-center mb-2">
+                <h3 className="font-bold text-purple-800">Target Blood Glucose</h3>
+                <Badge variant="outline" className="ml-2 bg-purple-100 text-purple-800 border-purple-300">
+                  Ideal level
+                </Badge>
+              </div>
+              <div className="flex items-center gap-4">
+                {/* @ts-ignore - New field might not be in some CalculatorSettings types */}
+                <span className="text-3xl font-bold text-purple-600">{isEditMode ? editableSettings.targetBgValue ?? activeSettings.targetBgValue : activeSettings.targetBgValue} mmol/L</span>
+                {isEditMode && (
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        size="lg"
+                        variant="outline"
+                        className="h-14 w-14 rounded-full border-2 border-purple-300 text-2xl font-bold"
+                        onClick={() => adjustRatio('targetBgValue', false)}
+                      >
+                        -
+                      </Button>
+                      <div className="w-20 text-center">
+                        <span className="text-2xl font-bold">
+                          {/* @ts-ignore - New field might not be in some CalculatorSettings types */}
+                          {parseFloat((editableSettings.targetBgValue ?? activeSettings.targetBgValue).toString()).toFixed(1)}
+                        </span>
+                      </div>
+                      <Button
+                        type="button"
+                        size="lg"
+                        variant="outline"
+                        className="h-14 w-14 rounded-full border-2 border-purple-300 text-2xl font-bold"
+                        onClick={() => adjustRatio('targetBgValue', true)}
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                <div className="text-purple-700 text-sm">
+                  <p>Your ideal blood glucose level (~100 mg/dL)</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-6 p-4 bg-purple-100 rounded-lg border border-purple-300">
+            <div className="flex items-start">
+              <CheckCircle2 className="h-5 w-5 text-purple-600 mt-0.5 mr-2" />
+              <div>
+                <h4 className="font-semibold text-purple-800">About these settings</h4>
+                <p className="mt-1 text-purple-700">
+                  These values are used to calculate correction insulin doses. When your blood glucose is above target, 
+                  the calculator determines how much insulin you need based on your sensitivity factor.
+                </p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Target Blood Glucose Range Card */}
       <Card className="mb-8 border-2 border-green-200 shadow-lg bg-green-50">
         <CardHeader className="bg-gradient-to-r from-green-200 to-green-100">
