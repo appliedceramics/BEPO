@@ -999,11 +999,20 @@ export function CalculatorSettings() {
                   <div>
                     <h4 className="font-semibold text-blue-800">Important bedtime note</h4>
                     <p className="mt-1 text-blue-700">
-                      The bedtime correction chart is usually more conservative (has a wider range with no correction) 
-                      to prevent overnight low blood glucose.
+                      If your blood glucose is <span className="font-bold">220 mg/dL (12.2 mmol/L)</span> at bedtime with:
+                    </p>
+                    <ul className="list-disc pl-8 mt-1 text-blue-700">
+                      <li>Default Insulin Sensitivity Factor (35 mg/dL)</li> 
+                      <li>Default Correction Factor (1.0)</li>
+                    </ul>
+                    <p className="mt-1 text-blue-700">
+                      You would add <span className="font-bold">+2.5 units</span> of correction insulin before sleep.
                     </p>
                     <p className="mt-1 text-blue-700">
-                      Always check your blood glucose 2 hours after a bedtime correction.
+                      The bedtime correction chart is more conservative to prevent overnight low blood glucose.
+                    </p>
+                    <p className="mt-1 text-blue-600">
+                      <strong>Safety reminder:</strong> Always check your blood glucose 2 hours after a bedtime correction.
                     </p>
                   </div>
                 </div>
