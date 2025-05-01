@@ -102,7 +102,7 @@ export function CalculatorSettings() {
 
   return (
     <div className="container mx-auto my-8 max-w-5xl">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div className="flex items-center gap-3">
           <Avatar className="h-12 w-12 bg-primary/25">
             <AvatarImage src="/calculator-icon.png" alt="Calculator" />
@@ -111,24 +111,28 @@ export function CalculatorSettings() {
             </AvatarFallback>
           </Avatar>
           <div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 text-transparent bg-clip-text">My Calculator Settings</h1>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary-foreground text-transparent bg-clip-text">My Calculator Settings</h1>
             <p className="text-muted-foreground">Personalize how your insulin calculator works</p>
           </div>
         </div>
         
-        <div className="flex space-x-2">
+        <div className="flex space-x-2 w-full md:w-auto">
           {isEditMode ? (
             <>
               <Button 
                 variant="outline" 
                 onClick={() => setIsEditMode(false)}
                 disabled={isSaving || isResetting}
+                size="lg"
+                className="flex-1 md:flex-initial"
               >
                 Cancel
               </Button>
               <Button 
                 onClick={handleSave}
                 disabled={isSaving || isResetting}
+                size="lg"
+                className="flex-1 md:flex-initial"
               >
                 {isSaving ? "Saving..." : "Save Changes"}
                 <Save className="ml-2 h-4 w-4" />
@@ -138,6 +142,8 @@ export function CalculatorSettings() {
             <Button 
               onClick={() => setIsEditMode(true)}
               variant="default"
+              size="lg"
+              className="w-full md:w-auto"
             >
               <Edit className="mr-2 h-4 w-4" />
               Edit Settings
@@ -185,14 +191,42 @@ export function CalculatorSettings() {
                 <span className="text-3xl font-bold text-amber-600">1:{isEditMode ? editableSettings.firstMealRatio ?? activeSettings.firstMealRatio : activeSettings.firstMealRatio}</span>
                 {isEditMode && (
                   <div className="flex-1">
-                    <Input 
-                      type="number" 
-                      min="1" 
-                      step="0.5"
-                      value={editableSettings.firstMealRatio ?? activeSettings.firstMealRatio} 
-                      onChange={(e) => updateRatioSetting('firstMealRatio', e.target.value)}
-                      className="border-amber-300 focus-visible:ring-amber-500"
-                    />
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        size="lg"
+                        variant="outline"
+                        className="h-14 w-14 rounded-full border-2 border-amber-300 text-2xl font-bold"
+                        onClick={() => {
+                          const currentValue = editableSettings.firstMealRatio ?? activeSettings.firstMealRatio;
+                          if (currentValue > 1) {
+                            updateRatioSetting('firstMealRatio', (currentValue - 0.5).toString());
+                          }
+                        }}
+                      >
+                        -
+                      </Button>
+                      <Input 
+                        type="number" 
+                        min="1" 
+                        step="0.5"
+                        value={editableSettings.firstMealRatio ?? activeSettings.firstMealRatio} 
+                        onChange={(e) => updateRatioSetting('firstMealRatio', e.target.value)}
+                        className="border-amber-300 focus-visible:ring-amber-500 text-center text-xl h-14"
+                      />
+                      <Button
+                        type="button"
+                        size="lg"
+                        variant="outline"
+                        className="h-14 w-14 rounded-full border-2 border-amber-300 text-2xl font-bold"
+                        onClick={() => {
+                          const currentValue = editableSettings.firstMealRatio ?? activeSettings.firstMealRatio;
+                          updateRatioSetting('firstMealRatio', (currentValue + 0.5).toString());
+                        }}
+                      >
+                        +
+                      </Button>
+                    </div>
                   </div>
                 )}
                 <div className="text-amber-700 text-sm">
@@ -212,14 +246,42 @@ export function CalculatorSettings() {
                 <span className="text-3xl font-bold text-amber-600">1:{isEditMode ? editableSettings.otherMealRatio ?? activeSettings.otherMealRatio : activeSettings.otherMealRatio}</span>
                 {isEditMode && (
                   <div className="flex-1">
-                    <Input 
-                      type="number" 
-                      min="1" 
-                      step="0.5"
-                      value={editableSettings.otherMealRatio ?? activeSettings.otherMealRatio} 
-                      onChange={(e) => updateRatioSetting('otherMealRatio', e.target.value)}
-                      className="border-amber-300 focus-visible:ring-amber-500"
-                    />
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        size="lg"
+                        variant="outline"
+                        className="h-14 w-14 rounded-full border-2 border-amber-300 text-2xl font-bold"
+                        onClick={() => {
+                          const currentValue = editableSettings.otherMealRatio ?? activeSettings.otherMealRatio;
+                          if (currentValue > 1) {
+                            updateRatioSetting('otherMealRatio', (currentValue - 0.5).toString());
+                          }
+                        }}
+                      >
+                        -
+                      </Button>
+                      <Input 
+                        type="number" 
+                        min="1" 
+                        step="0.5"
+                        value={editableSettings.otherMealRatio ?? activeSettings.otherMealRatio} 
+                        onChange={(e) => updateRatioSetting('otherMealRatio', e.target.value)}
+                        className="border-amber-300 focus-visible:ring-amber-500 text-center text-xl h-14"
+                      />
+                      <Button
+                        type="button"
+                        size="lg"
+                        variant="outline"
+                        className="h-14 w-14 rounded-full border-2 border-amber-300 text-2xl font-bold"
+                        onClick={() => {
+                          const currentValue = editableSettings.otherMealRatio ?? activeSettings.otherMealRatio;
+                          updateRatioSetting('otherMealRatio', (currentValue + 0.5).toString());
+                        }}
+                      >
+                        +
+                      </Button>
+                    </div>
                   </div>
                 )}
                 <div className="text-amber-700 text-sm">
@@ -277,15 +339,45 @@ export function CalculatorSettings() {
                 <span className="text-xl font-semibold text-green-700">Minimum:</span>
                 <div className="flex items-center">
                   {isEditMode ? (
-                    <Input 
-                      type="number" 
-                      min="3" 
-                      max="6"
-                      step="0.1"
-                      value={editableSettings.targetBgMin ?? activeSettings.targetBgMin} 
-                      onChange={(e) => updateTargetRange('targetBgMin', e.target.value)}
-                      className="border-green-300 focus-visible:ring-green-500 w-24 mr-2"
-                    />
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="h-10 w-10 rounded-full border-2 border-green-300 text-xl font-bold"
+                        onClick={() => {
+                          const currentValue = editableSettings.targetBgMin ?? activeSettings.targetBgMin;
+                          if (currentValue > 3) {
+                            updateTargetRange('targetBgMin', (Math.round((currentValue - 0.1) * 10) / 10).toString());
+                          }
+                        }}
+                      >
+                        -
+                      </Button>
+                      <Input 
+                        type="number" 
+                        min="3" 
+                        max="6"
+                        step="0.1"
+                        value={editableSettings.targetBgMin ?? activeSettings.targetBgMin} 
+                        onChange={(e) => updateTargetRange('targetBgMin', e.target.value)}
+                        className="border-green-300 focus-visible:ring-green-500 w-20 text-center text-xl h-12 mr-2"
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="h-10 w-10 rounded-full border-2 border-green-300 text-xl font-bold"
+                        onClick={() => {
+                          const currentValue = editableSettings.targetBgMin ?? activeSettings.targetBgMin;
+                          if (currentValue < 6) {
+                            updateTargetRange('targetBgMin', (Math.round((currentValue + 0.1) * 10) / 10).toString());
+                          }
+                        }}
+                      >
+                        +
+                      </Button>
+                    </div>
                   ) : (
                     <span className="text-3xl font-bold text-green-600 mr-2">{activeSettings.targetBgMin}</span>
                   )}
@@ -301,15 +393,45 @@ export function CalculatorSettings() {
                 <span className="text-xl font-semibold text-green-700">Maximum:</span>
                 <div className="flex items-center justify-end">
                   {isEditMode ? (
-                    <Input 
-                      type="number" 
-                      min="6" 
-                      max="12"
-                      step="0.1"
-                      value={editableSettings.targetBgMax ?? activeSettings.targetBgMax} 
-                      onChange={(e) => updateTargetRange('targetBgMax', e.target.value)}
-                      className="border-green-300 focus-visible:ring-green-500 w-24 mr-2"
-                    />
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="h-10 w-10 rounded-full border-2 border-green-300 text-xl font-bold"
+                        onClick={() => {
+                          const currentValue = editableSettings.targetBgMax ?? activeSettings.targetBgMax;
+                          if (currentValue > 6.1) {
+                            updateTargetRange('targetBgMax', (Math.round((currentValue - 0.1) * 10) / 10).toString());
+                          }
+                        }}
+                      >
+                        -
+                      </Button>
+                      <Input 
+                        type="number" 
+                        min="6" 
+                        max="12"
+                        step="0.1"
+                        value={editableSettings.targetBgMax ?? activeSettings.targetBgMax} 
+                        onChange={(e) => updateTargetRange('targetBgMax', e.target.value)}
+                        className="border-green-300 focus-visible:ring-green-500 w-20 text-center text-xl h-12 mr-2"
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="h-10 w-10 rounded-full border-2 border-green-300 text-xl font-bold"
+                        onClick={() => {
+                          const currentValue = editableSettings.targetBgMax ?? activeSettings.targetBgMax;
+                          if (currentValue < 12) {
+                            updateTargetRange('targetBgMax', (Math.round((currentValue + 0.1) * 10) / 10).toString());
+                          }
+                        }}
+                      >
+                        +
+                      </Button>
+                    </div>
                   ) : (
                     <span className="text-3xl font-bold text-green-600 mr-2">{activeSettings.targetBgMax}</span>
                   )}
