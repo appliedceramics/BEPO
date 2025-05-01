@@ -36,6 +36,7 @@ const profileSchema = z.object({
   sex: z.enum(["male", "female"], {
     required_error: "Please select a gender",
   }),
+  weight: z.coerce.number().min(1, "Weight must be at least 1").max(300, "Weight must be valid").optional(),
   motherName: z.string().optional(),
   motherPhone: z.string().optional(),
   fatherName: z.string().optional(),
@@ -68,6 +69,7 @@ export default function ProfileEditPage() {
       name: "",
       age: undefined,
       sex: undefined,
+      weight: undefined,
       motherName: "",
       motherPhone: "",
       fatherName: "",
@@ -83,6 +85,7 @@ export default function ProfileEditPage() {
         name: profile.name,
         age: profile.age,
         sex: profile.sex as "male" | "female",
+        weight: profile.weight ? Number(profile.weight) : undefined,
         motherName: profile.motherName || "",
         motherPhone: profile.motherPhone || "",
         fatherName: profile.fatherName || "",
@@ -94,7 +97,13 @@ export default function ProfileEditPage() {
 
   // Handle profile update
   const onSubmit = (data: ProfileFormValues) => {
-    updateProfileMutation.mutate(data, {
+    // Convert number fields to string format expected by the API
+    const formData = {
+      ...data,
+      weight: data.weight !== undefined ? String(data.weight) : undefined
+    };
+    
+    updateProfileMutation.mutate(formData, {
       onSuccess: () => {
         navigate("/");
       },
@@ -186,6 +195,32 @@ export default function ProfileEditPage() {
                           <SelectItem value="female">Female</SelectItem>
                         </SelectContent>
                       </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="weight"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Weight (kg)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="Enter your weight in kg"
+                          {...field}
+                          value={field.value === undefined ? '' : field.value}
+                          onChange={(e) => {
+                            const value = e.target.value === '' ? undefined : Number(e.target.value);
+                            field.onChange(value);
+                          }}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Used for personalized meal recommendations
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
