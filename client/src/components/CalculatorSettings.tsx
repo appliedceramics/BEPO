@@ -59,17 +59,49 @@ export function CalculatorSettings() {
     resetToDefaults(type);
   };
 
-  const updateRatioSetting = (field: 'firstMealRatio' | 'otherMealRatio', value: string) => {
-    const numValue = parseFloat(value);
+  const updateRatioSetting = (field: 'firstMealRatio' | 'otherMealRatio', value: string | number) => {
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
     if (!isNaN(numValue) && numValue > 0) {
-      setEditableSettings(prev => ({ ...prev, [field]: numValue }));
+      // Round to one decimal place for consistency
+      const roundedValue = Math.round(numValue * 10) / 10;
+      setEditableSettings(prev => ({ ...prev, [field]: roundedValue }));
+    }
+  };
+  
+  // Function to increment or decrement ratio by a fixed amount
+  const adjustRatio = (field: 'firstMealRatio' | 'otherMealRatio', increment: boolean) => {
+    const currentValue = editableSettings[field] ?? settings[field];
+    const step = 0.5; // Use a fixed step of 0.5
+    const newValue = increment ? currentValue + step : currentValue - step;
+    
+    // Don't allow values below 1
+    if (newValue >= 1) {
+      updateRatioSetting(field, newValue);
     }
   };
 
-  const updateTargetRange = (field: 'targetBgMin' | 'targetBgMax', value: string) => {
-    const numValue = parseFloat(value);
+  const updateTargetRange = (field: 'targetBgMin' | 'targetBgMax', value: string | number) => {
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
     if (!isNaN(numValue) && numValue > 0) {
-      setEditableSettings(prev => ({ ...prev, [field]: numValue }));
+      // Round to one decimal place for consistency
+      const roundedValue = Math.round(numValue * 10) / 10;
+      setEditableSettings(prev => ({ ...prev, [field]: roundedValue }));
+    }
+  };
+  
+  // Function to increment or decrement blood glucose target by a fixed amount
+  const adjustTargetBg = (field: 'targetBgMin' | 'targetBgMax', increment: boolean) => {
+    const currentValue = editableSettings[field] ?? settings[field];
+    const minValue = editableSettings.targetBgMin ?? settings.targetBgMin;
+    const maxValue = editableSettings.targetBgMax ?? settings.targetBgMax;
+    const step = 0.1; // Use a fixed step of 0.1 for BG values
+    const newValue = increment ? currentValue + step : currentValue - step;
+    
+    // Don't allow values below minimum or above maximum
+    if (field === 'targetBgMin' && newValue >= 3 && newValue < maxValue) {
+      updateTargetRange(field, newValue);
+    } else if (field === 'targetBgMax' && newValue > minValue && newValue <= 12) {
+      updateTargetRange(field, newValue);
     }
   };
 
@@ -197,32 +229,21 @@ export function CalculatorSettings() {
                         size="lg"
                         variant="outline"
                         className="h-14 w-14 rounded-full border-2 border-amber-300 text-2xl font-bold"
-                        onClick={() => {
-                          const currentValue = editableSettings.firstMealRatio ?? activeSettings.firstMealRatio;
-                          if (currentValue > 1) {
-                            updateRatioSetting('firstMealRatio', (currentValue - 0.5).toString());
-                          }
-                        }}
+                        onClick={() => adjustRatio('firstMealRatio', false)}
                       >
                         -
                       </Button>
-                      <Input 
-                        type="number" 
-                        min="1" 
-                        step="0.5"
-                        value={editableSettings.firstMealRatio ?? activeSettings.firstMealRatio} 
-                        onChange={(e) => updateRatioSetting('firstMealRatio', e.target.value)}
-                        className="border-amber-300 focus-visible:ring-amber-500 text-center text-xl h-14"
-                      />
+                      <div className="w-20 text-center">
+                        <span className="text-2xl font-bold">
+                          {(editableSettings.firstMealRatio ?? activeSettings.firstMealRatio).toFixed(1)}
+                        </span>
+                      </div>
                       <Button
                         type="button"
                         size="lg"
                         variant="outline"
                         className="h-14 w-14 rounded-full border-2 border-amber-300 text-2xl font-bold"
-                        onClick={() => {
-                          const currentValue = editableSettings.firstMealRatio ?? activeSettings.firstMealRatio;
-                          updateRatioSetting('firstMealRatio', (currentValue + 0.5).toString());
-                        }}
+                        onClick={() => adjustRatio('firstMealRatio', true)}
                       >
                         +
                       </Button>
@@ -252,32 +273,21 @@ export function CalculatorSettings() {
                         size="lg"
                         variant="outline"
                         className="h-14 w-14 rounded-full border-2 border-amber-300 text-2xl font-bold"
-                        onClick={() => {
-                          const currentValue = editableSettings.otherMealRatio ?? activeSettings.otherMealRatio;
-                          if (currentValue > 1) {
-                            updateRatioSetting('otherMealRatio', (currentValue - 0.5).toString());
-                          }
-                        }}
+                        onClick={() => adjustRatio('otherMealRatio', false)}
                       >
                         -
                       </Button>
-                      <Input 
-                        type="number" 
-                        min="1" 
-                        step="0.5"
-                        value={editableSettings.otherMealRatio ?? activeSettings.otherMealRatio} 
-                        onChange={(e) => updateRatioSetting('otherMealRatio', e.target.value)}
-                        className="border-amber-300 focus-visible:ring-amber-500 text-center text-xl h-14"
-                      />
+                      <div className="w-20 text-center">
+                        <span className="text-2xl font-bold">
+                          {(editableSettings.otherMealRatio ?? activeSettings.otherMealRatio).toFixed(1)}
+                        </span>
+                      </div>
                       <Button
                         type="button"
                         size="lg"
                         variant="outline"
                         className="h-14 w-14 rounded-full border-2 border-amber-300 text-2xl font-bold"
-                        onClick={() => {
-                          const currentValue = editableSettings.otherMealRatio ?? activeSettings.otherMealRatio;
-                          updateRatioSetting('otherMealRatio', (currentValue + 0.5).toString());
-                        }}
+                        onClick={() => adjustRatio('otherMealRatio', true)}
                       >
                         +
                       </Button>
@@ -345,35 +355,21 @@ export function CalculatorSettings() {
                         size="sm"
                         variant="outline"
                         className="h-10 w-10 rounded-full border-2 border-green-300 text-xl font-bold"
-                        onClick={() => {
-                          const currentValue = editableSettings.targetBgMin ?? activeSettings.targetBgMin;
-                          if (currentValue > 3) {
-                            updateTargetRange('targetBgMin', (Math.round((currentValue - 0.1) * 10) / 10).toString());
-                          }
-                        }}
+                        onClick={() => adjustTargetBg('targetBgMin', false)}
                       >
                         -
                       </Button>
-                      <Input 
-                        type="number" 
-                        min="3" 
-                        max="6"
-                        step="0.1"
-                        value={editableSettings.targetBgMin ?? activeSettings.targetBgMin} 
-                        onChange={(e) => updateTargetRange('targetBgMin', e.target.value)}
-                        className="border-green-300 focus-visible:ring-green-500 w-20 text-center text-xl h-12 mr-2"
-                      />
+                      <div className="w-20 text-center">
+                        <span className="text-2xl font-bold">
+                          {(editableSettings.targetBgMin ?? activeSettings.targetBgMin).toFixed(1)}
+                        </span>
+                      </div>
                       <Button
                         type="button"
                         size="sm"
                         variant="outline"
                         className="h-10 w-10 rounded-full border-2 border-green-300 text-xl font-bold"
-                        onClick={() => {
-                          const currentValue = editableSettings.targetBgMin ?? activeSettings.targetBgMin;
-                          if (currentValue < 6) {
-                            updateTargetRange('targetBgMin', (Math.round((currentValue + 0.1) * 10) / 10).toString());
-                          }
-                        }}
+                        onClick={() => adjustTargetBg('targetBgMin', true)}
                       >
                         +
                       </Button>
@@ -399,35 +395,21 @@ export function CalculatorSettings() {
                         size="sm"
                         variant="outline"
                         className="h-10 w-10 rounded-full border-2 border-green-300 text-xl font-bold"
-                        onClick={() => {
-                          const currentValue = editableSettings.targetBgMax ?? activeSettings.targetBgMax;
-                          if (currentValue > 6.1) {
-                            updateTargetRange('targetBgMax', (Math.round((currentValue - 0.1) * 10) / 10).toString());
-                          }
-                        }}
+                        onClick={() => adjustTargetBg('targetBgMax', false)}
                       >
                         -
                       </Button>
-                      <Input 
-                        type="number" 
-                        min="6" 
-                        max="12"
-                        step="0.1"
-                        value={editableSettings.targetBgMax ?? activeSettings.targetBgMax} 
-                        onChange={(e) => updateTargetRange('targetBgMax', e.target.value)}
-                        className="border-green-300 focus-visible:ring-green-500 w-20 text-center text-xl h-12 mr-2"
-                      />
+                      <div className="w-20 text-center">
+                        <span className="text-2xl font-bold">
+                          {(editableSettings.targetBgMax ?? activeSettings.targetBgMax).toFixed(1)}
+                        </span>
+                      </div>
                       <Button
                         type="button"
                         size="sm"
                         variant="outline"
                         className="h-10 w-10 rounded-full border-2 border-green-300 text-xl font-bold"
-                        onClick={() => {
-                          const currentValue = editableSettings.targetBgMax ?? activeSettings.targetBgMax;
-                          if (currentValue < 12) {
-                            updateTargetRange('targetBgMax', (Math.round((currentValue + 0.1) * 10) / 10).toString());
-                          }
-                        }}
+                        onClick={() => adjustTargetBg('targetBgMax', true)}
                       >
                         +
                       </Button>
