@@ -61,6 +61,7 @@ export const profiles = pgTable("profiles", {
   name: text("name").notNull(),
   age: integer("age").notNull(),
   sex: text("sex").notNull(),
+  weight: numeric("weight"), // Weight in kg
   motherName: text("mother_name"),
   motherPhone: text("mother_phone"),
   fatherName: text("father_name"),
