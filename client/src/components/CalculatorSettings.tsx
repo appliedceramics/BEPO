@@ -35,6 +35,7 @@ export function CalculatorSettings() {
       setEditableSettings({
         firstMealRatio: settings.firstMealRatio,
         otherMealRatio: settings.otherMealRatio,
+        longActingDosage: settings.longActingDosage || 0,
         mealCorrectionRanges: settings.mealCorrectionRanges,
         bedtimeCorrectionRanges: settings.bedtimeCorrectionRanges,
         targetBgMin: settings.targetBgMin,
@@ -59,7 +60,7 @@ export function CalculatorSettings() {
     resetToDefaults(type);
   };
 
-  const updateRatioSetting = (field: 'firstMealRatio' | 'otherMealRatio', value: string | number) => {
+  const updateRatioSetting = (field: 'firstMealRatio' | 'otherMealRatio' | 'longActingDosage', value: string | number) => {
     const numValue = typeof value === 'string' ? parseFloat(value) : value;
     if (!isNaN(numValue) && numValue > 0) {
       // Round to one decimal place for consistency
@@ -69,7 +70,7 @@ export function CalculatorSettings() {
   };
   
   // Function to increment or decrement ratio by a fixed amount
-  const adjustRatio = (field: 'firstMealRatio' | 'otherMealRatio', increment: boolean) => {
+  const adjustRatio = (field: 'firstMealRatio' | 'otherMealRatio' | 'longActingDosage', increment: boolean) => {
     // Make sure we're working with a number by explicitly parsing
     const currentValue = parseFloat((editableSettings[field] ?? settings[field]).toString());
     const step = 0.5; // Use a fixed step of 0.5
@@ -123,13 +124,17 @@ export function CalculatorSettings() {
       return {
         firstMealRatio: editableSettings.firstMealRatio ?? settings.firstMealRatio,
         otherMealRatio: editableSettings.otherMealRatio ?? settings.otherMealRatio,
+        longActingDosage: editableSettings.longActingDosage ?? (settings.longActingDosage || 0),
         mealCorrectionRanges: editableSettings.mealCorrectionRanges ?? settings.mealCorrectionRanges,
         bedtimeCorrectionRanges: editableSettings.bedtimeCorrectionRanges ?? settings.bedtimeCorrectionRanges,
         targetBgMin: editableSettings.targetBgMin ?? settings.targetBgMin,
         targetBgMax: editableSettings.targetBgMax ?? settings.targetBgMax,
       };
     }
-    return settings;
+    return {
+      ...settings,
+      longActingDosage: settings.longActingDosage || 0
+    };
   };
 
   const activeSettings = getActiveSettings();
@@ -185,6 +190,91 @@ export function CalculatorSettings() {
           )}
         </div>
       </div>
+
+      {/* Long Acting Insulin Dosage Card */}
+      <Card className="mb-8 border-2 border-blue-200 shadow-lg bg-blue-50">
+        <CardHeader className="bg-gradient-to-r from-blue-200 to-blue-100">
+          <CardTitle className="flex items-center text-blue-800">
+            <span className="text-2xl mr-2">💉</span> 
+            Long Acting Insulin Dosage
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="ml-2">
+                    <HelpCircle className="h-4 w-4 text-blue-600" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-sm bg-white p-4 border-2 border-blue-200 rounded-lg shadow-lg">
+                  <p className="font-bold text-blue-800">What is Long Acting Insulin?</p>
+                  <p className="mt-2">Long acting insulin is usually taken once daily to provide a constant, steady level of insulin for 24 hours.</p>
+                  <p className="mt-2">It helps control your blood glucose between meals and overnight.</p>
+                  <p className="mt-2">This dosage is typically set by your healthcare provider and remains the same each day.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </CardTitle>
+          <CardDescription className="text-blue-700">
+            Set your fixed daily long acting insulin dose
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="bg-white p-4 rounded-lg border border-blue-200 shadow">
+            <div className="flex items-center mb-2">
+              <h3 className="font-bold text-blue-800">Daily Dosage</h3>
+              <Badge variant="outline" className="ml-2 bg-blue-100 text-blue-800 border-blue-300">
+                24-hour insulin
+              </Badge>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="text-3xl font-bold text-blue-600">{isEditMode ? editableSettings.longActingDosage ?? activeSettings.longActingDosage : activeSettings.longActingDosage} units</span>
+              {isEditMode && (
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      size="lg"
+                      variant="outline"
+                      className="h-14 w-14 rounded-full border-2 border-blue-300 text-2xl font-bold"
+                      onClick={() => adjustRatio('longActingDosage', false)}
+                    >
+                      -
+                    </Button>
+                    <div className="w-20 text-center">
+                      <span className="text-2xl font-bold">
+                        {parseFloat((editableSettings.longActingDosage ?? activeSettings.longActingDosage).toString()).toFixed(1)}
+                      </span>
+                    </div>
+                    <Button
+                      type="button"
+                      size="lg"
+                      variant="outline"
+                      className="h-14 w-14 rounded-full border-2 border-blue-300 text-2xl font-bold"
+                      onClick={() => adjustRatio('longActingDosage', true)}
+                    >
+                      +
+                    </Button>
+                  </div>
+                </div>
+              )}
+              <div className="text-blue-700 text-sm">
+                <p>Fixed dosage with no carb or correction calculation</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 p-4 bg-blue-100 rounded-lg border border-blue-300">
+            <div className="flex items-start">
+              <CheckCircle2 className="h-5 w-5 text-blue-600 mt-0.5 mr-2" />
+              <div>
+                <h4 className="font-semibold text-blue-800">Important Note</h4>
+                <p className="mt-1 text-blue-700">
+                  Long acting insulin is usually taken at the same time each day. This setting creates a simple option to log your fixed daily dose.
+                </p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Insulin to Carb Ratios Card */}
       <Card className="mb-8 border-2 border-amber-200 shadow-lg bg-amber-50">
