@@ -876,7 +876,14 @@ export function CalculatorSettings() {
                             />
                           ) : (
                             <span className={`font-bold ${range.correction > 0 ? 'text-blue-600' : range.correction < 0 ? 'text-red-500' : 'text-gray-500'}`}>
-                              {range.correction > 0 ? '+' : ''}{range.correction} units
+                              {range.correction > 0 ? '+' : ''}
+                              {/* Calculate adjusted correction based on ISF */}
+                              {parseFloat((range.correction * (parseFloat(activeSettings.correctionFactor.toString()) || 1)).toFixed(1))} units
+                              {parseFloat(activeSettings.correctionFactor.toString()) !== 1 && (
+                                <div className="text-xs text-gray-500">
+                                  Base: {range.correction > 0 ? '+' : ''}{range.correction} × {parseFloat(activeSettings.correctionFactor.toString()).toFixed(1)}
+                                </div>
+                              )}
                             </span>
                           )}
                         </TableCell>
@@ -946,7 +953,14 @@ export function CalculatorSettings() {
                             />
                           ) : (
                             <span className={`font-bold ${range.correction > 0 ? 'text-blue-600' : range.correction < 0 ? 'text-red-500' : 'text-gray-500'}`}>
-                              {range.correction > 0 ? '+' : ''}{range.correction} units
+                              {range.correction > 0 ? '+' : ''}
+                              {/* Calculate adjusted correction based on ISF */}
+                              {parseFloat((range.correction * (parseFloat(activeSettings.correctionFactor.toString()) || 1)).toFixed(1))} units
+                              {parseFloat(activeSettings.correctionFactor.toString()) !== 1 && (
+                                <div className="text-xs text-gray-500">
+                                  Base: {range.correction > 0 ? '+' : ''}{range.correction} × {parseFloat(activeSettings.correctionFactor.toString()).toFixed(1)}
+                                </div>
+                              )}
                             </span>
                           )}
                         </TableCell>
@@ -1046,6 +1060,23 @@ export function CalculatorSettings() {
             </AccordionItem>
             
             <AccordionItem value="item-5" className="border-purple-200">
+              <AccordionTrigger className="text-purple-800 hover:text-purple-900 py-4">
+                How does the Correction Factor affect my correction charts?
+              </AccordionTrigger>
+              <AccordionContent className="text-purple-700 bg-white p-4 rounded-lg border border-purple-100">
+                <p>The Correction Factor works as a multiplier for all the correction values in both the Mealtime and Bedtime correction charts.</p>
+                <p className="mt-2">For example:</p>
+                <ul className="list-disc pl-6 mt-2 space-y-1">
+                  <li>With a Correction Factor of 1.0 (default), a chart value of +2.0 units remains +2.0 units</li>
+                  <li>With a Correction Factor of 1.5, a chart value of +2.0 units becomes +3.0 units (2.0 × 1.5)</li>
+                  <li>With a Correction Factor of 0.5, a chart value of +2.0 units becomes +1.0 unit (2.0 × 0.5)</li>
+                </ul>
+                <p className="mt-2">This allows you to easily scale all correction values up or down based on your insulin sensitivity, without having to edit each chart value individually.</p>
+                <p className="mt-2">It affects both Mealtime and Bedtime correction charts simultaneously.</p>
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="item-6" className="border-purple-200">
               <AccordionTrigger className="text-purple-800 hover:text-purple-900 py-4">
                 What should I do if I think my settings need to be changed?
               </AccordionTrigger>
