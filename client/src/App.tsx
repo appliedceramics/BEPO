@@ -13,6 +13,7 @@ import ProfilePage from "@/pages/profile-page";
 import ProfileEditPage from "@/pages/profile-edit-page";
 import AchievementsPage from "@/pages/achievements-page";
 import CalculatorSettingsPage from "@/pages/calculator-settings-page";
+import MealPlannerPage from "@/pages/meal-planner-page";
 
 function Router() {
   return (
@@ -23,6 +24,7 @@ function Router() {
       <ProtectedRoute path="/profile/edit" component={ProfileEditPage} />
       <ProtectedRoute path="/achievements" component={AchievementsPage} />
       <ProtectedRoute path="/calculator-settings" component={CalculatorSettingsPage} />
+      <ProtectedRoute path="/meal-planner" component={MealPlannerPage} />
       <Route component={NotFound} />
     </Switch>
   );

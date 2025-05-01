@@ -240,6 +240,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json([]);
     }
   });
+  
+  // Generate a personalized meal plan
+  app.post("/api/meal-plans", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const {
+        dietType,
+        dietaryRestrictions,
+        carbTarget,
+        targetBgRange,
+        gender,
+        age,
+        weight,
+        duration
+      } = req.body;
+
+      console.log(`Meal plan request for ${duration || 3} days with ${dietType || 'balanced'} diet`);
+      
+      // Build parameters with default values for missing fields
+      const params: Record<string, any> = {};
+      
+      if (dietType) params.dietType = dietType;
+      if (Array.isArray(dietaryRestrictions)) params.dietaryRestrictions = dietaryRestrictions;
+      if (carbTarget?.min && carbTarget?.max) {
+        params.carbTarget = {
+          min: parseInt(carbTarget.min),
+          max: parseInt(carbTarget.max)
+        };
+      }
+      if (targetBgRange?.min && targetBgRange?.max) {
+        params.targetBgRange = {
+          min: parseFloat(targetBgRange.min),
+          max: parseFloat(targetBgRange.max)
+        };
+      }
+      if (gender) params.gender = gender;
+      if (age) params.age = parseInt(age);
+      if (weight) params.weight = parseFloat(weight);
+      if (duration) params.duration = parseInt(duration);
+      
+      // Get user profile for any missing parameters
+      const userId = req.user.id;
+      const profile = await storage.getProfileByUserId(userId);
+      if (profile) {
+        if (!params.gender && profile.sex) params.gender = profile.sex;
+        if (!params.age && profile.age) params.age = profile.age;
+        if (!params.weight && profile.weight) params.weight = profile.weight;
+      }
+      
+      // Generate the meal plan
+      const mealPlan = await generateMealPlan(params);
+      
+      // Track achievement for using meal planner
+      await storage.incrementAchievementProgress(userId, "meal_planner", 1);
+      
+      res.json(mealPlan);
+    } catch (error) {
+      console.error("Error generating meal plan:", error);
+      if (error instanceof Error) {
+        return res.status(500).json({ message: error.message });
+      }
+      res.status(500).json({ message: "Failed to generate meal plan" });
+    }
+  });
 
   // Meal presets routes
   app.get("/api/meal-presets", isAuthenticated, async (req: Request, res: Response) => {
