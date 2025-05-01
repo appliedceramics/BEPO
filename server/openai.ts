@@ -18,6 +18,38 @@ export interface FoodSuggestion {
   };
 }
 
+/**
+ * Interface for meal plan recommendations
+ */
+export interface MealPlanDay {
+  day: string;
+  breakfast: MealOption;
+  lunch: MealOption;
+  dinner: MealOption;
+  snacks: MealOption[];
+  totalCarbs: number;
+  tips: string;
+}
+
+export interface MealOption {
+  name: string;
+  description: string;
+  carbValue: number;
+  ingredients?: string[];
+}
+
+export interface MealPlan {
+  overview: {
+    title: string;
+    description: string;
+    averageDailyCarbs: number;
+    dietaryFocus: string;
+    targetBloodGlucose: string;
+  };
+  days: MealPlanDay[];
+  generalTips: string[];
+}
+
 // Mock data for when API key is missing
 const mockFoodData: FoodSuggestion = {
   name: "Example Apple",
@@ -201,5 +233,103 @@ export async function suggestMeals(query: string): Promise<FoodSuggestion[]> {
     console.error("Error suggesting meals:", error);
     // Fall back to mock data on error
     return mockMealSuggestions;
+  }
+}
+
+/**
+ * Generate a meal plan based on dietary preferences and health requirements
+ */
+export async function generateMealPlan(parameters: {
+  dietType?: string; // E.g., low-carb, Mediterranean, balanced
+  dietaryRestrictions?: string[]; // E.g., gluten-free, vegetarian, dairy-free
+  carbTarget?: { min: number; max: number }; // Target carbohydrate range per day in grams
+  targetBgRange?: { min: number; max: number }; // Target blood glucose range in mmol/L
+  gender?: string;
+  age?: number;
+  weight?: number; // In kg
+  duration?: number; // Number of days for the meal plan (1-7)
+}): Promise<MealPlan> {
+  try {
+    if (!process.env.OPENAI_API_KEY) {
+      console.warn('Cannot generate meal plan - OPENAI_API_KEY not found');
+      throw new Error("API key is required for meal planning");
+    }
+
+    // Set default values for missing parameters
+    const {
+      dietType = "balanced",
+      dietaryRestrictions = [],
+      carbTarget = { min: 100, max: 150 },
+      targetBgRange = { min: 4.0, max: 7.0 },
+      gender = "unspecified",
+      age = 30,
+      weight = 70,
+      duration = 3
+    } = parameters;
+
+    // Limit duration to a maximum of 7 days
+    const limitedDuration = Math.min(duration, 7);
+    
+    // Build the parameters object for the API call
+    const restrictionsText = dietaryRestrictions.length > 0 
+      ? `Dietary restrictions: ${dietaryRestrictions.join(", ")}.` 
+      : "No specific dietary restrictions.";
+
+    // Use the newest OpenAI model
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: (
+            "You are a diabetes nutrition specialist who creates personalized meal plans. " +
+            "You understand how different foods affect blood glucose levels and insulin requirements. " +
+            "Focus on providing accurate carbohydrate information and balanced meals that help maintain stable blood glucose. " +
+            "Always include specific carbohydrate counts for each meal and ensure your recommendations consider the user's preferences and restrictions."
+          )
+        },
+        {
+          role: "user",
+          content: (
+            `Please create a ${limitedDuration}-day meal plan with the following parameters:\n\n` +
+            `Diet type: ${dietType}\n` +
+            `${restrictionsText}\n` +
+            `Daily carbohydrate target: ${carbTarget.min}-${carbTarget.max}g\n` +
+            `Target blood glucose range: ${targetBgRange.min}-${targetBgRange.max} mmol/L\n` +
+            `Profile: ${age} year old ${gender}, ${weight}kg\n\n` +
+            "The meal plan should include breakfast, lunch, dinner, and snacks for each day, with accurate carbohydrate counts for each meal.\n" +
+            "Please provide practical tips specific to diabetes management with each day's plan."
+          )
+        },
+      ],
+      temperature: 0.7,
+      response_format: { type: "json_object" },
+      max_tokens: 4000,
+    });
+
+    // Parse the response and return formatted data
+    const responseText = completion.choices[0].message.content;
+    if (!responseText) {
+      console.warn("Empty response from OpenAI for meal plan");
+      throw new Error("Failed to generate meal plan");
+    }
+
+    try {
+      // Parse and validate the response
+      const mealPlan = JSON.parse(responseText);
+      
+      // Ensure the response has the expected structure
+      if (!mealPlan.overview || !Array.isArray(mealPlan.days) || mealPlan.days.length === 0) {
+        throw new Error("Invalid meal plan format");
+      }
+      
+      return mealPlan as MealPlan;
+    } catch (parseError) {
+      console.error("Failed to parse OpenAI meal plan response:", parseError);
+      throw new Error("Failed to generate a valid meal plan");
+    }
+  } catch (error) {
+    console.error("Error generating meal plan from OpenAI:", error);
+    throw new Error("Failed to create meal plan. Please try again later.");
   }
 }

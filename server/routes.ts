@@ -6,7 +6,7 @@ import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { setupAuth, isAuthenticated, hasProfile } from "./auth";
 import { notifyParents } from "./twilio";
-import { getFoodCarbs, suggestMeals } from "./openai";
+import { getFoodCarbs, suggestMeals, generateMealPlan } from "./openai";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication routes
