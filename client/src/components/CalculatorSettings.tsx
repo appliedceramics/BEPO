@@ -235,7 +235,7 @@ export function CalculatorSettings() {
                       </Button>
                       <div className="w-20 text-center">
                         <span className="text-2xl font-bold">
-                          {(editableSettings.firstMealRatio ?? activeSettings.firstMealRatio).toFixed(1)}
+                          {parseFloat((editableSettings.firstMealRatio ?? activeSettings.firstMealRatio).toString()).toFixed(1)}
                         </span>
                       </div>
                       <Button
@@ -279,7 +279,7 @@ export function CalculatorSettings() {
                       </Button>
                       <div className="w-20 text-center">
                         <span className="text-2xl font-bold">
-                          {(editableSettings.otherMealRatio ?? activeSettings.otherMealRatio).toFixed(1)}
+                          {parseFloat((editableSettings.otherMealRatio ?? activeSettings.otherMealRatio).toString()).toFixed(1)}
                         </span>
                       </div>
                       <Button
@@ -361,7 +361,7 @@ export function CalculatorSettings() {
                       </Button>
                       <div className="w-20 text-center">
                         <span className="text-2xl font-bold">
-                          {(editableSettings.targetBgMin ?? activeSettings.targetBgMin).toFixed(1)}
+                          {parseFloat((editableSettings.targetBgMin ?? activeSettings.targetBgMin).toString()).toFixed(1)}
                         </span>
                       </div>
                       <Button
@@ -401,7 +401,7 @@ export function CalculatorSettings() {
                       </Button>
                       <div className="w-20 text-center">
                         <span className="text-2xl font-bold">
-                          {(editableSettings.targetBgMax ?? activeSettings.targetBgMax).toFixed(1)}
+                          {parseFloat((editableSettings.targetBgMax ?? activeSettings.targetBgMax).toString()).toFixed(1)}
                         </span>
                       </div>
                       <Button
