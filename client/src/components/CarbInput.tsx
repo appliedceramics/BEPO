@@ -9,7 +9,7 @@ import { FoodSearchInput } from "./FoodSearchInput";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { MealPreset } from "@shared/schema";
 import { Book, MicOff, Utensils, PlusSquare } from "lucide-react";
-import { MealBuilder } from "./MealBuilder";
+import { FoodBasketSearch } from "./FoodBasketSearch";
 import { useToast } from "@/hooks/use-toast";
 
 interface CarbInputProps {
@@ -23,7 +23,7 @@ export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
   const [error, setError] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState<string>(value?.toString() || "");
   const [isPresetsOpen, setIsPresetsOpen] = useState(false);
-  const [isMealBuilderOpen, setIsMealBuilderOpen] = useState(false);
+  const [isFoodBasketOpen, setIsFoodBasketOpen] = useState(false);
 
   useEffect(() => {
     // Update input value when value prop changes
@@ -90,19 +90,9 @@ export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
     });
   };
   
-  // Handle meal builder completion
-  const handleMealBuilderComplete = (totalCarbs: number) => {
-    setInputValue(totalCarbs.toString());
-    onChange(totalCarbs);
-    setIsMealBuilderOpen(false);
-    
-    toast({
-      title: "Meal built",
-      description: `${totalCarbs}g of carbs added from your built meal`,
-    });
-  };
+
   
-  // Handle saving a meal preset from the meal builder
+  // Handle saving a meal preset from the food basket
   const handleSaveMealPreset = (preset: { name: string, description: string, carbValue: number }) => {
     // Call API to save preset
     fetch("/api/meal-presets", {
@@ -117,13 +107,8 @@ export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
         return response.json();
       })
       .then(() => {
-        toast({
-          title: "Meal preset saved",
-          description: `${preset.name} saved to your meal presets`,
-        });
-        
         // Close the dialog
-        setIsMealBuilderOpen(false);
+        setIsFoodBasketOpen(false);
         
         // Set the carb value
         setInputValue(preset.carbValue.toString());
@@ -173,24 +158,23 @@ export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
           }} 
         />
         
-        {/* Meal Builder Button */}
-        <Dialog open={isMealBuilderOpen} onOpenChange={setIsMealBuilderOpen}>
+        {/* Food Basket Button */}
+        <Dialog open={isFoodBasketOpen} onOpenChange={setIsFoodBasketOpen}>
           <DialogTrigger asChild>
             <Button 
               variant="ghost" 
               className="ml-1" 
               size="icon"
-              title="Build a meal"
+              title="Create meal from multiple food items"
             >
               <Utensils className="h-5 w-5 text-primary" />
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Build Your Meal</DialogTitle>
+              <DialogTitle>Create Meal from Food Items</DialogTitle>
             </DialogHeader>
-            <MealBuilder 
-              onComplete={handleMealBuilderComplete} 
+            <FoodBasketSearch 
               onSavePreset={handleSaveMealPreset}
             />
           </DialogContent>
