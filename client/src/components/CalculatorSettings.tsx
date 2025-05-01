@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Slider } from "@/components/ui/slider";
-import { HelpCircle, Save, RefreshCw, Calculator, ChevronRight, Edit, CheckCircle2 } from "lucide-react";
+import { HelpCircle, Save, RefreshCw, Calculator, ChevronRight, Edit, CheckCircle2, Info as InfoIcon } from "lucide-react";
 import { useCalculatorSettings, type CalculatorSettings } from "@/hooks/use-calculator-settings";
 import { CorrectionRange } from "@shared/schema";
 import { calculateAdjustedCorrection } from "@/lib/correctionCalculator";
@@ -1143,6 +1143,23 @@ export function CalculatorSettings() {
                   <li>Never change settings without professional guidance</li>
                   <li>Remember that temporary factors (illness, stress, exercise) might affect your readings without needing permanent setting changes</li>
                 </ol>
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="item-7" className="border-purple-200">
+              <AccordionTrigger className="text-purple-800 hover:text-purple-900 py-4">
+                What does "Base" mean in the correction charts?
+              </AccordionTrigger>
+              <AccordionContent className="text-purple-700 bg-white p-4 rounded-lg border border-purple-100">
+                <p>The "Base" value shown in correction charts represents the standard insulin amount for that specific blood glucose range before any adjustments are applied.</p>
+                <p className="mt-2">When calculating your correction insulin:</p>
+                <ul className="list-disc pl-6 mt-2 space-y-1">
+                  <li>The calculator first identifies which blood glucose range you're in</li>
+                  <li>It takes the corresponding "Base" insulin value from the chart</li>
+                  <li>It multiplies this Base value by your Insulin Sensitivity Factor (ISF) adjustment</li>
+                  <li>The result becomes your final correction insulin recommendation</li>
+                </ul>
+                <p className="mt-2">Think of Base values as the foundation of the correction chart that gets personalized by your specific sensitivity to insulin.</p>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
