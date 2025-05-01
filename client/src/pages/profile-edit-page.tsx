@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, HelpCircle } from "lucide-react";
 import { 
   Select, 
   SelectContent, 
@@ -25,6 +25,12 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Navigation } from "@/components/Navigation";
 import { getQueryFn } from "@/lib/queryClient";
 import { useEffect } from "react";
@@ -73,6 +79,7 @@ export default function ProfileEditPage() {
       age: undefined,
       sex: undefined,
       weight: undefined,
+      bgUnit: "mmol/L",
       motherName: "",
       motherPhone: "",
       fatherName: "",
@@ -89,6 +96,7 @@ export default function ProfileEditPage() {
         age: profile.age,
         sex: profile.sex as "male" | "female",
         weight: profile.weight ? Number(profile.weight) : undefined,
+        bgUnit: profile.bgUnit as "mmol/L" | "mg/dL" || "mmol/L",
         motherName: profile.motherName || "",
         motherPhone: profile.motherPhone || "",
         fatherName: profile.fatherName || "",
@@ -223,6 +231,51 @@ export default function ProfileEditPage() {
                       </FormControl>
                       <FormDescription>
                         Used for personalized meal recommendations
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="bgUnit"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center space-x-2">
+                        <FormLabel>Blood Glucose Unit</FormLabel>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-6 w-6 p-0">
+                                <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <div className="space-y-2 max-w-xs">
+                                <p><strong>mmol/L</strong>: Millimoles per liter. Used in Canada, Europe, and most countries.</p>
+                                <p><strong>mg/dL</strong>: Milligrams per deciliter. Used in the US and some other countries.</p>
+                              </div>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select blood glucose unit" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="mmol/L">mmol/L</SelectItem>
+                          <SelectItem value="mg/dL">mg/dL</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        This will affect how blood glucose values are displayed throughout the app
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
