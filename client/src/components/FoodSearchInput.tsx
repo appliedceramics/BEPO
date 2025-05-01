@@ -57,10 +57,23 @@ export function FoodSearchInput({ onCarbValueSelected }: FoodSearchInputProps) {
     setIsLoading(true);
     try {
       const response = await apiRequest("POST", "/api/food-suggestions", { query: searchTerm });
-      const data = await response.json();
+      let data = await response.json();
       
-      // Check if the response has an error flag
-      if (data.error) {
+      // If we got an array (from the improved endpoint), take the first item
+      if (Array.isArray(data)) {
+        if (data.length === 0) {
+          toast({
+            title: "Food not found",
+            description: "Could not find nutritional information for this food",
+            variant: "destructive",
+          });
+          return;
+        }
+        data = data[0];
+      }
+      
+      // Check if the response has an error flag or is missing required data
+      if (data.error || !data.portions) {
         toast({
           title: "Food not found",
           description: "Could not find nutritional information for this food",
@@ -68,6 +81,12 @@ export function FoodSearchInput({ onCarbValueSelected }: FoodSearchInputProps) {
         });
         return;
       }
+      
+      // Ensure all portion sizes exist with default values if missing
+      const defaultPortion = { description: "Standard portion", carbValue: 0 };
+      data.portions.small = data.portions.small || defaultPortion;
+      data.portions.medium = data.portions.medium || defaultPortion;
+      data.portions.large = data.portions.large || defaultPortion;
       
       setFood(data);
     } catch (error) {
