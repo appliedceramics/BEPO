@@ -1,6 +1,6 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
-import { Express } from "express";
+import { Express, Request, Response, NextFunction } from "express";
 import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
@@ -13,7 +13,11 @@ import { pool } from "./db";
 
 declare global {
   namespace Express {
-    interface User extends User {
+    interface User {
+      id: number;
+      username: string;
+      email: string;
+      password: string;
       profile?: Profile;
     }
   }
@@ -247,7 +251,7 @@ export function setupAuth(app: Express) {
 }
 
 // Middleware to check if user is authenticated
-export function isAuthenticated(req: Express.Request, res: Express.Response, next: Express.NextFunction) {
+export function isAuthenticated(req: Request, res: Response, next: NextFunction) {
   if (req.isAuthenticated()) {
     return next();
   }
@@ -255,7 +259,7 @@ export function isAuthenticated(req: Express.Request, res: Express.Response, nex
 }
 
 // Middleware to check if user has a profile
-export function hasProfile(req: Express.Request, res: Express.Response, next: Express.NextFunction) {
+export function hasProfile(req: Request, res: Response, next: NextFunction) {
   if (!req.isAuthenticated()) {
     return res.status(401).json({ error: "Not authenticated" });
   }

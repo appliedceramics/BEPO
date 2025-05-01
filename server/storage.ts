@@ -77,7 +77,7 @@ export interface IStorage {
   getDefaultCalculatorSettings(): { mealCorrectionRanges: CorrectionRange[], bedtimeCorrectionRanges: CorrectionRange[] };
   
   // Session store for auth
-  sessionStore: session.SessionStore;
+  sessionStore: any; // Using 'any' for session store compatibility
 }
 
 // Import PostgreSQL session store
@@ -87,7 +87,7 @@ import { pool } from "./db";
 const PostgresSessionStore = connectPg(session);
 
 export class DatabaseStorage implements IStorage {
-  sessionStore: session.SessionStore;
+  sessionStore: any;
   
   constructor() {
     this.sessionStore = new PostgresSessionStore({
