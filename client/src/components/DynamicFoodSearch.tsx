@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Plus, Search, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { useDebounce } from "@/hooks/use-debounce";
+import { useDebounce } from "../hooks/use-debounce";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 export interface Portion {

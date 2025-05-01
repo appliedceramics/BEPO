@@ -150,6 +150,7 @@ function MealPresetForm({ preset, onSubmit, onCancel, isLoading }: MealPresetFor
                   placeholder="e.g., Medium sized apple"
                   className="resize-none"
                   {...field}
+                  value={field.value || ''}
                 />
               </FormControl>
               <FormMessage />
@@ -183,6 +184,7 @@ export function MealPresets({ onSelectPreset }: MealPresetsProps) {
   const { mealPresets, isLoading, createMutation, updateMutation, deleteMutation } = useMealPresets();
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isMealBuilderOpen, setIsMealBuilderOpen] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<MealPreset | null>(null);
   
   const handleCreateSubmit = (data: FormValues) => {
@@ -210,32 +212,64 @@ export function MealPresets({ onSelectPreset }: MealPresetsProps) {
       deleteMutation.mutate(id);
     }
   };
+  
+  // Handle saving a meal preset from the meal builder
+  const handleSaveMealPreset = (preset: { name: string, description: string, carbValue: number }) => {
+    createMutation.mutate(preset, {
+      onSuccess: () => {
+        setIsMealBuilderOpen(false);
+      }
+    });
+  };
 
   return (
     <div className="w-full">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">My Meal Presets</h2>
-        <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-          <DialogTrigger asChild>
-            <Button variant="default" className="flex items-center">
-              <PlusCircle className="w-4 h-4 mr-2" />
-              Add Preset
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add Meal Preset</DialogTitle>
-              <DialogDescription>
-                Create a new meal preset to quickly access carb counts for your common foods.
-              </DialogDescription>
-            </DialogHeader>
-            <MealPresetForm
-              onSubmit={handleCreateSubmit}
-              onCancel={() => setIsAddOpen(false)}
-              isLoading={createMutation.isPending}
-            />
-          </DialogContent>
-        </Dialog>
+        <div className="flex gap-2">
+          <Dialog open={isMealBuilderOpen} onOpenChange={setIsMealBuilderOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="flex items-center">
+                <Utensils className="w-4 h-4 mr-2" />
+                Build Meal
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Build and Save Meal</DialogTitle>
+                <DialogDescription>
+                  Build a complex meal by adding multiple items and save it as a preset.
+                </DialogDescription>
+              </DialogHeader>
+              <MealBuilder 
+                onComplete={() => {}} 
+                onSavePreset={handleSaveMealPreset}
+              />
+            </DialogContent>
+          </Dialog>
+          
+          <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+            <DialogTrigger asChild>
+              <Button variant="default" className="flex items-center">
+                <PlusCircle className="w-4 h-4 mr-2" />
+                Add Preset
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add Meal Preset</DialogTitle>
+                <DialogDescription>
+                  Create a new meal preset to quickly access carb counts for your common foods.
+                </DialogDescription>
+              </DialogHeader>
+              <MealPresetForm
+                onSubmit={handleCreateSubmit}
+                onCancel={() => setIsAddOpen(false)}
+                isLoading={createMutation.isPending}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
@@ -264,14 +298,24 @@ export function MealPresets({ onSelectPreset }: MealPresetsProps) {
       ) : mealPresets.length === 0 ? (
         <div className="text-center py-8 border rounded-lg bg-background">
           <p className="text-muted-foreground mb-4">You don't have any meal presets yet</p>
-          <Button 
-            variant="outline" 
-            onClick={() => setIsAddOpen(true)}
-            className="flex items-center mx-auto"
-          >
-            <PlusCircle className="w-4 h-4 mr-2" />
-            Create your first preset
-          </Button>
+          <div className="flex justify-center gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setIsAddOpen(true)}
+              className="flex items-center"
+            >
+              <PlusCircle className="w-4 h-4 mr-2" />
+              Create manually
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsMealBuilderOpen(true)}
+              className="flex items-center"
+            >
+              <Utensils className="w-4 h-4 mr-2" />
+              Build a meal
+            </Button>
+          </div>
         </div>
       ) : (
         <ScrollArea className="h-[400px] rounded-md border p-4">
