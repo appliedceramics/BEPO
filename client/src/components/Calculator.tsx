@@ -32,14 +32,18 @@ export function Calculator({ onLogInsulin, isLogging }: CalculatorProps) {
 
   // Recalculate when inputs change
   useEffect(() => {
-    if (mealType && bgValue !== undefined) {
+    if (mealType && bgValue !== undefined && settings) {
+      // Get the correction factor from settings
+      const correctionFactor = settings.correctionFactor ? parseFloat(settings.correctionFactor.toString()) : 1.0;
+      
       // For long-acting insulin, use the fixed dosage from settings
-      if (mealType === "longActing" && settings) {
+      if (mealType === "longActing") {
         // Parse the longActingDosage from settings and ensure it's a number
         const longActingDosage = settings.longActingDosage ? parseFloat(settings.longActingDosage.toString()) : 0;
         const result = calculateInsulin({
           mealType,
           bgValue,
+          correctionFactor,
         });
         
         // Override the calculated values with the fixed long-acting dosage
@@ -53,6 +57,7 @@ export function Calculator({ onLogInsulin, isLogging }: CalculatorProps) {
         const result = calculateInsulin({
           mealType,
           bgValue,
+          correctionFactor,
         });
         setCalculationResult(result);
       }
@@ -62,6 +67,7 @@ export function Calculator({ onLogInsulin, isLogging }: CalculatorProps) {
           mealType,
           carbValue,
           bgValue,
+          correctionFactor,
         });
         setCalculationResult(result);
       }

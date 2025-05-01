@@ -57,8 +57,8 @@ export function calculateInsulin(params: CalculationParams): CalculationResult {
       mealInsulin = carbValue / 15;
     }
     
-    // Calculate correction insulin based on BG and meal type
-    const { correction: correctionInsulin, range: correctionRange } = getCorrectionInsulin(bgMgdl, mealType);
+    // Calculate correction insulin based on BG and meal type, applying the correction factor
+    const { correction: correctionInsulin, range: correctionRange } = getCorrectionInsulin(bgMgdl, mealType, correctionFactor);
     
     // Calculate total insulin
     const totalInsulin = mealInsulin + correctionInsulin;
