@@ -46,6 +46,20 @@ const profileSchema = z.object({
   bgUnit: z.enum(["mmol/L", "mg/dL"], {
     required_error: "Please select a blood glucose unit",
   }).default("mmol/L"),
+  // Parent/caregiver contact information
+  parent1Name: z.string().optional(),
+  parent1Phone: z.string().optional(),
+  parent1Email: z.string().optional(),
+  parent2Name: z.string().optional(),
+  parent2Phone: z.string().optional(),
+  parent2Email: z.string().optional(),
+  caregiverName: z.string().optional(),
+  caregiverPhone: z.string().optional(),
+  caregiverEmail: z.string().optional(),
+  // Notification preferences
+  notifyContacts: z.boolean().default(false),
+  notificationMethod: z.enum(["sms", "email", "push"]).default("sms"),
+  // Legacy fields for backward compatibility
   motherName: z.string().optional(),
   motherPhone: z.string().optional(),
   fatherName: z.string().optional(),
@@ -80,6 +94,20 @@ export default function ProfileEditPage() {
       sex: undefined,
       weight: undefined,
       bgUnit: "mmol/L",
+      // Parent/caregiver contact information
+      parent1Name: "",
+      parent1Phone: "",
+      parent1Email: "",
+      parent2Name: "",
+      parent2Phone: "",
+      parent2Email: "",
+      caregiverName: "",
+      caregiverPhone: "",
+      caregiverEmail: "",
+      // Notification preferences
+      notifyContacts: false,
+      notificationMethod: "sms",
+      // Legacy fields
       motherName: "",
       motherPhone: "",
       fatherName: "",
@@ -97,6 +125,20 @@ export default function ProfileEditPage() {
         sex: profile.sex as "male" | "female",
         weight: profile.weight ? Number(profile.weight) : undefined,
         bgUnit: profile.bgUnit as "mmol/L" | "mg/dL" || "mmol/L",
+        // Parent/caregiver contact information
+        parent1Name: profile.parent1Name || "",
+        parent1Phone: profile.parent1Phone || "",
+        parent1Email: profile.parent1Email || "",
+        parent2Name: profile.parent2Name || "",
+        parent2Phone: profile.parent2Phone || "",
+        parent2Email: profile.parent2Email || "",
+        caregiverName: profile.caregiverName || "",
+        caregiverPhone: profile.caregiverPhone || "",
+        caregiverEmail: profile.caregiverEmail || "",
+        // Notification preferences
+        notifyContacts: profile.notifyContacts || false,
+        notificationMethod: (profile.notificationMethod as "sms" | "email" | "push") || "sms",
+        // Legacy fields - for backward compatibility
         motherName: profile.motherName || "",
         motherPhone: profile.motherPhone || "",
         fatherName: profile.fatherName || "",
@@ -283,18 +325,18 @@ export default function ProfileEditPage() {
                 />
               </div>
 
-              {/* Parent Notification Toggle */}
+              {/* Contact Notification Toggle */}
               <FormField
                 control={form.control}
-                name="notifyParents"
+                name="notifyContacts"
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                     <div className="space-y-0.5">
                       <FormLabel className="text-base">
-                        Parent Notifications
+                        Contact Notifications
                       </FormLabel>
                       <FormDescription>
-                        Enable SMS notifications to your parents after each insulin dose
+                        Enable notifications to parents/caregivers after each insulin dose
                       </FormDescription>
                     </div>
                     <FormControl>
@@ -307,84 +349,223 @@ export default function ProfileEditPage() {
                 )}
               />
 
-              {/* Parent Information (conditionally rendered) */}
-              {notifyParents && (
+              {/* Get the notify contacts value for conditional rendering */}
+              {form.watch("notifyContacts") && (
                 <div className="space-y-4 border-t pt-4">
-                  <h3 className="text-lg font-medium">Parent Information</h3>
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-medium">Contact Information</h3>
+                    <FormField
+                      control={form.control}
+                      name="notificationMethod"
+                      render={({ field }) => (
+                        <FormItem className="space-y-1">
+                          <FormLabel>Notification Method</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="w-[150px]">
+                                <SelectValue placeholder="Select method" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="sms">SMS</SelectItem>
+                              <SelectItem value="email">Email</SelectItem>
+                              <SelectItem value="push">Push Notifications</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  {/* Parent 1 Information */}
+                  <div className="rounded-md border p-4 space-y-4">
+                    <h4 className="font-medium">Parent 1 / Primary Contact</h4>
+                    <FormField
+                      control={form.control}
+                      name="parent1Name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Name</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter parent's name"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    control={form.control}
-                    name="motherName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Mother's Name</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter mother's name"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    <FormField
+                      control={form.control}
+                      name="parent1Phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Phone Number</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter with country code (e.g. +1234567890)"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Include country code (e.g. +1 for US)
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="parent1Email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email Address</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="email"
+                              placeholder="Enter email address"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  {/* Parent 2 Information */}
+                  <div className="rounded-md border p-4 space-y-4">
+                    <h4 className="font-medium">Parent 2 / Secondary Contact</h4>
+                    <FormField
+                      control={form.control}
+                      name="parent2Name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Name</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter parent's name"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    control={form.control}
-                    name="motherPhone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Mother's Phone Number</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter with country code (e.g. +1234567890)"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Include country code (e.g. +1 for US)
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    <FormField
+                      control={form.control}
+                      name="parent2Phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Phone Number</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter with country code (e.g. +1234567890)"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Include country code (e.g. +1 for US)
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="parent2Email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email Address</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="email"
+                              placeholder="Enter email address"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  {/* Caregiver Information */}
+                  <div className="rounded-md border p-4 space-y-4">
+                    <h4 className="font-medium">Care Giver / Additional Contact</h4>
+                    <FormField
+                      control={form.control}
+                      name="caregiverName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Name</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter caregiver's name"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    control={form.control}
-                    name="fatherName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Father's Name</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter father's name"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="fatherPhone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Father's Phone Number</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter with country code (e.g. +1234567890)"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Include country code (e.g. +1 for US)
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    <FormField
+                      control={form.control}
+                      name="caregiverPhone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Phone Number</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter with country code (e.g. +1234567890)"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Include country code (e.g. +1 for US)
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="caregiverEmail"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email Address</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="email"
+                              placeholder="Enter email address"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  {/* Push Notification Info */}
+                  {form.watch("notificationMethod") === "push" && (
+                    <div className="rounded-md border-l-4 border-blue-500 bg-blue-50 p-4">
+                      <p className="text-sm text-blue-700">
+                        <strong>Push Notifications:</strong> Parents or caregivers will need to log in to their own account
+                        and subscribe to notifications from this device to receive push notifications.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
