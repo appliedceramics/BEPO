@@ -66,26 +66,28 @@
 }
 
 :root {
-  /* Color scheme based on the provided palette */
-  --background: 144 100% 88%; /* #CAFFBF (light green) */
-  --foreground: 197 100% 87%; /* #9BF6FF (cyan) background */
-  --muted: 53 100% 85%; /* #FDFFB6 (light yellow) */
-  --muted-foreground: 25 100% 82%; /* #FFD6A5 (light peach) */
+  /* Base theme variables (keeping the existing structure) */
+  --background: 0 0% 100%;
+  --foreground: 222.2 47.4% 11.2%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
   --popover: 0 0% 100%;
-  --popover-foreground: 200 90% 10%;
+  --popover-foreground: 222.2 47.4% 11.2%;
   --card: 0 0% 100%;
-  --card-foreground: 200 90% 10%;
-  --border: 216 100% 81%; /* #A0C4FF (light blue) */
-  --input: 211 100% 81%; /* #A0C4FF */
-  --primary: 216 100% 81%; /* #A0C4FF (light blue) */
-  --primary-foreground: 210 100% 99%;
-  --secondary: 332 100% 91%; /* #FFADAD (light red) */
-  --secondary-foreground: 120 60% 99%;
-  --accent: 144 100% 88%; /* #CAFFBF (light green) */
-  --accent-foreground: 130 60% 99%;
-  --destructive: 332 100% 91%; /* #FFADAD (light red) */
-  --destructive-foreground: 60 9.1% 97.8%;
-  --ring: 216 100% 81%; /* #A0C4FF */
+  --card-foreground: 222.2 47.4% 11.2%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  
+  /* Using the palette colors for primary/accent/etc */
+  --primary: 199 100% 81%; /* #9BF6FF (cyan) */
+  --primary-foreground: 210 40% 98%;
+  --secondary: 217 100% 82%; /* #A0C4FF (light blue) */
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --accent: 126 68% 75%; /* #CAFFBF (light green) */
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 84.2% 86%; /* #FFADAD (light red) */
+  --destructive-foreground: 210 40% 98%;
+  --ring: 126 68% 75%;
   --radius: 0.75rem;
 }
 
