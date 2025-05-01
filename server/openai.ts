@@ -1,7 +1,14 @@
 import OpenAI from "openai";
 
+// Check for API key
+if (!process.env.OPENAI_API_KEY) {
+  console.warn('Warning: OPENAI_API_KEY not found in environment variables');
+}
+
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAI({ 
+  apiKey: process.env.OPENAI_API_KEY || 'dummy-key-for-initialization',
+});
 
 /**
  * Structure for food suggestions from OpenAI
@@ -21,6 +28,11 @@ export interface FoodSuggestion {
  */
 export async function getFoodCarbs(query: string): Promise<FoodSuggestion> {
   try {
+    // Check if API key is valid
+    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'dummy-key-for-initialization') {
+      throw new Error('Valid OpenAI API key is required');
+    }
+    
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -48,7 +60,8 @@ export async function getFoodCarbs(query: string): Promise<FoodSuggestion> {
       response_format: { type: "json_object" }
     });
 
-    const result = JSON.parse(response.choices[0].message.content);
+    const content = response.choices[0].message.content || '{}';
+    const result = JSON.parse(content);
     return result;
   } catch (error) {
     console.error("Error getting food carbs:", error);
@@ -61,6 +74,11 @@ export async function getFoodCarbs(query: string): Promise<FoodSuggestion> {
  */
 export async function suggestMeals(query: string): Promise<FoodSuggestion[]> {
   try {
+    // Check if API key is valid
+    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'dummy-key-for-initialization') {
+      throw new Error('Valid OpenAI API key is required');
+    }
+    
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -90,7 +108,8 @@ export async function suggestMeals(query: string): Promise<FoodSuggestion[]> {
       response_format: { type: "json_object" }
     });
 
-    const result = JSON.parse(response.choices[0].message.content);
+    const content = response.choices[0].message.content || '[]';
+    const result = JSON.parse(content);
     return result;
   } catch (error) {
     console.error("Error suggesting meals:", error);
