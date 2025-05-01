@@ -155,6 +155,15 @@ export function CalculatorSettings() {
     setEditableSettings(prev => ({ ...prev, [rangeKey]: ranges }));
   };
 
+  // Helper function to calculate the adjusted correction based on both insulin sensitivity factor and correction factor
+  const calculateAdjustedCorrection = (baseCorrection: number, isf: number = 35, cf: number = 1.0) => {
+    // ISF (Insulin Sensitivity Factor) is how much 1 unit lowers blood sugar
+    // A lower ISF (e.g., 30 instead of 35) means insulin is more powerful, so we should give LESS insulin
+    // Therefore we need to use the INVERSE relationship with the ISF
+    const isfAdjustment = 35 / isf; // Base ISF value of 35 divided by current ISF
+    return parseFloat((baseCorrection * cf * isfAdjustment).toFixed(1));
+  };
+
   const getActiveSettings = () => {
     if (isEditMode) {
       return {
