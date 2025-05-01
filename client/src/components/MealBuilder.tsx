@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { DynamicFoodSearch, FoodItem } from "./DynamicFoodSearch";
@@ -9,6 +9,39 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Utensils, Trash2, Plus, Save, ArrowRight, Pizza } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
+
+// Function to assign colors based on food categories
+function getCategoryColor(foodName: string): string {
+  const name = foodName.toLowerCase();
+  
+  // Main categories with their colors
+  if (name.includes('burger') || name.includes('sandwich') || name.includes('meat') || name.includes('chicken') || name.includes('beef') || name.includes('pork')) {
+    return '#ef4444'; // Red for proteins/meats
+  }
+  
+  if (name.includes('fries') || name.includes('potato') || name.includes('bread') || name.includes('rice') || name.includes('pasta')) {
+    return '#f59e0b'; // Amber for starches
+  }
+  
+  if (name.includes('salad') || name.includes('vegetable') || name.includes('broccoli') || name.includes('spinach')) {
+    return '#10b981'; // Green for vegetables
+  }
+  
+  if (name.includes('fruit') || name.includes('apple') || name.includes('banana') || name.includes('berry')) {
+    return '#8b5cf6'; // Purple for fruits
+  }
+  
+  if (name.includes('cake') || name.includes('ice cream') || name.includes('cookie') || name.includes('dessert') || name.includes('sweet')) {
+    return '#ec4899'; // Pink for desserts
+  }
+  
+  if (name.includes('soda') || name.includes('drink') || name.includes('juice') || name.includes('coffee') || name.includes('tea')) {
+    return '#0ea5e9'; // Blue for drinks
+  }
+  
+  // Default color for uncategorized items
+  return '#6b7280'; // Gray
+}
 
 interface MealBuilderProps {
   onComplete: (totalCarbs: number) => void;
@@ -131,7 +164,7 @@ export function MealBuilder({ onComplete, onSavePreset }: MealBuilderProps) {
           <span>Meal Builder</span>
         </CardTitle>
         <CardDescription>
-          Build your meal by adding items and selecting portion sizes
+          Build your complete meal by searching and adding multiple food items
         </CardDescription>
       </CardHeader>
       
@@ -144,30 +177,48 @@ export function MealBuilder({ onComplete, onSavePreset }: MealBuilderProps) {
           
           <TabsContent value="build" className="space-y-4">
             <div className="space-y-4">
-              <DynamicFoodSearch onSelect={handleAddItem} />
+              <div>
+                <DynamicFoodSearch 
+                  onSelect={handleAddItem} 
+                  clearOnSelect={false} 
+                  placeholderText="Search for foods to add to your meal..."
+                />
+                {mealItems.length > 0 && (
+                  <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                    <Plus className="h-3 w-3" />
+                    Continue searching to add more items to your meal
+                  </p>
+                )}
+              </div>
               
               {mealItems.length > 0 && (
                 <ScrollArea className="h-[200px] rounded-md border p-2">
                   <div className="space-y-2">
                     {mealItems.map((item) => (
-                      <Card key={item.id} className="overflow-hidden">
+                      <Card key={item.id} className="overflow-hidden border-l-4" style={{ borderLeftColor: getCategoryColor(item.name) }}>
                         <CardContent className="p-3">
                           <div className="flex justify-between items-start">
-                            <div>
-                              <h4 className="font-medium text-sm">{item.name}</h4>
-                              <p className="text-xs text-muted-foreground">{item.description}</p>
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between">
+                                <h4 className="font-medium text-sm">{item.name}</h4>
+                                <Badge className="ml-2">
+                                  {item.portions[item.portionSize || "medium"].carbValue}g
+                                </Badge>
+                              </div>
+                              <p className="text-xs text-muted-foreground line-clamp-1">{item.description}</p>
                             </div>
                             <Button
                               variant="ghost"
                               size="icon"
                               onClick={() => handleRemoveItem(item.id)}
-                              className="h-7 w-7 text-destructive"
+                              className="h-7 w-7 text-destructive ml-2"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
                           
-                          <div className="mt-2 flex items-center gap-2">
+                          <div className="mt-2">
+                            <div className="text-xs text-muted-foreground mb-1">Portion size:</div>
                             <TabsList className="grid grid-cols-3 h-7">
                               <TabsTrigger 
                                 value="small" 
@@ -191,10 +242,6 @@ export function MealBuilder({ onComplete, onSavePreset }: MealBuilderProps) {
                                 Large
                               </TabsTrigger>
                             </TabsList>
-                            
-                            <Badge>
-                              {item.portions[item.portionSize || "medium"].carbValue}g
-                            </Badge>
                           </div>
                         </CardContent>
                       </Card>

@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Plus, Search, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
 import { useDebounce } from "../hooks/use-debounce";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -29,36 +28,40 @@ interface DynamicFoodSearchProps {
   onSelect: (item: FoodItem) => void;
   placeholderText?: string;
   showAddButton?: boolean;
+  clearOnSelect?: boolean;
 }
 
 export function DynamicFoodSearch({ 
   onSelect, 
   placeholderText = "Search for food (e.g., Big Mac, fries)",
-  showAddButton = true 
+  showAddButton = true,
+  clearOnSelect = false
 }: DynamicFoodSearchProps) {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [searchResults, setSearchResults] = useState<FoodItem[]>([]);
   const debouncedSearch = useDebounce(searchTerm, 300); // Reduced debounce time for faster feedback
-  const [searchCounter, setSearchCounter] = useState(0);
+  const searchRequestRef = useRef(0);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Perform search when debounced search term changes
   useEffect(() => {
     if (debouncedSearch && debouncedSearch.length >= 2) {
-      setSearchCounter(prev => prev + 1);
-      searchFood(debouncedSearch, searchCounter + 1);
+      searchFood(debouncedSearch);
     } else if (debouncedSearch === "") {
       setSearchResults([]);
     }
   }, [debouncedSearch]);
 
-  const searchFood = async (query: string, requestId: number) => {
+  const searchFood = async (query: string) => {
     if (!query.trim()) return;
     
+    const requestId = ++searchRequestRef.current;
     setIsLoading(true);
+    
     try {
-      console.log(`Searching for: ${query}`);
+      console.log(`Searching for: ${query} (request ID: ${requestId})`);
       const response = await fetch("/api/food-suggestions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -66,7 +69,8 @@ export function DynamicFoodSearch({
       });
       
       // If this is no longer the current request, ignore results
-      if (requestId !== searchCounter) {
+      if (requestId !== searchRequestRef.current) {
+        console.log(`Ignoring outdated request ${requestId}, current is ${searchRequestRef.current}`);
         return;
       }
       
@@ -75,27 +79,32 @@ export function DynamicFoodSearch({
       }
       
       const data = await response.json();
-      console.log("Search results:", data);
+      console.log(`Results for request ${requestId}:`, data);
       
-      // Check if the response has an error flag
-      if (data.error) {
-        setSearchResults([]);
+      // If this is no longer the current request, ignore results
+      if (requestId !== searchRequestRef.current) {
+        console.log(`Ignoring outdated response for ${requestId}, current is ${searchRequestRef.current}`);
         return;
       }
       
       // For single result, wrap in array
-      const results = Array.isArray(data) ? data : [data];
-      setSearchResults(results.length > 0 ? results : []);
+      const results = Array.isArray(data) ? data : (data ? [data] : []);
+      setSearchResults(results);
     } catch (error: any) {
-      console.error("Error searching for food:", error);
-      toast({
-        title: "Search Error",
-        description: "Could not complete the food search. Please try again.",
-        variant: "destructive",
-      });
-      setSearchResults([]);
+      // Only display error if this is still the current request
+      if (requestId === searchRequestRef.current) {
+        console.error("Error searching for food:", error);
+        toast({
+          title: "Search Error",
+          description: "Could not complete the food search. Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
-      setIsLoading(false);
+      // Only update loading state if this is still the current request
+      if (requestId === searchRequestRef.current) {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -112,6 +121,10 @@ export function DynamicFoodSearch({
   const handleClearSearch = () => {
     setSearchTerm("");
     setSearchResults([]);
+    // Focus the input after clearing it
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
   };
 
   const handleSelectFood = (item: FoodItem) => {
@@ -121,9 +134,16 @@ export function DynamicFoodSearch({
       portionSize: "medium"
     });
     
-    // Clear after selection
-    setSearchTerm("");
-    setSearchResults([]);
+    // Clear only if clearOnSelect is true
+    if (clearOnSelect) {
+      setSearchTerm("");
+      setSearchResults([]);
+    } else {
+      // If not clearing, focus back on the input to continue searching
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }
   };
 
   return (
@@ -131,6 +151,7 @@ export function DynamicFoodSearch({
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
           <Input
+            ref={inputRef}
             placeholder={placeholderText}
             value={searchTerm}
             onChange={handleSearchChange}
@@ -164,6 +185,7 @@ export function DynamicFoodSearch({
                 <Card 
                   key={`${item.name}-${index}`} 
                   className="cursor-pointer hover:bg-accent/50 transition-colors"
+                  onClick={() => handleSelectFood(item)}
                 >
                   <CardContent className="p-3 flex justify-between items-start">
                     <div className="flex-1">
@@ -182,7 +204,10 @@ export function DynamicFoodSearch({
                         variant="ghost" 
                         size="icon" 
                         className="ml-2 h-7 w-7" 
-                        onClick={() => handleSelectFood(item)}
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent card click
+                          handleSelectFood(item);
+                        }}
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
