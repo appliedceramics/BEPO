@@ -66,11 +66,17 @@ export const profiles = pgTable("profiles", {
   sex: text("sex").notNull(),
   weight: numeric("weight"), // Weight in kg
   bgUnit: text("bg_unit").default("mmol/L"), // Blood glucose unit preference (mmol/L or mg/dL)
-  motherName: text("mother_name"),
-  motherPhone: text("mother_phone"),
-  fatherName: text("father_name"),
-  fatherPhone: text("father_phone"),
-  notifyParents: boolean("notify_parents").default(false),
+  parent1Name: text("parent1_name"),
+  parent1Phone: text("parent1_phone"),
+  parent1Email: text("parent1_email"),
+  parent2Name: text("parent2_name"),
+  parent2Phone: text("parent2_phone"),
+  parent2Email: text("parent2_email"),
+  caregiverName: text("caregiver_name"),
+  caregiverPhone: text("caregiver_phone"),
+  caregiverEmail: text("caregiver_email"),
+  notifyContacts: boolean("notify_contacts").default(false),
+  notificationMethod: text("notification_method").default("sms"), // Options: 'sms', 'email', 'push'
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
