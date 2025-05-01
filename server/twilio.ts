@@ -48,7 +48,8 @@ function formatInsulinMessage(log: InsulinLog, name: string): string {
       : 'bedtime';
   
   // Round to the nearest whole unit of insulin
-  const roundedInsulin = Math.round(log.totalInsulin);
+  const totalInsulin = typeof log.totalInsulin === 'string' ? parseFloat(log.totalInsulin) : log.totalInsulin;
+  const roundedInsulin = Math.round(totalInsulin);
   
   return `${name} took ${roundedInsulin} units of insulin on ${formattedDate} at ${formattedTime} for ${mealTypeText}. 
 BG: ${log.bgValue} mmol/L (${log.bgMgdl} mg/dL).
@@ -75,7 +76,8 @@ function formatEmailHtml(log: InsulinLog, name: string): string {
       : 'bedtime';
   
   // Round to the nearest whole unit of insulin
-  const roundedInsulin = Math.round(log.totalInsulin);
+  const totalInsulin = typeof log.totalInsulin === 'string' ? parseFloat(log.totalInsulin) : log.totalInsulin;
+  const roundedInsulin = Math.round(totalInsulin);
   
   return `
     <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
