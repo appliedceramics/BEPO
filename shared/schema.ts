@@ -182,14 +182,20 @@ export const bedtimeCorrectionChart: CorrectionRange[] = [
 export const calculatorSettings = pgTable("calculator_settings", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }).unique(),
-  firstMealRatio: numeric("first_meal_ratio").notNull().default("10"),  // Insulin to carb ratio for first meal
-  otherMealRatio: numeric("other_meal_ratio").notNull().default("15"), // Insulin to carb ratio for other meals
+  // Insulin-to-carb ratios (how many grams of carbs are covered by 1 unit of insulin)
+  firstMealRatio: numeric("first_meal_ratio").notNull().default("10"),  // 1 unit covers 10g carbs for first meal
+  otherMealRatio: numeric("other_meal_ratio").notNull().default("15"), // 1 unit covers 15g carbs for other meals
+  // Insulin sensitivity/correction factor (how much 1 unit of insulin lowers blood glucose in mg/dL)
+  insulinSensitivityFactor: numeric("insulin_sensitivity_factor").notNull().default("35"), // 1 unit lowers BG by 35 mg/dL
   longActingDosage: numeric("long_acting_dosage").notNull().default("0"), // Long-acting insulin dosage for 24hr
-  correctionFactor: numeric("correction_factor").notNull().default("1.0"), // Multiplier for all correction values
-  mealCorrectionRanges: json("meal_correction_ranges").$type<CorrectionRange[]>(),
-  bedtimeCorrectionRanges: json("bedtime_correction_ranges").$type<CorrectionRange[]>(),
-  targetBgMin: numeric("target_bg_min").notNull().default("4.5"),  // Target blood glucose minimum (mmol/L)
-  targetBgMax: numeric("target_bg_max").notNull().default("7.0"),  // Target blood glucose maximum (mmol/L)
+  // Target blood glucose range in mmol/L
+  targetBgValue: numeric("target_bg_value").notNull().default("5.6"), // Target blood glucose (mmol/L, ~100 mg/dL)
+  // Legacy fields - will be deprecated in favor of insulin sensitivity factor
+  correctionFactor: numeric("correction_factor").notNull().default("1.0"), // Legacy: Multiplier for correction chart values
+  mealCorrectionRanges: json("meal_correction_ranges").$type<CorrectionRange[]>(), // Legacy: correction charts
+  bedtimeCorrectionRanges: json("bedtime_correction_ranges").$type<CorrectionRange[]>(), // Legacy: correction charts
+  targetBgMin: numeric("target_bg_min").notNull().default("4.5"),  // Legacy: Target BG minimum (mmol/L)
+  targetBgMax: numeric("target_bg_max").notNull().default("7.0"),  // Legacy: Target BG maximum (mmol/L)
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
@@ -206,13 +212,20 @@ export const insertCalculatorSettingsSchema = createInsertSchema(calculatorSetti
   updatedAt: true,
 });
 
-// Make sure longActingDosage is recognized in TypeScript by explicitly defining shape
+// Make sure all properties are recognized in TypeScript by explicitly defining shape
 export const calculatorSettingsSchema = z.object({
   id: z.number().optional(),
   userId: z.number().optional(),
+  // Insulin-to-carb ratios
   firstMealRatio: z.number().or(z.string()),
   otherMealRatio: z.number().or(z.string()),
+  // New insulin sensitivity factor
+  insulinSensitivityFactor: z.number().or(z.string()).default(35),
+  // Target blood glucose
+  targetBgValue: z.number().or(z.string()).default(5.6),
+  // Long-acting insulin dosage
   longActingDosage: z.number().or(z.string()),
+  // Legacy fields
   correctionFactor: z.number().or(z.string()).default(1.0),
   mealCorrectionRanges: z.array(correctionRangeSchema).nullable().optional(),
   bedtimeCorrectionRanges: z.array(correctionRangeSchema).nullable().optional(),
