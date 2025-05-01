@@ -787,44 +787,6 @@ export function CalculatorSettings() {
           <CardDescription className="text-blue-700">
             Set how much insulin to add or subtract when your blood glucose is out of range
           </CardDescription>
-          <div className="mt-4 bg-white p-3 rounded-lg border border-blue-300 shadow">
-            <div className="flex items-center gap-2">
-              <div className="font-semibold text-blue-800">Sensitivity Factor: </div>
-              <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300">
-                Currently {parseFloat(activeSettings.correctionFactor.toString()).toFixed(1)}x
-              </Badge>
-              <div className="text-blue-700 text-sm ml-2">
-                Multiply all correction values by this factor to adjust sensitivity
-              </div>
-            </div>
-            {isEditMode && (
-              <div className="flex items-center gap-2 mt-2">
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  className="h-8 w-8 rounded-full border-2 border-blue-300 text-lg font-bold"
-                  onClick={() => adjustRatio('correctionFactor', false)}
-                >
-                  -
-                </Button>
-                <div className="w-16 text-center">
-                  <span className="text-lg font-bold">
-                    {parseFloat((editableSettings.correctionFactor ?? activeSettings.correctionFactor).toString()).toFixed(1)}
-                  </span>
-                </div>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  className="h-8 w-8 rounded-full border-2 border-blue-300 text-lg font-bold"
-                  onClick={() => adjustRatio('correctionFactor', true)}
-                >
-                  +
-                </Button>
-              </div>
-            )}
-          </div>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="meal">
