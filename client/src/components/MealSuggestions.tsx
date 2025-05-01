@@ -60,6 +60,18 @@ export function MealSuggestions({ onSelectMeal }: MealSuggestionsProps) {
     try {
       const response = await apiRequest("POST", "/api/meal-suggestions", { query: searchTerm });
       const data = await response.json();
+      
+      // Check if we got a valid array result
+      if (!Array.isArray(data) || data.length === 0) {
+        toast({
+          title: "No meal suggestions found",
+          description: "Try another search term or food category",
+          variant: "destructive",
+        });
+        setSuggestions([]);
+        return;
+      }
+      
       setSuggestions(data);
       setSelectedMeal(null); // Reset selection
     } catch (error) {

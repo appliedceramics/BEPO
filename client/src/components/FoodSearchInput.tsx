@@ -58,6 +58,17 @@ export function FoodSearchInput({ onCarbValueSelected }: FoodSearchInputProps) {
     try {
       const response = await apiRequest("POST", "/api/food-suggestions", { query: searchTerm });
       const data = await response.json();
+      
+      // Check if the response has an error flag
+      if (data.error) {
+        toast({
+          title: "Food not found",
+          description: "Could not find nutritional information for this food",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       setFood(data);
     } catch (error) {
       console.error("Error searching for food:", error);

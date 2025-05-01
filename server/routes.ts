@@ -188,7 +188,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Using 200 status with error object for graceful handling in UI
       res.json({ 
         error: true,
-        name: query || "Food",
+        name: req.body.query || "Food",
         description: "Could not find carb information",
         portions: {
           small: { description: "Small portion", carbValue: 0 },
