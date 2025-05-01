@@ -32,6 +32,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Navigation } from "@/components/Navigation";
+import { PushNotificationSettings } from "@/components/PushNotificationSettings";
 import { getQueryFn } from "@/lib/queryClient";
 import { useEffect } from "react";
 
