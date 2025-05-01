@@ -63,9 +63,16 @@ export function CalculatorSettings() {
 
   const updateRatioSetting = (field: 'firstMealRatio' | 'otherMealRatio' | 'longActingDosage' | 'correctionFactor', value: string | number) => {
     const numValue = typeof value === 'string' ? parseFloat(value) : value;
-    if (!isNaN(numValue) && numValue > 0) {
-      // Round to one decimal place for consistency
-      const roundedValue = Math.round(numValue * 10) / 10;
+    if (!isNaN(numValue) && numValue >= 0) { // Changed from > 0 to >= 0 to allow zero for longActingDosage
+      // Round differently based on the field
+      let roundedValue;
+      if (field === 'longActingDosage') {
+        // Round to whole numbers for long acting insulin
+        roundedValue = Math.round(numValue);
+      } else {
+        // Round to one decimal place for other values
+        roundedValue = Math.round(numValue * 10) / 10;
+      }
       setEditableSettings(prev => ({ ...prev, [field]: roundedValue }));
     }
   };
@@ -74,11 +81,21 @@ export function CalculatorSettings() {
   const adjustRatio = (field: 'firstMealRatio' | 'otherMealRatio' | 'longActingDosage' | 'correctionFactor', increment: boolean) => {
     // Make sure we're working with a number by explicitly parsing
     const currentValue = parseFloat((editableSettings[field] ?? settings[field]).toString());
-    const step = field === 'correctionFactor' ? 0.1 : 0.5; // Use a smaller step for correction factor
+    
+    // Different step values based on the field
+    let step;
+    if (field === 'correctionFactor') {
+      step = 0.1; // Small step for correction factor
+    } else if (field === 'longActingDosage') {
+      step = 1.0; // Whole units for long acting insulin
+    } else {
+      step = 0.5; // Default step for meal ratios
+    }
+    
     const newValue = increment ? currentValue + step : currentValue - step;
     
     // Don't allow values below minimum (different for correction factor)
-    const minValue = field === 'correctionFactor' ? 0.5 : 1.0;
+    const minValue = field === 'correctionFactor' ? 0.5 : 0.0;
     if (newValue >= minValue) {
       updateRatioSetting(field, newValue);
     }
@@ -230,7 +247,7 @@ export function CalculatorSettings() {
               </Badge>
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-3xl font-bold text-blue-600">{isEditMode ? editableSettings.longActingDosage ?? activeSettings.longActingDosage : activeSettings.longActingDosage} units</span>
+              <span className="text-3xl font-bold text-blue-600">{parseFloat((isEditMode ? editableSettings.longActingDosage ?? activeSettings.longActingDosage : activeSettings.longActingDosage).toString()).toFixed(0)} units</span>
               {isEditMode && (
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
@@ -245,7 +262,7 @@ export function CalculatorSettings() {
                     </Button>
                     <div className="w-20 text-center">
                       <span className="text-2xl font-bold">
-                        {parseFloat((editableSettings.longActingDosage ?? activeSettings.longActingDosage).toString()).toFixed(1)}
+                        {parseFloat((editableSettings.longActingDosage ?? activeSettings.longActingDosage).toString()).toFixed(0)}
                       </span>
                     </div>
                     <Button
