@@ -16,7 +16,7 @@ import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { MealSuggestions } from "./MealSuggestions";
-import { MealBuilder } from "./MealBuilder";
+import { FoodBasketSearch } from "./FoodBasketSearch";
 
 interface MealPresetCardProps {
   preset: MealPreset;
@@ -231,18 +231,17 @@ export function MealPresets({ onSelectPreset }: MealPresetsProps) {
             <DialogTrigger asChild>
               <Button variant="outline" className="flex items-center">
                 <Utensils className="w-4 h-4 mr-2" />
-                Build Meal
+                Create from Foods
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Build and Save Meal</DialogTitle>
+                <DialogTitle>Create Meal from Food Items</DialogTitle>
                 <DialogDescription>
-                  Build a complex meal by adding multiple items and save it as a preset.
+                  Search for food items, add them to your basket, then save as a meal preset.
                 </DialogDescription>
               </DialogHeader>
-              <MealBuilder 
-                onComplete={() => {}} 
+              <FoodBasketSearch 
                 onSavePreset={handleSaveMealPreset}
               />
             </DialogContent>
@@ -313,7 +312,7 @@ export function MealPresets({ onSelectPreset }: MealPresetsProps) {
               className="flex items-center"
             >
               <Utensils className="w-4 h-4 mr-2" />
-              Build a meal
+              Create from Foods
             </Button>
           </div>
         </div>
