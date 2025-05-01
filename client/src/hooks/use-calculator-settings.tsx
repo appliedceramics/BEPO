@@ -11,6 +11,8 @@ export type CalculatorSettings = {
   otherMealRatio: number;
   longActingDosage: number | string;
   correctionFactor: number | string;
+  insulinSensitivityFactor?: number; // How much 1 unit of insulin lowers blood glucose (mg/dL)
+  targetBgValue?: number; // Target blood glucose in mmol/L
   mealCorrectionRanges: CorrectionRange[];
   bedtimeCorrectionRanges: CorrectionRange[];
   targetBgMin: number;

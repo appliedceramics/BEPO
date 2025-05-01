@@ -18,7 +18,8 @@ export interface CalculationParams {
   // Blood glucose related parameters
   bgValue: number; // Current blood glucose in mmol/L
   targetBgValue?: number; // Target blood glucose in mmol/L
-  correctionFactor?: number; // Insulin sensitivity factor - mg/dL BG lowered by 1 unit
+  correctionFactor?: number; // Multiplier for correction amount
+  insulinSensitivityFactor?: number; // Insulin sensitivity factor - mg/dL BG lowered by 1 unit
   
   // Fixed dosage for long-acting insulin
   longActingDosage?: number;
@@ -40,7 +41,8 @@ export function calculateInsulin(params: CalculationParams): CalculationResult {
     bgValue,
     insulinToCarbohydrateRatio,
     targetBgValue = 5.6, // Default target of 100 mg/dL (5.6 mmol/L)
-    correctionFactor = 35, // Default: 1 unit lowers BG by 35 mg/dL
+    correctionFactor = 1.0, // Default multiplier for correction
+    insulinSensitivityFactor = 35, // Default: 1 unit lowers BG by 35 mg/dL
     longActingDosage = 0
   } = params;
   
@@ -77,22 +79,37 @@ export function calculateInsulin(params: CalculationParams): CalculationResult {
   let correctionInsulin = 0;
   let correctionCalculationDetails = "No correction needed";
   
-  // Only calculate correction if we have a non-zero correction factor
-  if (correctionFactor > 0) {
-    // Calculate correction insulin using the formula: (Current BG - Target BG) ÷ Correction Factor
+  // Only calculate correction if we have a valid insulin sensitivity factor
+  if (insulinSensitivityFactor > 0) {
+    // Calculate correction insulin using the formula: (Current BG - Target BG) ÷ Insulin Sensitivity Factor
     const bgDifference = bgMgdl - targetBgMgdl;
     
     // Only apply correction if blood glucose is outside target range
     if (Math.abs(bgDifference) > 20) { // Allow small range around target
-      correctionInsulin = bgDifference / correctionFactor;
+      // Base correction using Insulin Sensitivity Factor
+      const baseCorrection = bgDifference / insulinSensitivityFactor;
+      
+      // Apply correction factor multiplier (from settings)
+      correctionInsulin = baseCorrection * correctionFactor;
       
       // For bedtime, we typically use a more conservative approach
       if (mealType === "bedtime" && correctionInsulin > 0) {
         correctionInsulin = correctionInsulin * 0.75; // 25% reduction for bedtime
       }
       
+      // Detailed explanation of calculation for the user
       correctionCalculationDetails = 
-        `(${bgMgdl.toFixed(0)} - ${targetBgMgdl.toFixed(0)}) ÷ ${correctionFactor} = ${correctionInsulin.toFixed(1)} units`;
+        `(${bgMgdl.toFixed(0)} - ${targetBgMgdl.toFixed(0)}) ÷ ${insulinSensitivityFactor}`;
+      
+      if (correctionFactor !== 1.0) {
+        correctionCalculationDetails += ` × ${correctionFactor.toFixed(1)} (CF)`;
+      }
+      
+      if (mealType === "bedtime" && bgDifference > 0) {
+        correctionCalculationDetails += ` × 0.75 (bedtime)`;
+      }
+      
+      correctionCalculationDetails += ` = ${correctionInsulin.toFixed(1)} units`;
     }
   }
   
