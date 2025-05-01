@@ -326,8 +326,9 @@ export default function AuthPage() {
       <div className="hidden md:flex md:w-1/2 bg-gradient-to-br from-blue-100 to-green-100 p-8 items-center justify-center overflow-y-auto">
         <div className="w-full max-w-xl space-y-8">
           <div className="text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary mb-3">
-              <span className="calculator-font">BEPO</span> Insulin Calculator
+            <h1 className="text-4xl font-bold tracking-tight mb-3">
+              <span className="calculator-font text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-600 mr-1">BEPO</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-primary">Insulin Calculator</span>
             </h1>
             <p className="text-lg text-primary/80 mb-6">
               Fun for kids, peace of mind for parents
