@@ -56,7 +56,7 @@ export function ResultsDisplay({
         <InsulinIcon />
         <h3 className="ml-2 text-xl font-bold text-primary">
           {isBedtime ? "Bedtime Correction" : 
-           isLongActing ? "Long Acting Dosage" : 
+           isLongActing ? "Rapid Acting Dosage" : 
            "Calculation Results"}
         </h3>
       </div>
@@ -65,7 +65,7 @@ export function ResultsDisplay({
         <div className="bg-white p-4 rounded-lg shadow-md border-2 border-accent/30">
           <p className="text-sm font-bold text-primary/80">
             {isBedtime ? "Bedtime Insulin" : 
-             isLongActing ? "Long Acting Insulin" : 
+             isLongActing ? "Rapid Acting Insulin" : 
              "Meal Insulin"}
           </p>
           <p id="meal-insulin" className="text-2xl font-bold text-primary">
@@ -128,7 +128,7 @@ export function ResultsDisplay({
         <div className="mt-5 p-4 text-sm rounded-md bg-blue-100 border-2 border-blue-300 shadow-sm">
           <p className="font-bold text-blue-800">
             <span className="inline-block mr-2">💊</span>
-            Using your daily long-acting insulin dosage from settings
+            Using your daily rapid-acting insulin dosage from settings
           </p>
         </div>
       )}
