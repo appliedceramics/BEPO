@@ -21,8 +21,19 @@ export function calculateInsulin(params: CalculationParams): CalculationResult {
   // Convert BG from mmol/L to mg/dL
   const bgMgdl = convertBgToMgdl(bgValue);
 
+  // For long-acting insulin, we use the fixed dosage from settings
+  if (mealType === "longActing") {
+    // We'll get the actual value from settings in the Calculator component
+    return {
+      mealInsulin: 0, // This will be replaced with the longActingDosage from settings
+      correctionInsulin: 0,
+      totalInsulin: 0, // This will be replaced with the longActingDosage from settings
+      bgMgdl,
+      correctionRange: "Long-acting insulin"
+    };
+  }
   // For bedtime, we only use correction insulin without any meal insulin component
-  if (mealType === "bedtime") {
+  else if (mealType === "bedtime") {
     // Calculate correction insulin based on BG and meal type
     const { correction: correctionInsulin, range: correctionRange } = getCorrectionInsulin(bgMgdl, mealType);
     

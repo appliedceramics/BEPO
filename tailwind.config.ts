@@ -150,6 +150,8 @@ export default {
         "success-appear": "success-appear 0.5s ease-out forwards",
         "success-disappear": "success-disappear 0.5s ease-in forwards",
         "shimmer": "shimmer 2s infinite linear",
+        "spin-slow": "spin 6s linear infinite",
+        "spin-very-slow": "spin 60s linear infinite",
       },
     },
   },

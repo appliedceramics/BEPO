@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { MealType } from "@shared/schema";
-import { MealSelector } from "./MealSelector";
+import { DosagePurposeSelector } from "./DosagePurposeSelector";
 import { CarbInput } from "./CarbInput";
 import { BloodGlucoseInput } from "./BloodGlucoseInput";
 import { ResultsDisplay } from "./ResultsDisplay";
 import { Button } from "@/components/ui/button";
 import { calculateInsulin, CalculationResult } from "@/lib/insulinCalculator";
+import { useCalculatorSettings } from "@/hooks/use-calculator-settings";
 
 interface CalculatorProps {
   onLogInsulin: (data: {
@@ -25,12 +26,29 @@ export function Calculator({ onLogInsulin, isLogging }: CalculatorProps) {
   const [carbValue, setCarbValue] = useState<number | undefined>(undefined);
   const [bgValue, setBgValue] = useState<number | undefined>(undefined);
   const [calculationResult, setCalculationResult] = useState<CalculationResult | null>(null);
+  
+  // Get calculator settings for long-acting insulin dosage
+  const { settings, isLoading: settingsLoading } = useCalculatorSettings();
 
   // Recalculate when inputs change
   useEffect(() => {
     if (mealType && bgValue !== undefined) {
+      // For long-acting insulin, use the fixed dosage from settings
+      if (mealType === "longActing" && settings) {
+        const longActingDosage = parseFloat(settings.longActingDosage.toString());
+        const result = calculateInsulin({
+          mealType,
+          bgValue,
+        });
+        
+        // Override the calculated values with the fixed long-acting dosage
+        result.mealInsulin = longActingDosage;
+        result.totalInsulin = longActingDosage;
+        
+        setCalculationResult(result);
+      }
       // For bedtime, calculate without carbs
-      if (mealType === "bedtime") {
+      else if (mealType === "bedtime") {
         const result = calculateInsulin({
           mealType,
           bgValue,
@@ -38,7 +56,7 @@ export function Calculator({ onLogInsulin, isLogging }: CalculatorProps) {
         setCalculationResult(result);
       }
       // For meal types that require carbs
-      else if (carbValue !== undefined) {
+      else if ((mealType === "first" || mealType === "other") && carbValue !== undefined) {
         const result = calculateInsulin({
           mealType,
           carbValue,
@@ -49,14 +67,14 @@ export function Calculator({ onLogInsulin, isLogging }: CalculatorProps) {
     } else {
       setCalculationResult(null);
     }
-  }, [mealType, carbValue, bgValue]);
+  }, [mealType, carbValue, bgValue, settings]);
 
   const handleLogInsulin = () => {
     if (!mealType || !calculationResult || bgValue === undefined) return;
     
     onLogInsulin({
       mealType,
-      carbValue: mealType === "bedtime" ? undefined : carbValue,
+      carbValue: (mealType === "bedtime" || mealType === "longActing") ? undefined : carbValue,
       bgValue,
       bgMgdl: calculationResult.bgMgdl,
       mealInsulin: calculationResult.mealInsulin,
@@ -67,25 +85,31 @@ export function Calculator({ onLogInsulin, isLogging }: CalculatorProps) {
 
   // Determine if log button should be disabled
   const logButtonDisabled = !calculationResult || !mealType || 
-    (mealType !== "bedtime" && carbValue === undefined) || 
-    bgValue === undefined || isLogging;
+    (mealType !== "bedtime" && mealType !== "longActing" && carbValue === undefined) || 
+    bgValue === undefined || isLogging || settingsLoading;
 
   return (
     <div className="bepo-card mb-6 overflow-hidden">
       <div className="absolute inset-0 -z-10 bg-gradient-to-br from-primary/5 via-white to-accent/5 opacity-50"></div>
       
-      {/* Meal Selection and Carb Input */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <MealSelector
+      {/* Dosage Purpose Selector */}
+      <div className="mb-6">
+        <DosagePurposeSelector
           value={mealType}
-          onChange={(value) => setMealType(value)}
-        />
-        <CarbInput
-          value={carbValue}
-          onChange={setCarbValue}
-          hidden={mealType === "bedtime"}
+          onChange={setMealType}
         />
       </div>
+      
+      {/* Carb Input - Hide for bedtime and long-acting */}
+      {mealType !== "bedtime" && mealType !== "longActing" && (
+        <div className="mb-6">
+          <CarbInput
+            value={carbValue}
+            onChange={setCarbValue}
+            hidden={false}
+          />
+        </div>
+      )}
 
       {/* Blood Glucose Input */}
       <BloodGlucoseInput
