@@ -21,7 +21,8 @@ export default function FunCalculatorPage() {
   // Blood glucose and carb inputs for insulin calculation
   const [bgValue, setBgValue] = useState<number | null>(null);
   const [carbValue, setCarbValue] = useState<number | null>(null);
-  const [mealType, setMealType] = useState<MealType | "">("");
+  const [mealType, setMealType] = useState<MealType | "">();
+  const [carbTotalMode, setCarbTotalMode] = useState(false);
 
   // Track state changes for debugging
   useEffect(() => {
@@ -115,6 +116,16 @@ export default function FunCalculatorPage() {
       setPreviousValue(null);
       setOperation(null);
       setWaitingForSecondOperand(false);
+
+      // If in carb total mode, this finalizes the calculation
+      if (carbTotalMode) {
+        setCarbValue(result);
+        setCarbTotalMode(false);
+        toast({
+          title: "Carb Total Set",
+          description: `Carbohydrate value set to ${result}g`,
+        });
+      }
     }
   };
 
@@ -182,83 +193,6 @@ export default function FunCalculatorPage() {
       });
     }
   };
-
-  // Button components
-  const NumberButton = ({ digit }: { digit: string }) => (
-    <button 
-      className="bg-blue-500 hover:bg-blue-600 text-white text-2xl font-bold rounded-full h-16 w-16 flex items-center justify-center shadow-md" 
-      onClick={() => inputDigit(digit)}
-    >
-      {digit}
-    </button>
-  );
-
-  const OperatorButton = ({ operator, label }: { operator: string, label: string }) => (
-    <button 
-      className="bg-green-500 hover:bg-green-600 text-white text-2xl font-bold rounded-full h-16 w-16 flex items-center justify-center shadow-md" 
-      onClick={() => handleOperator(operator)}
-    >
-      {label}
-    </button>
-  );
-
-  const DecimalButton = () => (
-    <button 
-      className="bg-blue-500 hover:bg-blue-600 text-white text-2xl font-bold rounded-full h-16 w-16 flex items-center justify-center shadow-md" 
-      onClick={inputDecimal}
-    >
-      .
-    </button>
-  );
-
-  const EqualsButton = () => (
-    <button 
-      className="bg-purple-500 hover:bg-purple-600 text-white text-2xl font-bold rounded-full h-16 w-16 flex items-center justify-center shadow-md" 
-      onClick={handleEquals}
-    >
-      =
-    </button>
-  );
-
-  const ClearButton = () => (
-    <button 
-      className="bg-orange-500 hover:bg-orange-600 text-white text-xl font-bold rounded-xl h-16 w-full flex items-center justify-center shadow-md" 
-      onClick={clearCalculator}
-    >
-      CLEAR ENTRY
-    </button>
-  );
-
-  // Meal type selection buttons
-  const MealTypeButton = ({ type, label }: { type: MealType, label: string }) => (
-    <button 
-      className={`${mealType === type ? 'bg-blue-600' : 'bg-blue-400'} hover:bg-blue-500 text-white text-md font-bold rounded-xl p-2 flex-1 flex items-center justify-center shadow-md`} 
-      onClick={() => setMealType(type)}
-    >
-      {label}
-    </button>
-  );
-
-  // Input setter buttons
-  const InputSetterButton = ({ action, label }: { action: () => void, label: string }) => (
-    <button 
-      className="bg-teal-500 hover:bg-teal-600 text-white text-md font-bold rounded-xl p-2 flex-1 flex items-center justify-center shadow-md"
-      onClick={action}
-    >
-      {label}
-    </button>
-  );
-
-  if (profileLoading || settingsLoading) {
-    return (
-      <div className="flex flex-col min-h-screen">
-        <Navigation />
-        <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="animate-spin h-12 w-12 text-primary" />
-        </div>
-      </div>
-    );
-  }
 
   // Voice input handling
   const startVoiceInput = (inputType: 'bg' | 'carbs') => {
@@ -343,9 +277,6 @@ export default function FunCalculatorPage() {
     }
   };
 
-  // Add state for carb total mode
-  const [carbTotalMode, setCarbTotalMode] = useState(false);
-
   // Handle carb total mode toggle
   const toggleCarbTotalMode = () => {
     if (!carbTotalMode) {
@@ -383,6 +314,17 @@ export default function FunCalculatorPage() {
     
     calculateTotalForMe();
   };
+
+  if (profileLoading || settingsLoading) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Navigation />
+        <div className="flex-1 flex items-center justify-center">
+          <Loader2 className="animate-spin h-12 w-12 text-primary" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
