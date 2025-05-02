@@ -898,7 +898,7 @@ export default function FunCalculatorPage() {
               </div>
               
               {/* Insulin calculation results */}
-              {mealType && bgValue ? (
+              {mealType && (mealType === 'longActing' || bgValue) ? (
                 <motion.div 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -909,8 +909,12 @@ export default function FunCalculatorPage() {
                     Calculation Results
                   </div>
                   <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div className="font-bold flex items-center"><span className="mr-1">📈</span> Blood Glucose:</div>
-                    <div className="bg-gray-800 px-2 py-1 rounded font-medium text-cyan-300">{bgValue} {profile?.bgUnit || 'mmol/L'}</div>
+                    {mealType !== 'longActing' && (
+                      <>
+                        <div className="font-bold flex items-center"><span className="mr-1">📈</span> Blood Glucose:</div>
+                        <div className="bg-gray-800 px-2 py-1 rounded font-medium text-cyan-300">{bgValue} {profile?.bgUnit || 'mmol/L'}</div>
+                      </>
+                    )}
                     
                     {carbValue !== null && (
                       <>
@@ -922,8 +926,12 @@ export default function FunCalculatorPage() {
                       </>
                     )}
                     
-                    <div className="font-bold flex items-center"><span className="mr-1">⚙️</span> Correction:</div>
-                    <div className="bg-gray-800 px-2 py-1 rounded font-medium text-blue-300">{insulinCalcResult.correctionInsulin.toFixed(1)} units</div>
+                    {mealType !== 'longActing' && (
+                      <>
+                        <div className="font-bold flex items-center"><span className="mr-1">⚙️</span> Correction:</div>
+                        <div className="bg-gray-800 px-2 py-1 rounded font-medium text-blue-300">{insulinCalcResult.correctionInsulin.toFixed(1)} units</div>
+                      </>
+                    )}
                     
                     <div className="font-bold flex items-center text-lg col-span-2 mt-2 border-t border-gray-600 pt-2 justify-center">
                       <span className="mr-2">💪</span> Total Insulin
