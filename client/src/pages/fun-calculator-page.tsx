@@ -170,16 +170,25 @@ export default function FunCalculatorPage() {
     }
   };
 
+  // For tracking calculator history
+  const [calculationHistory, setCalculationHistory] = useState<string[]>([]);
+
   // Handle operators (+, -, *, /)
   const handleOperator = (nextOperator: string) => {
     const inputValue = parseFloat(displayValue);
 
     if (previousValue === null) {
       setPreviousValue(inputValue);
+      // Add first number to history
+      setCalculationHistory([...calculationHistory, inputValue.toString()]);
     } else if (operation) {
       const result = performCalculation(operation, previousValue, inputValue);
       setDisplayValue(String(result));
       setPreviousValue(result);
+      
+      // Add calculation to history
+      const operatorSymbol = operation === '+' ? '+' : operation === '-' ? '-' : operation === '*' ? '×' : '÷';
+      setCalculationHistory([...calculationHistory, `${operatorSymbol} ${inputValue}`, `= ${result}`]);
     }
 
     setWaitingForSecondOperand(true);
@@ -221,6 +230,10 @@ export default function FunCalculatorPage() {
       setPreviousValue(null);
       setOperation(null);
       setWaitingForSecondOperand(false);
+      
+      // Add final calculation to history
+      const operatorSymbol = operation === '+' ? '+' : operation === '-' ? '-' : operation === '*' ? '×' : '÷';
+      setCalculationHistory([...calculationHistory, `${operatorSymbol} ${inputValue}`, `= ${result}`]);
 
       // No longer setting carb value here - user will press Carb Total button again to set
     } else if (wizardStep === 'carbs' && !carbValue && !carbTotalMode) {
@@ -238,6 +251,7 @@ export default function FunCalculatorPage() {
   const clearEntry = () => {
     setDisplayValue("0");
     setWaitingForSecondOperand(false);
+    setCalculationHistory([]);
   };
   
   // All clear (reset calculator completely)
@@ -247,6 +261,7 @@ export default function FunCalculatorPage() {
     setPreviousValue(null);
     setOperation(null);
     setWaitingForSecondOperand(false);
+    setCalculationHistory([]);
     
     // Reset wizard to initial state
     setWizardStep('purpose');
@@ -422,8 +437,11 @@ export default function FunCalculatorPage() {
         title: "Carb Total Mode Activated",
         description: "Use calculator to add up carb values, then press Carb Total button again to set",
       });
-      // Clear calculator to start fresh
-      allClear();
+      // Clear display for calculation but keep wizard state and current BG
+      setDisplayValue("0");
+      setPreviousValue(null);
+      setOperation(null);
+      setWaitingForSecondOperand(false);
     } else {
       // If already in carb total mode, this will finalize the calculation
       const total = parseFloat(displayValue);
@@ -504,6 +522,12 @@ export default function FunCalculatorPage() {
               <div className="text-right text-3xl mt-2">
                 {displayValue === "Select Dosage Purpose" ? "" : displayValue}
               </div>
+              {/* Calculation history */}
+              {calculationHistory.length > 0 && (
+                <div className="text-xs text-gray-400 mt-2 text-right">
+                  {calculationHistory.join(' ')}
+                </div>
+              )}
             </div>
           </div>
           
