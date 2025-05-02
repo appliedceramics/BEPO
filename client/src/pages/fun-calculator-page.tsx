@@ -953,7 +953,7 @@ export default function FunCalculatorPage() {
                         // This would actually save to API in a real implementation
                         toast({
                           title: "Insulin Logged & Contacts Notified",
-                          description: `Logged ${insulinCalcResult.totalInsulin.toFixed(1)} units and notified contacts`
+                          description: `Logged ${typeof insulinCalcResult.totalInsulin === 'number' ? insulinCalcResult.totalInsulin.toFixed(1) : insulinCalcResult.totalInsulin} units and notified contacts`
                         });
                         
                         // Reset display with success message
@@ -967,7 +967,7 @@ export default function FunCalculatorPage() {
                       transition={{ repeat: Infinity, duration: 2 }}
                     >
                       <div className="flex flex-col">
-                        <span className="text-white">{insulinCalcResult.totalInsulin.toFixed(1)} units</span>
+                        <span className="text-white">{typeof insulinCalcResult.totalInsulin === 'number' ? insulinCalcResult.totalInsulin.toFixed(1) : insulinCalcResult.totalInsulin} units</span>
                         <div className="flex items-center justify-center mt-1">
                           <span className="text-xs text-white/90 font-medium bg-green-700/50 px-2 py-1 rounded-full inline-flex items-center">
                             <span className="mr-1">👆</span> Click to Log & Notify
