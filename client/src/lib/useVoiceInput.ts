@@ -51,7 +51,8 @@ const commandKeywords: Record<string, string> = {
   'dinner': 'other',
   'bedtime': 'bedtime',
   'long acting': 'longActing',
-  'basal': 'longActing'
+  'basal': 'longActing',
+  'carb total': 'carbTotal'
 };
 
 // We'll use the Web Audio API for generating sounds in the application
@@ -212,6 +213,33 @@ export function extractNumber(transcript: string): number | null {
   }
   
   return null;
+}
+
+// Helper function to calculate the sum of a series of numbers separated by 'plus'
+export function calculateCarbTotal(transcript: string): number | null {
+  // Convert to lowercase and ensure consistent spacing
+  const text = transcript.toLowerCase();
+  
+  // Check if the text includes 'carb total' command
+  if (!text.includes('carb total')) {
+    return null;
+  }
+  
+  // Extract all numbers from the text
+  const numberPattern = /\d+\.?\d*/g;
+  const matches = text.match(numberPattern);
+  
+  if (!matches || matches.length === 0) {
+    return null;
+  }
+  
+  // Calculate the sum of all numbers
+  let total = 0;
+  matches.forEach(match => {
+    total += parseFloat(match);
+  });
+  
+  return total;
 }
 
 // Helper function to extract operation from transcript

@@ -12,6 +12,7 @@ import { MealType, Profile } from "@shared/schema";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { VoiceInput } from "../components/VoiceInput";
+import { extractNumber, extractOperation, extractCommand, calculateCarbTotal } from "@/lib/useVoiceInput";
 import { TypingEffect } from "../components/TypingEffect";
 import { VoiceInstructions } from "../components/VoiceInstructions";
 
