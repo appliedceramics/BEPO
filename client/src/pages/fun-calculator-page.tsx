@@ -822,7 +822,7 @@ export default function FunCalculatorPage() {
                     whileTap={{ scale: 0.95 }}
                   >÷</motion.button>
                   <motion.button 
-                    className="h-full hover:bg-green-700/40 text-white text-xl font-bold flex items-center justify-center"
+                    className="h-full bg-green-700/30 hover:bg-green-700/40 text-white text-xl font-bold flex items-center justify-center"
                     onClick={() => handleOperator("*")}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -875,11 +875,11 @@ export default function FunCalculatorPage() {
                   whileTap={{ scale: 0.95 }}
                 >3</motion.button>
                 <motion.button 
-                  className="bg-gradient-to-b from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
-                  onClick={() => handleOperator("-")}
+                  className="bg-gradient-to-b from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
+                  onClick={inputDecimal}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                >-</motion.button>
+                >.</motion.button>
                 
                 {/* Row 4 */}
                 <motion.button 
@@ -889,11 +889,11 @@ export default function FunCalculatorPage() {
                   whileTap={{ scale: 0.95 }}
                 >0</motion.button>
                 <motion.button 
-                  className="bg-gradient-to-b from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
-                  onClick={inputDecimal}
+                  className="bg-gradient-to-b from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
+                  onClick={() => handleOperator("-")}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                >.</motion.button>
+                >-</motion.button>
                 <motion.button 
                   className="bg-gradient-to-b from-purple-600 to-fuchsia-700 hover:from-purple-700 hover:to-fuchsia-800 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
                   onClick={handleEquals}
