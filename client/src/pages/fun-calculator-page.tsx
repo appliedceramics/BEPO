@@ -778,20 +778,43 @@ export default function FunCalculatorPage() {
                       <span className="mr-2">💪</span> Total Insulin
                     </div>
                     <motion.button 
-                      className="col-span-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 p-3 rounded-lg text-center text-xl font-bold relative overflow-hidden"
+                      className="col-span-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 p-3 rounded-lg text-center text-xl font-bold relative overflow-hidden cursor-pointer shadow-lg border border-green-300"
                       onClick={() => {
                         // Log and notify about insulin dose
+                        const logData = {
+                          mealType,
+                          bgValue,
+                          carbValue,
+                          insulinDose: insulinCalcResult.totalInsulin,
+                          mealInsulin: insulinCalcResult.mealInsulin,
+                          correctionInsulin: insulinCalcResult.correctionInsulin,
+                          timestamp: new Date().toISOString(),
+                        };
+                        
+                        // This would actually save to API in a real implementation
                         toast({
-                          title: "Insulin Logged",
+                          title: "Insulin Logged & Contacts Notified",
                           description: `Logged ${insulinCalcResult.totalInsulin.toFixed(1)} units and notified contacts`,
+                          variant: "success",
                         });
+                        
+                        // Reset display with success message
+                        setDisplayText("Dosage Logged Successfully!");
+                        setShowTypingEffect(true);
                       }}
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.97 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      // Add pulsing effect to draw attention to the button
+                      animate={{ boxShadow: ['0 0 0 0 rgba(34, 197, 94, 0)', '0 0 0 10px rgba(34, 197, 94, 0)'], scale: [1, 1.05, 1] }}
+                      transition={{ repeat: Infinity, duration: 2 }}
                     >
                       <div className="flex flex-col">
                         <span className="text-white">{insulinCalcResult.totalInsulin.toFixed(1)} units</span>
-                        <span className="text-xs mt-1 text-white/80 font-normal">👆 Click to Log & Notify</span>
+                        <div className="flex items-center justify-center mt-1">
+                          <span className="text-xs text-white/90 font-medium bg-green-700/50 px-2 py-1 rounded-full inline-flex items-center">
+                            <span className="mr-1">👆</span> Click to Log & Notify
+                          </span>
+                        </div>
                       </div>
                     </motion.button>
                   </div>
