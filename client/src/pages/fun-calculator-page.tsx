@@ -31,7 +31,12 @@ export default function FunCalculatorPage() {
   const [carbTotalMode, setCarbTotalMode] = useState(false);
   
   // Wizard state
-  const [wizardStep, setWizardStep] = useState<'purpose' | 'bg' | 'carbs' | 'done'>('purpose');
+  const [wizardStep, setWizardStep] = useState<'purpose' | 'bg' | 'carbs' | 'done' | 'ai-search'>('purpose');
+  
+  // State for AI food search
+  const [foodSearchQuery, setFoodSearchQuery] = useState<string>('');
+  const [foodSearchResults, setFoodSearchResults] = useState<any[]>([]);
+  const [isFoodSearchLoading, setIsFoodSearchLoading] = useState<boolean>(false);
   const [displayText, setDisplayText] = useState("Why are you taking insulin?");
   const [typingText, setTypingText] = useState("");
   const [showTypingEffect, setShowTypingEffect] = useState(true);
@@ -618,18 +623,70 @@ export default function FunCalculatorPage() {
     }
   };
 
-  // Validate Total For Me button
-  const handleTotalForMe = () => {
-    if (!carbTotalMode) {
+  // AI food search functionality
+  const { data: foodSuggestions, isLoading: aiLoading, refetch: searchFood } = useQuery<any>({ 
+    queryKey: ['/api/food-suggestions', foodSearchQuery],
+    queryFn: async () => {
+      if (!foodSearchQuery) return [];
+      const response = await fetch('/api/food-suggestions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: foodSearchQuery })
+      });
+      return response.json();
+    },
+    enabled: false, // We'll trigger manually with refetch
+  });
+
+  // Handle search form submit
+  const handleFoodSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (foodSearchQuery.trim().length < 2) {
       toast({
-        title: "Action Required",
-        description: "Please press 'Carb Total' button first",
-        variant: "destructive",
+        title: "Search Query Required",
+        description: "Please enter at least 2 characters",
+        variant: "destructive"
       });
       return;
     }
+    setIsFoodSearchLoading(true);
+    await searchFood();
+    setIsFoodSearchLoading(false);
+  };
+  
+  // Handle AI Food Search button
+  const openAIFoodSearch = () => {
+    // Clear previous search results
+    setFoodSearchQuery('');
+    setFoodSearchResults([]);
     
-    calculateTotalForMe();
+    // Update UI state
+    setWizardStep('ai-search');
+    setDisplayText("Search for foods to find their carb content");
+    setShowTypingEffect(true);
+    
+    toast({
+      title: "AI Food Search",
+      description: "Enter a food description to get carb values"
+    });
+  };
+  
+  // Handle food selection from search
+  const handleFoodSelection = (food: any) => {
+    if (food && food.portions && food.portions.medium) {
+      // Set the carb value from the selected food
+      const carbValue = food.portions.medium.carbValue;
+      setCarbValue(carbValue);
+      setDisplayValue(carbValue.toString());
+      
+      // Update wizard state
+      setWizardStep('done');
+      
+      toast({
+        title: "Food Selected",
+        description: `Added ${food.name} (${carbValue}g carbs)`,
+      });
+    }
   };
 
   if (profileLoading || settingsLoading) {
@@ -648,6 +705,91 @@ export default function FunCalculatorPage() {
       <Navigation />
       
       <div className="flex-1 flex justify-center items-center p-4 bg-gradient-to-b from-blue-50 to-purple-50">
+        {/* Food search dialog */}
+        {wizardStep === 'ai-search' && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-gray-800 rounded-lg shadow-xl w-full max-w-md overflow-hidden">
+              <div className="bg-gradient-to-r from-teal-600 to-emerald-600 p-4">
+                <h3 className="text-xl font-bold text-white">AI Food Search</h3>
+              </div>
+              
+              <div className="p-4">
+                <form onSubmit={handleFoodSearch} className="mb-4">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={foodSearchQuery}
+                      onChange={(e) => setFoodSearchQuery(e.target.value)}
+                      placeholder="Search for food (e.g., 'apple', 'pizza slice')"
+                      className="flex-1 bg-gray-700 text-white border border-gray-600 rounded-md px-3 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                    />
+                    <button 
+                      type="submit" 
+                      className="bg-teal-600 hover:bg-teal-700 text-white px-4 rounded-md" 
+                      disabled={isFoodSearchLoading}
+                    >
+                      {isFoodSearchLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Search'}
+                    </button>
+                  </div>
+                </form>
+                
+                <div className="max-h-64 overflow-y-auto">
+                  {foodSuggestions && foodSuggestions.length > 0 ? (
+                    <div className="space-y-3">
+                      {foodSuggestions.map((food: any, index: number) => (
+                        <div 
+                          key={index} 
+                          className="bg-gray-700 rounded-lg p-3 cursor-pointer hover:bg-gray-600"
+                          onClick={() => handleFoodSelection(food)}
+                        >
+                          <div className="font-medium text-white">{food.name}</div>
+                          <div className="text-gray-300 text-sm">{food.description}</div>
+                          <div className="grid grid-cols-3 gap-2 mt-2 text-sm">
+                            <div className="bg-gray-800 p-2 rounded text-center">
+                              <div className="text-gray-400">Small</div>
+                              <div className="text-amber-400">{food.portions.small.carbValue}g</div>
+                            </div>
+                            <div className="bg-gray-800 p-2 rounded text-center">
+                              <div className="text-gray-400">Medium</div>
+                              <div className="text-amber-400">{food.portions.medium.carbValue}g</div>
+                            </div>
+                            <div className="bg-gray-800 p-2 rounded text-center">
+                              <div className="text-gray-400">Large</div>
+                              <div className="text-amber-400">{food.portions.large.carbValue}g</div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : isFoodSearchLoading ? (
+                    <div className="text-center py-6 text-gray-400">Searching...</div>
+                  ) : foodSearchQuery && foodSuggestions?.length === 0 ? (
+                    <div className="text-center py-6 text-gray-400">No foods found for '{foodSearchQuery}'</div>
+                  ) : (
+                    <div className="text-center py-6 text-gray-400">Enter a food to get AI-powered carb information</div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="bg-gray-900 p-4 flex justify-between">
+                <button 
+                  className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md" 
+                  onClick={() => setWizardStep('carbs')}
+                >
+                  Cancel
+                </button>
+                <button 
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md"
+                  onClick={() => setWizardStep('carbs')}
+                  disabled={!foodSuggestions || foodSuggestions.length === 0}
+                >
+                  Manual Entry
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <div className="w-full max-w-md bg-gray-800 rounded-3xl shadow-2xl overflow-hidden">
           {/* Calculator header - TITLE */}
           <div className="bg-gradient-to-r from-blue-600 to-blue-800 p-3 text-center">
@@ -830,7 +972,7 @@ export default function FunCalculatorPage() {
                 </motion.div>
               </div>
               
-              {/* Clear and Total For Me - Third row */}
+              {/* Clear and AI Food Search - Third row */}
               <div className="grid grid-cols-7 gap-2 mb-2">
                 <motion.button 
                   className="bg-gradient-to-r from-slate-800 to-red-900 hover:from-slate-700 hover:to-red-800 text-white text-xs font-bold rounded-lg h-10 col-span-2 flex items-center justify-center shadow-lg"
@@ -849,12 +991,12 @@ export default function FunCalculatorPage() {
                   <span className="mr-1">🗑️</span> C
                 </motion.button>
                 <motion.button
-                  className={`${carbTotalMode ? 'bg-gradient-to-r from-purple-600 to-fuchsia-600' : 'bg-gradient-to-r from-purple-500 to-fuchsia-500'} hover:from-purple-700 hover:to-fuchsia-700 text-white text-xs font-bold rounded-lg h-10 col-span-3 flex items-center justify-center shadow-lg`}
-                  onClick={handleTotalForMe}
+                  className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-xs font-bold rounded-lg h-10 col-span-3 flex items-center justify-center shadow-lg"
+                  onClick={openAIFoodSearch}
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                 >
-                  <span className="mr-1">🧩</span> Total For Me
+                  <span className="mr-1">🔍</span> AI Food Search
                 </motion.button>
               </div>
               
