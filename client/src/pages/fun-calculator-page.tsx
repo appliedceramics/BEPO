@@ -338,7 +338,7 @@ export default function FunCalculatorPage() {
         console.log('Calculator detected input change - mealType:', mealType, 'carbValue:', carbValue, 'bgValue:', bgValue);
 
         // Calculate insulin doses using default values if settings are missing
-        const result = calculateInsulin({
+        const calculationParams = {
           mealType: mealType as MealType,
           bgValue: bgValue,
           carbValue: carbValue || undefined,
@@ -346,7 +346,14 @@ export default function FunCalculatorPage() {
           targetBgValue: settings?.targetBgValue || 5.6,
           correctionFactor: settings?.correctionFactor || 1.0,
           insulinSensitivityFactor: settings?.insulinSensitivityFactor || 35
-        });
+        };
+
+        // For long-acting insulin, add the fixed dosage from settings
+        if (mealType === 'longActing' && settings?.longActingDosage) {
+          calculationParams.longActingDosage = settings.longActingDosage;
+        }
+
+        const result = calculateInsulin(calculationParams);
 
         // Set calculated results
         setInsulinCalcResult({
