@@ -20,12 +20,15 @@ export const VoiceInstructions: React.FC<VoiceInstructionsProps> = ({ isVisible,
       <>
         <div className="font-bold text-amber-300 mb-1">Voice Carb Counting:</div>
         <div className="text-sm">
-          Say: <span className="bg-gray-700 px-1 rounded">number</span> +
-          <span className="bg-gray-700 px-1 rounded">number</span> +
-          <span className="bg-gray-700 px-1 rounded">number</span>
+          Say: <span className="bg-gray-700 px-1 rounded">15</span> plus
+          <span className="bg-gray-700 px-1 rounded">20</span> plus
+          <span className="bg-gray-700 px-1 rounded">10</span>
+        </div>
+        <div className="text-xs mt-1 text-green-300">
+          Example: "15 plus 20 plus 10 carb total"
         </div>
         <div className="text-xs mt-1">
-          Finish by saying: <span className="bg-amber-800/60 px-1 rounded">Carb Total</span> or press the button
+          Finish by saying: <span className="bg-amber-800/60 px-1 rounded">Carb Total</span> to get the sum
         </div>
       </>
     );

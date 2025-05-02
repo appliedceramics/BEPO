@@ -463,63 +463,94 @@ export default function FunCalculatorPage() {
     setTimeout(() => {
       setShowVoiceInstructions(false);
     }, 10000);
-    // Check if browser supports speech recognition
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      // @ts-ignore - Speech recognition API not fully typed in TypeScript
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognition = new SpeechRecognition();
-      
-      recognition.lang = 'en-US';
-      recognition.interimResults = false;
-      
-      recognition.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        // Try to parse number from speech
-        const match = transcript.match(/\d+(\.\d+)?/);
-        if (match) {
-          const value = parseFloat(match[0]);
-          if (!isNaN(value)) {
-            // Update calculator display
-            setDisplayValue(value.toString());
-            
-            // Set the appropriate value based on input type
-            if (inputType === 'bg') {
-              setBgValue(value);
-              toast({
-                title: "Voice Input: Blood Glucose",
-                description: `Set to ${value} ${profile?.bgUnit || 'mmol/L'}`,
-              });
-            } else {
-              setCarbValue(value);
-              toast({
-                title: "Voice Input: Carbs",
-                description: `Set to ${value}g`,
-              });
-            }
-          }
+  };
+  
+  // Handle voice input commands and operations
+  const handleVoiceCommand = (command: string) => {
+    if (command === 'carbTotal' && voiceInputMode === 'carb-total') {
+      // Process all the numbers that have been spoken so far
+      // and add them up for the carb total
+      const totalValue = calculateFromDisplay();
+      if (totalValue !== null) {
+        setCarbValue(totalValue);
+        setDisplayValue(totalValue.toString());
+        toast({
+          title: "Voice Carb Total",
+          description: `Added up to ${totalValue}g carbs`,
+        });
+      }
+    }
+  };
+  
+  // Process voice input for numbers
+  const handleVoiceNumber = (number: string) => {
+    // Add the number to the display
+    if (voiceInputMode === 'bg') {
+      setDisplayValue(number);
+    } else if (voiceInputMode === 'carb-total') {
+      // In carb-total mode, we add numbers
+      if (displayValue === "0" || waitingForSecondOperand) {
+        setDisplayValue(number);
+        setWaitingForSecondOperand(false);
+      } else {
+        // Append to existing display
+        setDisplayValue(displayValue + number);
+      }
+    }
+  };
+  
+  // Process voice operations like "plus"
+  const handleVoiceOperation = (op: string) => {
+    if (voiceInputMode === 'carb-total' && op === '+') {
+      handleOperator('+');
+    }
+  };
+  
+  // Calculate the sum from the current calculation state
+  const calculateFromDisplay = (): number | null => {
+    try {
+      // If we have a previous value and an operation
+      if (previousValue !== null && operation === '+') {
+        const inputValue = parseFloat(displayValue);
+        if (!isNaN(inputValue)) {
+          return previousValue + inputValue;
         }
-      };
+      }
       
-      recognition.onend = () => {
-        toast({
-          title: "Voice Input Ended",
-          description: inputType === 'bg' ? "Blood glucose voice input complete" : "Carbs voice input complete",
-        });
-      };
+      // If we just have a single value
+      const value = parseFloat(displayValue);
+      if (!isNaN(value)) {
+        return value;
+      }
       
-      recognition.onerror = (event: any) => {
-        toast({
-          title: "Voice Input Error",
-          description: event.error,
-          variant: "destructive",
-        });
-      };
-      
-      // Start listening
-      recognition.start();
+      return null;
+    } catch (error) {
+      console.error('Error calculating from display:', error);
+      return null;
+    }
+  };
+  
+  // Component to handle voice input for the calculator
+  const VoiceInputComponent = () => {
+    return (
+      <VoiceInput
+        onNumberInput={handleVoiceNumber}
+        onOperationInput={handleVoiceOperation}
+        onCommandInput={handleVoiceCommand}
+        enabled={voiceInputMode !== 'none'}
+      />
+    );
+  };
+  
+  // Check if browser supports speech recognition
+  const hasSpeechRecognition = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+  
+  // Toast notification for voice input start
+  const notifyVoiceInputStarted = () => {
+    if (hasSpeechRecognition) {
       toast({
         title: "Voice Input Started",
-        description: inputType === 'bg' ? "Speak blood glucose value" : "Speak carbohydrate value",
+        description: voiceInputMode === 'bg' ? "Speak blood glucose value" : "Speak carbohydrate value",
       });
     } else {
       toast({
@@ -651,15 +682,10 @@ export default function FunCalculatorPage() {
               <div className="flex justify-between items-center mt-2">
                 <div className="flex items-center">
                   <VoiceInput 
-                    onNumberInput={(value) => inputDigit(value)}
-                    onOperationInput={(op) => handleOperator(op)}
-                    onCommandInput={(command) => {
-                      if (command === 'clear') {
-                        clearEntry();
-                      } else if (command === 'first' || command === 'other' || command === 'bedtime' || command === 'longActing') {
-                        setMealType(command as MealType);
-                      }
-                    }}
+                    onNumberInput={handleVoiceNumber}
+                    onOperationInput={handleVoiceOperation}
+                    onCommandInput={handleVoiceCommand}
+                    enabled={voiceInputMode !== 'none'}
                   />
                 </div>
                 <div className="text-right text-3xl flex-grow">

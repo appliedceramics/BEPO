@@ -225,21 +225,56 @@ export function calculateCarbTotal(transcript: string): number | null {
     return null;
   }
   
-  // Extract all numbers from the text
-  const numberPattern = /\d+\.?\d*/g;
-  const matches = text.match(numberPattern);
+  // We need to specifically look for numbers separated by 'plus' or 'and'
+  // First, split the text to get the part after 'carb total' if it exists
+  const parts = text.split('carb total');
+  const relevantText = parts.length > 1 ? parts[1] : text;
   
-  if (!matches || matches.length === 0) {
-    return null;
+  // Two approaches:
+  // 1. Try to parse expressions like "4 plus 8 plus 12"
+  // Extract numbers and check if they are separated by plus
+  const numbers: number[] = [];
+  const numberMatches = relevantText.match(/\d+\.?\d*/g);
+  
+  // If we have number matches, check if they're separated by "plus"
+  if (numberMatches && numberMatches.length > 0) {
+    // Check if "plus" appears between numbers
+    const hasPlusBetweenNumbers = relevantText.match(/\d+\s+(plus|and)\s+\d+/i);
+    
+    if (hasPlusBetweenNumbers) {
+      // Build a proper expression by replacing "plus" with "+" and evaluating
+      let expression = relevantText;
+      expression = expression.replace(/plus/gi, '+').replace(/and/gi, '+');
+      
+      // Extract all numbers from the expression
+      const numberPattern = /\d+\.?\d*/g;
+      const matches = expression.match(numberPattern);
+      
+      if (matches && matches.length > 0) {
+        // Parse and sum the numbers
+        let total = 0;
+        matches.forEach(match => {
+          total += parseFloat(match);
+        });
+        return total;
+      }
+    } else {
+      // If no "plus" found, just return the last number
+      return parseFloat(numberMatches[numberMatches.length - 1]);
+    }
   }
   
-  // Calculate the sum of all numbers
-  let total = 0;
-  matches.forEach(match => {
-    total += parseFloat(match);
-  });
+  // 2. Fallback: Simply extract all numbers and sum them
+  const allNumberMatches = text.match(/\d+\.?\d*/g);
+  if (allNumberMatches && allNumberMatches.length > 0) {
+    let total = 0;
+    allNumberMatches.forEach(match => {
+      total += parseFloat(match);
+    });
+    return total;
+  }
   
-  return total;
+  return null;
 }
 
 // Helper function to extract operation from transcript
