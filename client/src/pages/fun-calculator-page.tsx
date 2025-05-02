@@ -68,7 +68,7 @@ export default function FunCalculatorPage() {
   const [foodSearchQuery, setFoodSearchQuery] = useState<string>('');
   const [foodSearchResults, setFoodSearchResults] = useState<any[]>([]);
   const [isFoodSearchLoading, setIsFoodSearchLoading] = useState<boolean>(false);
-  const [displayText, setDisplayText] = useState("Select Dosage Type");
+  const [displayText, setDisplayText] = useState("");
   const [typingText, setTypingText] = useState("");
   const [showTypingEffect, setShowTypingEffect] = useState(true);
   const [bgButtonActive, setBgButtonActive] = useState(false);
@@ -129,6 +129,15 @@ export default function FunCalculatorPage() {
     queryFn: getQueryFn({ on401: "returnNull" }),
     enabled: !!user,
   });
+  
+  // Set initial welcome message when profile loads
+  useEffect(() => {
+    if (profile && wizardStep === 'purpose') {
+      const welcomeMessage = `Welcome ${profile.name}...Select your dosage type...`;
+      setDisplayText(welcomeMessage);
+      setShowTypingEffect(true);
+    }
+  }, [profile, wizardStep]);
   
   // Mutation for saving insulin log
   const { toast: showToast } = useToast();
@@ -409,7 +418,11 @@ export default function FunCalculatorPage() {
     
     // Reset wizard to initial state
     setWizardStep('purpose');
-    setDisplayText("Select Dosage Type");
+    // Get personalized welcome message with username
+    const welcomeMessage = profile ? 
+      `Welcome ${profile.name}...Select your dosage type...` : 
+      "Welcome...Select your dosage type...";
+    setDisplayText(welcomeMessage);
     setShowTypingEffect(true);
     
     // Clear blood glucose and carb values
@@ -426,6 +439,10 @@ export default function FunCalculatorPage() {
     
     // Exit carb total mode if active
     setCarbTotalMode(false);
+    
+    // Reset log button state
+    setLogSuccess(false);
+    setIsLoggingDose(false);
     
     toast();
   };
