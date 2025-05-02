@@ -10,9 +10,10 @@ import { calculateInsulin, CalculationResult } from "@/lib/insulinCalculator";
 import { Loader2, Mic } from "lucide-react";
 import { MealType, Profile } from "@shared/schema";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { VoiceInput } from "../components/VoiceInput";
 import { TypingEffect } from "../components/TypingEffect";
+import { VoiceInstructions } from "../components/VoiceInstructions";
 
 export default function FunCalculatorPage() {
   const { user } = useAuth();
@@ -37,6 +38,10 @@ export default function FunCalculatorPage() {
   const [carbButtonActive, setCarbButtonActive] = useState(false);
   const [purposeButtonsActive, setPurposeButtonsActive] = useState(true);
   const typewriterRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Voice input states
+  const [voiceInputMode, setVoiceInputMode] = useState<'none' | 'bg' | 'carb-total'>('none');
+  const [showVoiceInstructions, setShowVoiceInstructions] = useState(false);
   
   // Typewriter effect for display text
   useEffect(() => {
@@ -895,7 +900,13 @@ export default function FunCalculatorPage() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >3</motion.button>
-                <div></div>
+                <motion.button 
+                  className="bg-gradient-to-b from-sky-600 to-sky-700 hover:from-sky-500 hover:to-sky-600 text-white text-3xl font-bold rounded-lg flex items-center justify-center shadow-md"
+                  onClick={() => handleOperator("+")}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  style={{ gridRow: '3 / span 2', height: '100%', minHeight: '6rem' }}
+                >+</motion.button>
                 
                 {/* Row 4 */}
                 <motion.button 
