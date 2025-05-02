@@ -471,30 +471,54 @@ export default function FunCalculatorPage() {
             <div className="flex flex-col gap-2">
               {/* Purpose of Dosage buttons - First row */}
               <div className="grid grid-cols-4 gap-2 mb-2">
-                <button 
-                  className={`${mealType === "first" ? 'bg-blue-600' : 'bg-blue-400'} hover:bg-blue-500 text-white text-sm font-bold rounded-lg h-14 flex items-center justify-center shadow-md`}
+                <motion.button 
+                  className={`${mealType === "first" ? 'bg-gradient-to-br from-blue-500 to-purple-600' : 'bg-gradient-to-br from-blue-400 to-purple-500'} 
+                    hover:from-blue-600 hover:to-purple-700 text-white text-sm font-bold rounded-lg h-16 
+                    flex flex-col items-center justify-center shadow-lg border-2 
+                    ${mealType === "first" ? 'border-yellow-300' : 'border-transparent'}`}
                   onClick={() => setMealType("first" as MealType)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  <span className="text-center">Meal 1</span>
-                </button>
-                <button 
-                  className={`${mealType === "other" ? 'bg-blue-600' : 'bg-blue-400'} hover:bg-blue-500 text-white text-sm font-bold rounded-lg h-14 flex items-center justify-center shadow-md`}
+                  <span className="text-center font-bold">Meal 1</span>
+                  <span className="text-xs mt-1">🍳 Breakfast</span>
+                </motion.button>
+                <motion.button 
+                  className={`${mealType === "other" ? 'bg-gradient-to-br from-indigo-500 to-pink-500' : 'bg-gradient-to-br from-indigo-400 to-pink-400'} 
+                    hover:from-indigo-600 hover:to-pink-600 text-white text-sm font-bold rounded-lg h-16 
+                    flex flex-col items-center justify-center shadow-lg border-2 
+                    ${mealType === "other" ? 'border-yellow-300' : 'border-transparent'}`}
                   onClick={() => setMealType("other" as MealType)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  <span className="text-center">Other Meal</span>
-                </button>
-                <button 
-                  className={`${mealType === "bedtime" ? 'bg-blue-600' : 'bg-blue-400'} hover:bg-blue-500 text-white text-sm font-bold rounded-lg h-14 flex items-center justify-center shadow-md`}
+                  <span className="text-center font-bold">Other Meal</span>
+                  <span className="text-xs mt-1">🍔 Lunch/Dinner</span>
+                </motion.button>
+                <motion.button 
+                  className={`${mealType === "bedtime" ? 'bg-gradient-to-br from-blue-700 to-indigo-900' : 'bg-gradient-to-br from-blue-600 to-indigo-800'} 
+                    hover:from-blue-800 hover:to-indigo-900 text-white text-sm font-bold rounded-lg h-16 
+                    flex flex-col items-center justify-center shadow-lg border-2 
+                    ${mealType === "bedtime" ? 'border-yellow-300' : 'border-transparent'}`}
                   onClick={() => setMealType("bedtime" as MealType)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  <span className="text-center">Bedtime</span>
-                </button>
-                <button 
-                  className={`${mealType === "longActing" ? 'bg-green-600' : 'bg-green-500'} hover:bg-green-600 text-white text-sm font-bold rounded-lg h-14 flex items-center justify-center shadow-md`}
+                  <span className="text-center font-bold">Bedtime</span>
+                  <span className="text-xs mt-1">😴 Evening</span>
+                </motion.button>
+                <motion.button 
+                  className={`${mealType === "longActing" ? 'bg-gradient-to-br from-green-600 to-emerald-700' : 'bg-gradient-to-br from-green-500 to-emerald-600'} 
+                    hover:from-green-700 hover:to-emerald-800 text-white text-sm font-bold rounded-lg h-16 
+                    flex flex-col items-center justify-center shadow-lg border-2 
+                    ${mealType === "longActing" ? 'border-yellow-300' : 'border-transparent'}`}
                   onClick={() => setMealType("longActing" as MealType)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  <span className="text-center">24-Hour</span>
-                </button>
+                  <span className="text-center font-bold">24-Hour</span>
+                  <span className="text-xs mt-1">⏱️ Long Acting</span>
+                </motion.button>
               </div>
               
               {/* Current BG and Carb Total - Second row - Combined buttons with voice input */}
@@ -506,18 +530,19 @@ export default function FunCalculatorPage() {
                 >
                   <button 
                     className={cn(
-                      "bg-teal-500 hover:bg-teal-600 text-white font-bold rounded-lg h-full shadow-md w-full",
+                      "bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white font-bold rounded-lg h-full shadow-lg w-full",
                       "flex flex-col relative overflow-hidden",
-                      bgButtonActive && "ring-2 ring-white ring-opacity-50"
+                      bgButtonActive && "ring-2 ring-yellow-300 ring-opacity-100"
                     )}
                     onClick={setAsBloodGlucose}
                   >
                     <div className="h-full flex">
                       <div className="flex-grow flex items-center justify-center text-sm">
+                        <span className="mr-1">📊</span> 
                         Current BG {bgValue ? `(${bgValue})` : ''}
                       </div>
                       <div 
-                        className="bg-teal-600 w-12 flex items-center justify-center text-xs cursor-pointer"
+                        className="bg-gradient-to-b from-cyan-600 to-teal-700 w-12 flex items-center justify-center text-xs cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
                           startVoiceInput('bg');
@@ -539,18 +564,19 @@ export default function FunCalculatorPage() {
                 >
                   <button 
                     className={cn(
-                      `${carbTotalMode ? 'bg-yellow-600' : 'bg-yellow-500'} hover:bg-yellow-600 text-white font-bold rounded-lg h-full shadow-md w-full`,
+                      `${carbTotalMode ? 'bg-gradient-to-r from-amber-500 to-yellow-500' : 'bg-gradient-to-r from-amber-400 to-yellow-400'} hover:from-amber-600 hover:to-yellow-600 text-white font-bold rounded-lg h-full shadow-lg w-full`,
                       "flex flex-col relative overflow-hidden",
-                      carbButtonActive && "ring-2 ring-white ring-opacity-50"
+                      carbButtonActive && "ring-2 ring-yellow-300 ring-opacity-100"
                     )}
                     onClick={toggleCarbTotalMode}
                   >
                     <div className="h-full flex">
                       <div className="flex-grow flex items-center justify-center text-sm">
+                        <span className="mr-1">🍽️</span>
                         Carb Total {carbValue ? `(${carbValue}g)` : ''}
                       </div>
                       <div 
-                        className="bg-yellow-600 w-12 flex items-center justify-center text-xs cursor-pointer"
+                        className="bg-gradient-to-b from-amber-600 to-yellow-700 w-12 flex items-center justify-center text-xs cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
                           startVoiceInput('carbs');
@@ -568,69 +594,166 @@ export default function FunCalculatorPage() {
               
               {/* Clear and Total For Me - Third row */}
               <div className="grid grid-cols-4 gap-2 mb-2">
-                <button 
-                  className="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-lg h-10 col-span-2 flex items-center justify-center shadow-md"
+                <motion.button 
+                  className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-xs font-bold rounded-lg h-10 col-span-2 flex items-center justify-center shadow-lg"
                   onClick={clearCalculator}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
                 >
-                  CLEAR ENTRY
-                </button>
-                <button
-                  className={`${carbTotalMode ? 'bg-purple-600' : 'bg-purple-500'} hover:bg-purple-600 text-white text-xs font-bold rounded-lg h-10 col-span-2 flex items-center justify-center shadow-md`}
+                  <span className="mr-1">🗑️</span> CLEAR ENTRY
+                </motion.button>
+                <motion.button
+                  className={`${carbTotalMode ? 'bg-gradient-to-r from-purple-600 to-fuchsia-600' : 'bg-gradient-to-r from-purple-500 to-fuchsia-500'} hover:from-purple-700 hover:to-fuchsia-700 text-white text-xs font-bold rounded-lg h-10 col-span-2 flex items-center justify-center shadow-lg`}
                   onClick={handleTotalForMe}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
                 >
-                  Total For Me
-                </button>
+                  <span className="mr-1">🧩</span> Total For Me
+                </motion.button>
               </div>
               
               {/* Number pad and operators - Compact layout */}
               <div className="grid grid-cols-4 gap-2">
-                <button className="bg-gray-600 hover:bg-gray-500 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => inputDigit("7")}>7</button>
-                <button className="bg-gray-600 hover:bg-gray-500 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => inputDigit("8")}>8</button>
-                <button className="bg-gray-600 hover:bg-gray-500 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => inputDigit("9")}>9</button>
-                <button className="bg-green-500 hover:bg-green-600 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => handleOperator("/")}>÷</button>
+                <motion.button 
+                  className="bg-gradient-to-b from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
+                  onClick={() => inputDigit("7")}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >7</motion.button>
+                <motion.button 
+                  className="bg-gradient-to-b from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
+                  onClick={() => inputDigit("8")}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >8</motion.button>
+                <motion.button 
+                  className="bg-gradient-to-b from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
+                  onClick={() => inputDigit("9")}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >9</motion.button>
+                <motion.button 
+                  className="bg-gradient-to-b from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
+                  onClick={() => handleOperator("/")}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >÷</motion.button>
                 
-                <button className="bg-gray-600 hover:bg-gray-500 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => inputDigit("4")}>4</button>
-                <button className="bg-gray-600 hover:bg-gray-500 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => inputDigit("5")}>5</button>
-                <button className="bg-gray-600 hover:bg-gray-500 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => inputDigit("6")}>6</button>
-                <button className="bg-green-500 hover:bg-green-600 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => handleOperator("*")}>×</button>
+                <motion.button 
+                  className="bg-gradient-to-b from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
+                  onClick={() => inputDigit("4")}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >4</motion.button>
+                <motion.button 
+                  className="bg-gradient-to-b from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
+                  onClick={() => inputDigit("5")}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >5</motion.button>
+                <motion.button 
+                  className="bg-gradient-to-b from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
+                  onClick={() => inputDigit("6")}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >6</motion.button>
+                <motion.button 
+                  className="bg-gradient-to-b from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
+                  onClick={() => handleOperator("*")}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >×</motion.button>
                 
-                <button className="bg-gray-600 hover:bg-gray-500 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => inputDigit("1")}>1</button>
-                <button className="bg-gray-600 hover:bg-gray-500 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => inputDigit("2")}>2</button>
-                <button className="bg-gray-600 hover:bg-gray-500 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => inputDigit("3")}>3</button>
-                <button className="bg-green-500 hover:bg-green-600 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => handleOperator("-")}>-</button>
+                <motion.button 
+                  className="bg-gradient-to-b from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
+                  onClick={() => inputDigit("1")}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >1</motion.button>
+                <motion.button 
+                  className="bg-gradient-to-b from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
+                  onClick={() => inputDigit("2")}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >2</motion.button>
+                <motion.button 
+                  className="bg-gradient-to-b from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
+                  onClick={() => inputDigit("3")}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >3</motion.button>
+                <motion.button 
+                  className="bg-gradient-to-b from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
+                  onClick={() => handleOperator("-")}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >-</motion.button>
                 
-                <button className="bg-gray-600 hover:bg-gray-500 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => inputDigit("0")}>0</button>
-                <button className="bg-gray-600 hover:bg-gray-500 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={inputDecimal}>.</button>
-                <button className="bg-purple-500 hover:bg-purple-600 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={handleEquals}>=</button>
-                <button className="bg-green-500 hover:bg-green-600 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => handleOperator("+")}>+</button>
+                <motion.button 
+                  className="bg-gradient-to-b from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
+                  onClick={() => inputDigit("0")}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >0</motion.button>
+                <motion.button 
+                  className="bg-gradient-to-b from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
+                  onClick={inputDecimal}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >.</motion.button>
+                <motion.button 
+                  className="bg-gradient-to-b from-purple-600 to-fuchsia-700 hover:from-purple-700 hover:to-fuchsia-800 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
+                  onClick={handleEquals}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >=</motion.button>
+                <motion.button 
+                  className="bg-gradient-to-b from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
+                  onClick={() => handleOperator("+")}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >+</motion.button>
               </div>
               
               {/* Insulin calculation results */}
               {mealType && bgValue ? (
-                <div className="bg-gray-700 p-3 rounded-lg shadow-inner mt-2 text-white">
-                  <div className="grid grid-cols-2 gap-1 text-sm">
-                    <div className="font-bold">Blood Glucose:</div>
-                    <div>{bgValue} {profile?.bgUnit || 'mmol/L'}</div>
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="bg-gradient-to-br from-gray-700 to-gray-800 p-4 rounded-lg shadow-lg mt-3 text-white border border-gray-600"
+                >
+                  <div className="text-center mb-2 text-lg font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text">
+                    Calculation Results
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div className="font-bold flex items-center"><span className="mr-1">📈</span> Blood Glucose:</div>
+                    <div className="bg-gray-800 px-2 py-1 rounded font-medium text-cyan-300">{bgValue} {profile?.bgUnit || 'mmol/L'}</div>
                     
                     {carbValue !== null && (
                       <>
-                        <div className="font-bold">Carbs:</div>
-                        <div>{carbValue}g</div>
+                        <div className="font-bold flex items-center"><span className="mr-1">🍞</span> Carbs:</div>
+                        <div className="bg-gray-800 px-2 py-1 rounded font-medium text-amber-300">{carbValue}g</div>
                         
-                        <div className="font-bold">Meal Insulin:</div>
-                        <div>{insulinCalcResult.mealInsulin.toFixed(1)} units</div>
+                        <div className="font-bold flex items-center"><span className="mr-1">💉</span> Meal Insulin:</div>
+                        <div className="bg-gray-800 px-2 py-1 rounded font-medium text-pink-300">{insulinCalcResult.mealInsulin.toFixed(1)} units</div>
                       </>
                     )}
                     
-                    <div className="font-bold">Correction:</div>
-                    <div>{insulinCalcResult.correctionInsulin.toFixed(1)} units</div>
+                    <div className="font-bold flex items-center"><span className="mr-1">⚙️</span> Correction:</div>
+                    <div className="bg-gray-800 px-2 py-1 rounded font-medium text-blue-300">{insulinCalcResult.correctionInsulin.toFixed(1)} units</div>
                     
-                    <div className="font-bold text-green-300">Total Insulin:</div>
-                    <div className="text-green-300 font-bold">{insulinCalcResult.totalInsulin.toFixed(1)} units</div>
+                    <div className="font-bold flex items-center text-lg col-span-2 mt-2 border-t border-gray-600 pt-2 justify-center">
+                      <span className="mr-2">💪</span> Total Insulin
+                    </div>
+                    <div className="col-span-2 bg-gradient-to-r from-green-500 to-emerald-500 p-2 rounded-lg text-center text-xl font-bold">
+                      {insulinCalcResult.totalInsulin.toFixed(1)} units
+                    </div>
                   </div>
-                </div>
+                </motion.div>
               ) : (
-                <div className="text-center text-gray-400 italic text-sm mt-2">
+                <div className="text-center text-gray-400 italic text-sm mt-4 p-2">
+                  <span className="mr-2">💪</span>
                   Select meal type and enter values to calculate insulin
                 </div>
               )}
