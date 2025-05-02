@@ -223,7 +223,9 @@ export default function FunCalculatorPage() {
       setDisplayValue(digit);
       setWaitingForSecondOperand(false);
     } else {
-      setDisplayValue(displayValue === "0" || displayValue === "Select Dosage Purpose" ? digit : displayValue + digit);
+      // Apply typewriter effect to newly entered numbers
+      const newDisplayValue = displayValue === "0" || displayValue === "Select Dosage Purpose" ? digit : displayValue + digit;
+      setDisplayValue(newDisplayValue);
     }
   };
 
@@ -944,8 +946,9 @@ export default function FunCalculatorPage() {
               <div className="flex justify-between items-center mt-2">
                 <div className="text-right text-3xl w-full">
                   {displayValue === "Select Dosage Purpose" ? "" : 
-                    wizardStep === 'purpose' || (wizardStep === 'bg' && displayValue === "0") || (wizardStep === 'carbs' && displayValue === "0") ?
-                    <TypingEffect text={displayValue} speed={80} /> : displayValue
+                    (displayValue && displayValue !== "0") ? (
+                      <TypingEffect text={displayValue} speed={40} className="text-yellow-300" />
+                    ) : displayValue
                   }
                 </div>
               </div>
