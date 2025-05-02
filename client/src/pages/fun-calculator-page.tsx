@@ -48,7 +48,7 @@ export default function FunCalculatorPage() {
   // Dummy toast function that does nothing - disables notifications
   const toast = () => {};
   
-  const [displayValue, setDisplayValue] = useState("Select Dosage Purpose");
+  const [displayValue, setDisplayValue] = useState("");
   const [previousValue, setPreviousValue] = useState<number | null>(null);
   const [operation, setOperation] = useState<string | null>(null);
   const [waitingForSecondOperand, setWaitingForSecondOperand] = useState(false);
@@ -67,7 +67,7 @@ export default function FunCalculatorPage() {
   const [foodSearchQuery, setFoodSearchQuery] = useState<string>('');
   const [foodSearchResults, setFoodSearchResults] = useState<any[]>([]);
   const [isFoodSearchLoading, setIsFoodSearchLoading] = useState<boolean>(false);
-  const [displayText, setDisplayText] = useState("Select Dosage");
+  const [displayText, setDisplayText] = useState("Select Dosage Type");
   const [typingText, setTypingText] = useState("");
   const [showTypingEffect, setShowTypingEffect] = useState(true);
   const [bgButtonActive, setBgButtonActive] = useState(false);
@@ -248,7 +248,7 @@ export default function FunCalculatorPage() {
       setShouldUseTypewriter(true); // Enable typewriter effect
     } else {
       // Apply typewriter effect to newly entered numbers
-      const newDisplayValue = displayValue === "0" || displayValue === "Select Dosage" ? digit : displayValue + digit;
+      const newDisplayValue = displayValue === "0" || displayValue === "" ? digit : displayValue + digit;
       setDisplayValue(newDisplayValue);
       setShouldUseTypewriter(true); // Enable typewriter effect
     }
@@ -270,7 +270,7 @@ export default function FunCalculatorPage() {
 
     if (!displayValue.includes(".")) {
       // Handle special display values
-      if (displayValue === "Select Dosage") {
+      if (displayValue === "") {
         setDisplayValue("0.");
       } else {
         setDisplayValue(displayValue + ".");
@@ -364,7 +364,7 @@ export default function FunCalculatorPage() {
   // All clear (reset calculator completely)
   const allClear = () => {
     // Clear display and calculation state
-    setDisplayValue("Select Dosage");
+    setDisplayValue("");
     setPreviousValue(null);
     setOperation(null);
     setWaitingForSecondOperand(false);
@@ -372,7 +372,7 @@ export default function FunCalculatorPage() {
     
     // Reset wizard to initial state
     setWizardStep('purpose');
-    setDisplayText("Select Dosage");
+    setDisplayText("Select Dosage Type");
     setShowTypingEffect(true);
     
     // Clear blood glucose and carb values
@@ -619,13 +619,10 @@ export default function FunCalculatorPage() {
               {/* Calculator display for values with typewriter effect */}
               <div className="flex justify-between items-center mt-2">
                 <div className="text-right text-3xl w-full">
-                  {displayValue === "Select Dosage" ? "" : (
-                    shouldUseTypewriter ? (
-                      <DisplayTypingEffect text={displayValue} />
-                    ) : (
-                      <span className="digital-display">{displayValue}</span>
-                    )
-                  )}
+                  {shouldUseTypewriter ? 
+                    <DisplayTypingEffect text={displayValue} /> :
+                    <span className="digital-display">{displayValue}</span>
+                  }
                 </div>
               </div>
               {/* Calculation history */}
