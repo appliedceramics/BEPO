@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Card } from "@/components/ui/card";
 import { convertBgToMgdl } from "@/lib/correctionCalculator";
@@ -7,13 +7,15 @@ import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
 import { calculateInsulin, CalculationResult } from "@/lib/insulinCalculator";
-import { Loader2 } from "lucide-react";
+import { Loader2, Mic } from "lucide-react";
 import { MealType, Profile } from "@shared/schema";
+import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 export default function FunCalculatorPage() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [displayValue, setDisplayValue] = useState("0");
+  const [displayValue, setDisplayValue] = useState("Select Dosage Purpose");
   const [previousValue, setPreviousValue] = useState<number | null>(null);
   const [operation, setOperation] = useState<string | null>(null);
   const [waitingForSecondOperand, setWaitingForSecondOperand] = useState(false);
@@ -23,6 +25,83 @@ export default function FunCalculatorPage() {
   const [carbValue, setCarbValue] = useState<number | null>(null);
   const [mealType, setMealType] = useState<MealType | "">();
   const [carbTotalMode, setCarbTotalMode] = useState(false);
+  
+  // Wizard state
+  const [wizardStep, setWizardStep] = useState<'purpose' | 'bg' | 'carbs' | 'done'>('purpose');
+  const [displayText, setDisplayText] = useState("Select Dosage Purpose");
+  const [typingText, setTypingText] = useState("");
+  const [showTypingEffect, setShowTypingEffect] = useState(false);
+  const [bgButtonActive, setBgButtonActive] = useState(false);
+  const [carbButtonActive, setCarbButtonActive] = useState(false);
+  const typewriterRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Typewriter effect for display text
+  useEffect(() => {
+    if (showTypingEffect) {
+      let currentText = "";
+      let index = 0;
+      
+      if (typewriterRef.current) {
+        clearInterval(typewriterRef.current);
+      }
+      
+      typewriterRef.current = setInterval(() => {
+        if (index < displayText.length) {
+          currentText += displayText.charAt(index);
+          setTypingText(currentText);
+          index++;
+        } else {
+          if (typewriterRef.current) {
+            clearInterval(typewriterRef.current);
+          }
+          setShowTypingEffect(false);
+        }
+      }, 50); // Speed of typing
+      
+      return () => {
+        if (typewriterRef.current) {
+          clearInterval(typewriterRef.current);
+        }
+      };
+    }
+  }, [showTypingEffect, displayText]);
+  
+  // Update wizard steps based on user actions
+  useEffect(() => {
+    if (mealType) {
+      setWizardStep('bg');
+      setDisplayText("Enter Current BG Count & Press Current BG");
+      setShowTypingEffect(true);
+      setBgButtonActive(true);
+      setCarbButtonActive(false);
+      // Auto clear display for number entry
+      setDisplayValue("0");
+    }
+  }, [mealType]);
+  
+  useEffect(() => {
+    if (bgValue !== null && wizardStep === 'bg') {
+      setWizardStep('carbs');
+      setDisplayText("Now, add-up your carb count and press = when done");
+      setShowTypingEffect(true);
+      setBgButtonActive(false);
+      setCarbButtonActive(true);
+      // Auto clear display for number entry
+      setDisplayValue("0");
+    }
+  }, [bgValue, wizardStep]);
+  
+  // Auto clear display after = in carb total mode
+  useEffect(() => {
+    if (carbValue !== null && wizardStep === 'carbs') {
+      setWizardStep('done');
+      setCarbButtonActive(false);
+      // Delay clearing display to show the result first
+      setTimeout(() => {
+        setDisplayValue("0");
+      }, 1500);
+    }
+  }, [carbValue, wizardStep]);
 
   // Track state changes for debugging
   useEffect(() => {
@@ -53,16 +132,26 @@ export default function FunCalculatorPage() {
 
   // Handle number input
   const inputDigit = (digit: string) => {
+    // Don't do anything in purpose selection mode
+    if (wizardStep === 'purpose' && !mealType) {
+      return;
+    }
+    
     if (waitingForSecondOperand) {
       setDisplayValue(digit);
       setWaitingForSecondOperand(false);
     } else {
-      setDisplayValue(displayValue === "0" ? digit : displayValue + digit);
+      setDisplayValue(displayValue === "0" || displayValue === "Select Dosage Purpose" ? digit : displayValue + digit);
     }
   };
 
   // Handle decimal point
   const inputDecimal = () => {
+    // Don't do anything in purpose selection mode
+    if (wizardStep === 'purpose' && !mealType) {
+      return;
+    }
+    
     if (waitingForSecondOperand) {
       setDisplayValue("0.");
       setWaitingForSecondOperand(false);
@@ -70,7 +159,12 @@ export default function FunCalculatorPage() {
     }
 
     if (!displayValue.includes(".")) {
-      setDisplayValue(displayValue + ".");
+      // Handle special display values
+      if (displayValue === "Select Dosage Purpose") {
+        setDisplayValue("0.");
+      } else {
+        setDisplayValue(displayValue + ".");
+      }
     }
   };
 
@@ -108,7 +202,16 @@ export default function FunCalculatorPage() {
 
   // Handle equals
   const handleEquals = () => {
+    // Don't do anything in purpose selection mode
+    if (wizardStep === 'purpose' && !mealType) {
+      return;
+    }
+    
     const inputValue = parseFloat(displayValue);
+
+    if (isNaN(inputValue)) {
+      return; // Don't do anything if the display doesn't contain a valid number
+    }
 
     if (previousValue !== null && operation) {
       const result = performCalculation(operation, previousValue, inputValue);
@@ -126,6 +229,13 @@ export default function FunCalculatorPage() {
           description: `Carbohydrate value set to ${result}g`,
         });
       }
+    } else if (wizardStep === 'carbs' && !carbValue) {
+      // In the carbs step but with no calculation, set the direct value
+      setCarbValue(inputValue);
+      toast({
+        title: "Carbs Set",
+        description: `Carbohydrate value set to ${inputValue}g`,
+      });
     }
   };
 
@@ -337,13 +447,22 @@ export default function FunCalculatorPage() {
             <h1 className="text-2xl font-bold text-white">BEPO Fun Calculator</h1>
           </div>
           
-          {/* Display area */}
+          {/* Display area with wizard instructions */}
           <div className="p-3 bg-gray-900">
             <div className="text-right text-gray-400 mb-1 text-xs">
               {carbTotalMode ? "CARB TOTAL MODE" : ""}
             </div>
-            <div className="bg-gray-700 border border-gray-600 rounded-lg p-3 text-right text-4xl font-bold text-white mb-3">
-              {displayValue}
+            <div className="bg-gray-700 border border-gray-600 rounded-lg p-3 text-left min-h-[80px] text-xl font-bold text-white mb-3 flex flex-col justify-between">
+              {/* Wizard instructions with typewriter effect */}
+              {showTypingEffect ? (
+                <div className="text-green-300">{typingText}<span className="animate-pulse">|</span></div>
+              ) : (
+                <div className={wizardStep !== 'purpose' ? "text-green-300" : "text-white"}>{displayText}</div>
+              )}
+              {/* Calculator display for values */}
+              <div className="text-right text-3xl mt-2">
+                {displayValue === "Select Dosage Purpose" ? "" : displayValue}
+              </div>
             </div>
           </div>
           
@@ -378,36 +497,63 @@ export default function FunCalculatorPage() {
                 </button>
               </div>
               
-              {/* Current BG and Carb Total - Second row */}
+              {/* Current BG and Carb Total - Second row - Combined buttons with voice input */}
               <div className="grid grid-cols-2 gap-2 mb-2">
-                <div className="flex flex-col">
+                <motion.div 
+                  animate={bgButtonActive ? { scale: [1, 1.05, 1] } : {}} 
+                  transition={bgButtonActive ? { repeat: Infinity, duration: 1 } : {}}
+                  className="h-14"
+                >
                   <button 
-                    className="bg-teal-500 hover:bg-teal-600 text-white text-sm font-bold rounded-lg h-14 shadow-md flex items-center justify-center mb-1"
+                    className={cn(
+                      "bg-teal-500 hover:bg-teal-600 text-white font-bold rounded-lg h-full shadow-md w-full",
+                      "flex flex-col relative overflow-hidden",
+                      bgButtonActive && "ring-2 ring-white ring-opacity-50"
+                    )}
                     onClick={setAsBloodGlucose}
                   >
-                    Current BG {bgValue ? `(${bgValue})` : ''}
+                    <div className="flex-grow flex items-center justify-center text-sm pt-1">
+                      Current BG {bgValue ? `(${bgValue})` : ''}
+                    </div>
+                    <div 
+                      className="bg-teal-600 w-full py-1 flex items-center justify-center text-xs cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        startVoiceInput('bg');
+                      }}
+                    >
+                      <Mic className="h-3 w-3 mr-1" /> Voice Input
+                    </div>
                   </button>
+                </motion.div>
+                
+                <motion.div 
+                  animate={carbButtonActive ? { scale: [1, 1.05, 1] } : {}} 
+                  transition={carbButtonActive ? { repeat: Infinity, duration: 1 } : {}}
+                  className="h-14"
+                >
                   <button 
-                    className="bg-teal-400 hover:bg-teal-500 text-white text-xs font-bold rounded-lg h-8 flex items-center justify-center shadow-md"
-                    onClick={() => startVoiceInput('bg')}
-                  >
-                    🎤 Voice Input
-                  </button>
-                </div>
-                <div className="flex flex-col">
-                  <button 
-                    className={`${carbTotalMode ? 'bg-yellow-600' : 'bg-yellow-500'} hover:bg-yellow-600 text-white text-sm font-bold rounded-lg h-14 shadow-md flex items-center justify-center mb-1`}
+                    className={cn(
+                      `${carbTotalMode ? 'bg-yellow-600' : 'bg-yellow-500'} hover:bg-yellow-600 text-white font-bold rounded-lg h-full shadow-md w-full`,
+                      "flex flex-col relative overflow-hidden",
+                      carbButtonActive && "ring-2 ring-white ring-opacity-50"
+                    )}
                     onClick={toggleCarbTotalMode}
                   >
-                    Carb Total {carbValue ? `(${carbValue}g)` : ''}
+                    <div className="flex-grow flex items-center justify-center text-sm pt-1">
+                      Carb Total {carbValue ? `(${carbValue}g)` : ''}
+                    </div>
+                    <div 
+                      className="bg-yellow-600 w-full py-1 flex items-center justify-center text-xs cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        startVoiceInput('carbs');
+                      }}
+                    >
+                      <Mic className="h-3 w-3 mr-1" /> Voice Input
+                    </div>
                   </button>
-                  <button 
-                    className="bg-yellow-400 hover:bg-yellow-500 text-white text-xs font-bold rounded-lg h-8 flex items-center justify-center shadow-md"
-                    onClick={() => startVoiceInput('carbs')}
-                  >
-                    🎤 Voice Input
-                  </button>
-                </div>
+                </motion.div>
               </div>
               
               {/* Clear and Total For Me - Third row */}
