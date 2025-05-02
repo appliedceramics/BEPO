@@ -91,14 +91,31 @@ export default function FunCalculatorPage() {
       // Auto clear display for number entry
       setDisplayValue("0");
       
-      // Automatically enable Carb Total mode when entering carbs step
-      if (!carbTotalMode) {
-        setTimeout(() => {
-          toggleCarbTotalMode();
-        }, 800); // Small delay to allow transition animation and instructions to show first
-      }
+      // We'll auto-activate Carb Total in a separate effect to avoid the initialization error
     }
-  }, [bgValue, wizardStep, carbTotalMode, toggleCarbTotalMode]);
+  }, [bgValue, wizardStep]);
+  
+  // This effect watches for when we transition to carbs step and auto-activates the Carb Total mode
+  useEffect(() => {
+    if (wizardStep === 'carbs' && !carbTotalMode) {
+      const timer = setTimeout(() => {
+        setCarbTotalMode(true);
+        // Clear display for calculation but keep wizard state and current BG
+        setDisplayValue("0");
+        setPreviousValue(null);
+        setOperation(null);
+        setWaitingForSecondOperand(false);
+        setCalculationHistory([]);
+        
+        toast({
+          title: "Carb Total Mode Activated",
+          description: "Use calculator to add up carb values, then press Carb Total button again to set",
+        });
+      }, 800); // Small delay to allow transition animation and instructions to show first
+      
+      return () => clearTimeout(timer);
+    }
+  }, [wizardStep, carbTotalMode]);
   
   // Auto clear display after = in carb total mode
   useEffect(() => {
