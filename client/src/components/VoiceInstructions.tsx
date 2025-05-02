@@ -20,19 +20,19 @@ export const VoiceInstructions: React.FC<VoiceInstructionsProps> = ({ isVisible,
       <>
         <div className="font-bold text-amber-300 mb-1">Voice Carb Counting:</div>
         <div className="text-sm">
-          1️⃣ Say numbers with "plus" between them:
+          Say your complete calculation in one phrase:
         </div>
         <div className="text-sm bg-gray-700/60 px-2 py-1 rounded my-1">
-          Example: <span className="text-amber-300">15</span> plus <span className="text-amber-300">20</span> plus <span className="text-amber-300">10</span>
+          Example: <span className="text-amber-300">15</span> plus <span className="text-amber-300">20</span> plus <span className="text-amber-300">10</span> <span className="font-bold">carb total</span>
         </div>
-        <div className="text-xs mt-2">
-          2️⃣ When finished, say <span className="bg-amber-700/60 px-1 rounded font-bold">"Carb Total"</span> to calculate
+        <div className="text-xs mt-2 bg-amber-700/10 p-1 rounded">
+          <span className="bg-amber-700/60 px-1 rounded font-bold">Important:</span> Say the numbers AND "carb total" in one continuous phrase
         </div>
         <div className="text-xs mt-1 text-gray-400 italic">
-          (Other phrases that work: "total carbs", "carbs total", "total")
+          (Other phrases that work: "equals total", "is total", "that's a total of")
         </div>
         <div className="text-xs mt-2 text-green-300">
-          ✓ Your numbers will be automatically added: 15 + 20 + 10 = 45
+          ✓ The numbers will be automatically added and entered: 15 + 20 + 10 = 45
         </div>
       </>
     );
