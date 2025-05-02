@@ -6,7 +6,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
 import { calculateInsulin, CalculationResult } from "@/lib/insulinCalculator";
-import { Loader2, Mic, PencilLine } from "lucide-react";
+import { Loader2, Mic, Pencil } from "lucide-react";
 import { MealType, Profile, InsulinLog } from "@shared/schema";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -81,6 +81,10 @@ export default function FunCalculatorPage() {
   const [voiceInputMode, setVoiceInputMode] = useState<VoiceInputModeType>('none');
   const [showVoiceInstructions, setShowVoiceInstructions] = useState(false);
   
+  // Log button states
+  const [isLoggingDose, setIsLoggingDose] = useState(false);
+  const [logSuccess, setLogSuccess] = useState(false);
+  
   // Typewriter effect for display text
   useEffect(() => {
     if (showTypingEffect) {
@@ -124,6 +128,37 @@ export default function FunCalculatorPage() {
     queryKey: ["/api/calculator-settings"],
     queryFn: getQueryFn({ on401: "returnNull" }),
     enabled: !!user,
+  });
+  
+  // Mutation for saving insulin log
+  const { toast: showToast } = useToast();
+  const logInsulinMutation = useMutation({
+    mutationFn: async (log: Omit<InsulinLog, 'id' | 'userId' | 'timestamp' | 'shared'>) => {
+      const response = await apiRequest('POST', '/api/insulin-logs', log);
+      return await response.json();
+    },
+    onSuccess: () => {
+      // Update success state
+      setLogSuccess(true);
+      setIsLoggingDose(false);
+      
+      // Show success message
+      showToast({
+        title: "Success!",
+        description: "Insulin dose logged and notifications sent to recipients.",
+      });
+      
+      // Invalidate logs data
+      queryClient.invalidateQueries({ queryKey: ["/api/insulin-logs"] });
+    },
+    onError: (error: Error) => {
+      setIsLoggingDose(false);
+      showToast({
+        title: "Error logging dose",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   });
 
   // Update wizard steps based on user actions
@@ -550,6 +585,40 @@ export default function FunCalculatorPage() {
   // Voice input start notification - kept for compatibility but unused
   const notifyVoiceInputStarted = () => {
     console.log("Voice input disabled");
+  };
+  
+  // Handler for logging insulin dose and sending notifications
+  const handleLogInsulinDose = () => {
+    if (!bgValue || !mealType || isLoggingDose || logSuccess) return;
+    
+    // For long-acting insulin, the correction insulin is 0
+    const totalInsulin = mealType === 'longActing' 
+      ? settings?.longActingDosage || 0
+      : insulinCalcResult.totalInsulin;
+      
+    // Convert bgValue to mg/dL if needed
+    const bgMgdl = convertBgToMgdl(bgValue);
+    
+    // Create log object for API (convert numbers to strings as required by the schema)
+    const logData = {
+      bgValue: bgValue.toString(),
+      bgMgdl: bgMgdl.toString(),
+      mealType: mealType,
+      carbValue: carbValue ? carbValue.toString() : null,
+      mealInsulin: (mealType === 'longActing' ? 0 : insulinCalcResult.mealInsulin).toString(),
+      correctionInsulin: (mealType === 'longActing' ? 0 : insulinCalcResult.correctionInsulin).toString(),
+      totalInsulin: totalInsulin.toString(),
+      insulinSensitivityFactor: (settings?.insulinSensitivityFactor || 35).toString(),
+      targetBgValue: (settings?.targetBgValue || 5.6).toString(),
+      icRatio: (settings?.insulinToCarbohydrateRatio || 10).toString(),
+      correctionFactor: (settings?.correctionFactor || 1.0).toString()
+    };
+    
+    // Set loading state
+    setIsLoggingDose(true);
+    
+    // Submit log and send notifications
+    logInsulinMutation.mutate(logData);
   };
   
   // AI food search
