@@ -222,17 +222,10 @@ export default function FunCalculatorPage() {
       setOperation(null);
       setWaitingForSecondOperand(false);
 
-      // If in carb total mode, this finalizes the calculation
-      if (carbTotalMode) {
-        setCarbValue(result);
-        setCarbTotalMode(false);
-        toast({
-          title: "Carb Total Set",
-          description: `Carbohydrate value set to ${result}g`,
-        });
-      }
-    } else if (wizardStep === 'carbs' && !carbValue) {
+      // No longer setting carb value here - user will press Carb Total button again to set
+    } else if (wizardStep === 'carbs' && !carbValue && !carbTotalMode) {
       // In the carbs step but with no calculation, set the direct value
+      // Only do this if not in Carb Total mode
       setCarbValue(inputValue);
       toast({
         title: "Carbs Set",
@@ -241,8 +234,14 @@ export default function FunCalculatorPage() {
     }
   };
 
-  // Clear calculator
-  const clearCalculator = () => {
+  // Clear entry (just the current display)
+  const clearEntry = () => {
+    setDisplayValue("0");
+    setWaitingForSecondOperand(false);
+  };
+  
+  // All clear (reset calculator completely)
+  const allClear = () => {
     setDisplayValue("0");
     setPreviousValue(null);
     setOperation(null);
@@ -395,10 +394,10 @@ export default function FunCalculatorPage() {
       setCarbTotalMode(true);
       toast({
         title: "Carb Total Mode Activated",
-        description: "Use calculator to add up carb values, then press '=' for total",
+        description: "Use calculator to add up carb values, then press Carb Total button again to set",
       });
       // Clear calculator to start fresh
-      clearCalculator();
+      allClear();
     } else {
       // If already in carb total mode, this will finalize the calculation
       const total = parseFloat(displayValue);
@@ -605,17 +604,25 @@ export default function FunCalculatorPage() {
               </div>
               
               {/* Clear and Total For Me - Third row */}
-              <div className="grid grid-cols-4 gap-2 mb-2">
+              <div className="grid grid-cols-7 gap-2 mb-2">
                 <motion.button 
-                  className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-xs font-bold rounded-lg h-10 col-span-2 flex items-center justify-center shadow-lg"
-                  onClick={clearCalculator}
+                  className="bg-gradient-to-r from-slate-800 to-red-900 hover:from-slate-700 hover:to-red-800 text-white text-xs font-bold rounded-lg h-10 col-span-2 flex items-center justify-center shadow-lg"
+                  onClick={allClear}
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                 >
-                  <span className="mr-1">🗑️</span> CLEAR ENTRY
+                  <span className="text-center font-bold">AC</span>
+                </motion.button>
+                <motion.button 
+                  className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-xs font-bold rounded-lg h-10 col-span-2 flex items-center justify-center shadow-lg"
+                  onClick={clearEntry}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  <span className="mr-1">🗑️</span> C
                 </motion.button>
                 <motion.button
-                  className={`${carbTotalMode ? 'bg-gradient-to-r from-purple-600 to-fuchsia-600' : 'bg-gradient-to-r from-purple-500 to-fuchsia-500'} hover:from-purple-700 hover:to-fuchsia-700 text-white text-xs font-bold rounded-lg h-10 col-span-2 flex items-center justify-center shadow-lg`}
+                  className={`${carbTotalMode ? 'bg-gradient-to-r from-purple-600 to-fuchsia-600' : 'bg-gradient-to-r from-purple-500 to-fuchsia-500'} hover:from-purple-700 hover:to-fuchsia-700 text-white text-xs font-bold rounded-lg h-10 col-span-3 flex items-center justify-center shadow-lg`}
                   onClick={handleTotalForMe}
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
