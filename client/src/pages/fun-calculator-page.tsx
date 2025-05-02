@@ -101,7 +101,7 @@ export default function FunCalculatorPage() {
           }
           setShowTypingEffect(false);
         }
-      }, 100); // Speed of typing (slowed down by half)
+      }, 75); // Speed of typing (slowed by 25% from previous value)
       
       return () => {
         if (typewriterRef.current) {
@@ -209,15 +209,16 @@ export default function FunCalculatorPage() {
     }
   }, [wizardStep, carbTotalMode]);
   
-  // Auto clear display after = in carb total mode
+  // Update display after carbValue is set
   useEffect(() => {
     if (carbValue !== null && wizardStep === 'carbs') {
       setWizardStep('done');
       setCarbButtonActive(false);
-      // Delay clearing display to show the result first
+      // Show success message
       setTimeout(() => {
-        setDisplayValue("0");
-      }, 1500);
+        setDisplayValue("Calculation Success!");
+        setShouldUseTypewriter(true); // Enable typewriter effect for success message
+      }, 500);
     }
   }, [carbValue, wizardStep]);
 
