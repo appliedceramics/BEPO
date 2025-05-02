@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useVoiceInput, extractNumber, extractOperation, extractCommand } from '@/lib/useVoiceInput';
-import { generateConfirmSound, generateStartListeningSound, generateStopListeningSound, playErrorSound } from '@/lib/generateAudioFeedback';
+import { generateConfirmSound, generateStartListeningSound, generateStopListeningSound } from '@/lib/generateAudioFeedback';
 import { MicIcon, StopCircleIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -92,7 +92,29 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({
   // Handle button click to toggle listening
   const handleToggleListening = () => {
     if (!hasRecognitionSupport) {
-      playErrorSound();
+      // Use standard Web Audio API instead of playErrorSound
+      try {
+        const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+        
+        oscillator.type = 'sawtooth';
+        oscillator.frequency.setValueAtTime(330, ctx.currentTime);
+        oscillator.frequency.linearRampToValueAtTime(220, ctx.currentTime + 0.3);
+        
+        gainNode.gain.setValueAtTime(0, ctx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.05);
+        gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        
+        oscillator.start(ctx.currentTime);
+        oscillator.stop(ctx.currentTime + 0.3);
+      } catch (error) {
+        console.error('Error playing sound:', error);
+      }
+      
       setFeedback('Voice recognition not supported in this browser');
       return;
     }
