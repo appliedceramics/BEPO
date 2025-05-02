@@ -1037,7 +1037,7 @@ export default function FunCalculatorPage() {
                     </>
                   ) : (
                     <>
-                      <PencilLine className="h-5 w-5" />
+                      <Pencil className="h-5 w-5" />
                       Log Insulin & Notify Recipients
                     </>
                   )}
