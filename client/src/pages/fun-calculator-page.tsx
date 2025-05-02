@@ -472,7 +472,7 @@ export default function FunCalculatorPage() {
               {showTypingEffect ? (
                 <div className="text-green-300">{typingText}<span className="animate-pulse">|</span></div>
               ) : (
-                <div className={wizardStep !== 'purpose' ? "text-green-300" : "text-white"}>{displayText}</div>
+                <div className={wizardStep !== 'purpose' ? "text-green-300 text-sm" : "text-white text-sm"}>{displayText}</div>
               )}
               {/* Calculator display for values */}
               <div className="text-right text-3xl mt-2">
@@ -487,8 +487,8 @@ export default function FunCalculatorPage() {
               {/* Purpose of Dosage buttons - First row */}
               <div className="grid grid-cols-4 gap-2 mb-2">
                 <motion.button 
-                  className={`${mealType === "first" ? 'bg-gradient-to-br from-orange-500 to-amber-600' : 'bg-gradient-to-br from-orange-400 to-amber-500'} 
-                    hover:from-orange-600 hover:to-amber-700 text-white text-sm font-bold rounded-lg h-16 
+                  className={`${mealType === "first" ? 'bg-gradient-to-br from-orange-400 to-yellow-500' : 'bg-gradient-to-br from-orange-300 to-yellow-400'} 
+                    hover:from-orange-500 hover:to-yellow-600 text-white text-sm font-bold rounded-lg h-16 
                     flex flex-col items-center justify-center shadow-lg border-2 
                     ${mealType === "first" ? 'border-yellow-300' : 'border-transparent'}`}
                   onClick={() => setMealType("first" as MealType)}
@@ -501,8 +501,8 @@ export default function FunCalculatorPage() {
                   <span className="text-xs mt-1">🍳 Breakfast</span>
                 </motion.button>
                 <motion.button 
-                  className={`${mealType === "other" ? 'bg-gradient-to-br from-teal-500 to-cyan-600' : 'bg-gradient-to-br from-teal-400 to-cyan-500'} 
-                    hover:from-teal-600 hover:to-cyan-700 text-white text-sm font-bold rounded-lg h-16 
+                  className={`${mealType === "other" ? 'bg-gradient-to-br from-sky-400 to-blue-500' : 'bg-gradient-to-br from-sky-300 to-blue-400'} 
+                    hover:from-sky-500 hover:to-blue-600 text-white text-sm font-bold rounded-lg h-16 
                     flex flex-col items-center justify-center shadow-lg border-2 
                     ${mealType === "other" ? 'border-yellow-300' : 'border-transparent'}`}
                   onClick={() => setMealType("other" as MealType)}
@@ -794,8 +794,7 @@ export default function FunCalculatorPage() {
                         // This would actually save to API in a real implementation
                         toast({
                           title: "Insulin Logged & Contacts Notified",
-                          description: `Logged ${insulinCalcResult.totalInsulin.toFixed(1)} units and notified contacts`,
-                          variant: "success",
+                          description: `Logged ${insulinCalcResult.totalInsulin.toFixed(1)} units and notified contacts`
                         });
                         
                         // Reset display with success message
