@@ -453,6 +453,15 @@ export default function FunCalculatorPage() {
       });
       return;
     }
+    
+    // Set the voice input mode and show instructions
+    setVoiceInputMode(inputType === 'bg' ? 'bg' : 'carb-total');
+    setShowVoiceInstructions(true);
+    
+    // Auto-hide instructions after 10 seconds
+    setTimeout(() => {
+      setShowVoiceInstructions(false);
+    }, 10000);
     // Check if browser supports speech recognition
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       // @ts-ignore - Speech recognition API not fully typed in TypeScript
@@ -759,8 +768,17 @@ export default function FunCalculatorPage() {
                 <motion.div 
                   animate={carbButtonActive ? { scale: [1, 1.05, 1] } : {}} 
                   transition={carbButtonActive ? { repeat: Infinity, duration: 1 } : {}}
-                  className="h-14"
+                  className="h-14 relative"
                 >
+                  {/* Voice instructions for carb total */}
+                  <AnimatePresence>
+                    {voiceInputMode === 'carb-total' && showVoiceInstructions && (
+                      <div className="absolute bottom-full left-0 w-full mb-2 z-10">
+                        <VoiceInstructions isVisible={true} type="carb-total" />
+                      </div>
+                    )}
+                  </AnimatePresence>
+                  
                   <button 
                     className={cn(
                       `${carbTotalMode ? 'bg-gradient-to-r from-amber-500 to-yellow-500' : 'bg-gradient-to-r from-amber-400 to-yellow-400'} hover:from-amber-600 hover:to-yellow-600 text-white font-bold rounded-lg h-full shadow-lg w-full`,

@@ -1,12 +1,12 @@
 /**
- * This file contains functions to generate audio feedback for voice recognition
- * It uses the Web Audio API to create gentle, whisper-soft sounds
+ * Audio feedback generation using Web Audio API
+ * Generates gentle, whisper-soft sounds for voice recognition feedback
  */
 
-// Create audio context
+// Create audio context when needed
 let audioContext: AudioContext | null = null;
 
-// Initialize audio context
+// Initialize audio context with lazy loading
 const getAudioContext = (): AudioContext => {
   if (!audioContext) {
     audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -15,165 +15,126 @@ const getAudioContext = (): AudioContext => {
 };
 
 /**
- * Generate a soft confirmation sound
- * @param volume Volume level (0.0 to 1.0)
- * @param saveToFile Whether to save the generated sound to a file
+ * Generate a gentle beep sound when starting to listen
+ * Uses a sine wave oscillator with gentle fade in/out
  */
-export const generateConfirmSound = (volume: number = 0.2, saveToFile: boolean = false): HTMLAudioElement | null => {
+export const generateStartListeningSound = (): void => {
   try {
     const ctx = getAudioContext();
-    const duration = 0.3; // seconds
-    
-    // Create an oscillator for the confirmation sound
     const oscillator = ctx.createOscillator();
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(880, ctx.currentTime); // A5
-    oscillator.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + duration); // E6
-    
-    // Create a gain node to control volume
     const gainNode = ctx.createGain();
-    gainNode.gain.setValueAtTime(0, ctx.currentTime);
-    gainNode.gain.linearRampToValueAtTime(volume, ctx.currentTime + 0.05);
-    gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + duration);
     
-    // Connect nodes
+    // Configure the oscillator
+    oscillator.type = 'sine'; 
+    oscillator.frequency.setValueAtTime(880, ctx.currentTime); // A5 note
+    
+    // Configure the gain for gentle volume
+    gainNode.gain.setValueAtTime(0, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.05); // Soft fade in
+    gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3); // Fade out
+    
+    // Connect nodes and start sound
     oscillator.connect(gainNode);
     gainNode.connect(ctx.destination);
     
-    // Start and stop the oscillator
     oscillator.start(ctx.currentTime);
-    oscillator.stop(ctx.currentTime + duration);
-    
-    if (saveToFile) {
-      // This would typically be done server-side
-      console.warn('Saving audio to file is not implemented in the browser');
-    }
-    
-    return null; // We're playing directly, not returning an audio element
-  } catch (err) {
-    console.error('Error generating confirm sound:', err);
-    return null;
+    oscillator.stop(ctx.currentTime + 0.3);
+  } catch (error) {
+    console.error('Error generating start listening sound:', error);
   }
 };
 
 /**
- * Generate a soft start listening sound
- * @param volume Volume level (0.0 to 1.0)
- * @param saveToFile Whether to save the generated sound to a file
+ * Generate a gentle double beep sound when stopping listening
+ * Uses a sine wave oscillator with decreasing pitch
  */
-export const generateStartListeningSound = (volume: number = 0.2, saveToFile: boolean = false): HTMLAudioElement | null => {
+export const generateStopListeningSound = (): void => {
   try {
     const ctx = getAudioContext();
-    const duration = 0.4; // seconds
-    
-    // Create oscillators for a gentle chord
-    const oscillator1 = ctx.createOscillator();
-    oscillator1.type = 'sine';
-    oscillator1.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
-    
-    const oscillator2 = ctx.createOscillator();
-    oscillator2.type = 'sine';
-    oscillator2.frequency.setValueAtTime(659.25, ctx.currentTime); // E5
-    
-    // Create a gain node to control volume
+    const oscillator = ctx.createOscillator();
     const gainNode = ctx.createGain();
-    gainNode.gain.setValueAtTime(0, ctx.currentTime);
-    gainNode.gain.linearRampToValueAtTime(volume, ctx.currentTime + 0.1);
-    gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + duration);
     
-    // Connect nodes
-    oscillator1.connect(gainNode);
-    oscillator2.connect(gainNode);
+    // Configure the oscillator with decreasing frequency
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(880, ctx.currentTime); // Start at A5
+    oscillator.frequency.linearRampToValueAtTime(440, ctx.currentTime + 0.3); // Ramp down to A4
+    
+    // Configure gain for two soft beeps
+    gainNode.gain.setValueAtTime(0, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.05); // First beep fade in
+    gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.15); // First beep fade out
+    gainNode.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.2); // Second beep fade in
+    gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3); // Second beep fade out
+    
+    // Connect nodes and start sound
+    oscillator.connect(gainNode);
     gainNode.connect(ctx.destination);
     
-    // Start and stop the oscillators
-    oscillator1.start(ctx.currentTime);
-    oscillator2.start(ctx.currentTime);
-    oscillator1.stop(ctx.currentTime + duration);
-    oscillator2.stop(ctx.currentTime + duration);
-    
-    if (saveToFile) {
-      // This would typically be done server-side
-      console.warn('Saving audio to file is not implemented in the browser');
-    }
-    
-    return null; // We're playing directly, not returning an audio element
-  } catch (err) {
-    console.error('Error generating start listening sound:', err);
-    return null;
+    oscillator.start(ctx.currentTime);
+    oscillator.stop(ctx.currentTime + 0.3);
+  } catch (error) {
+    console.error('Error generating stop listening sound:', error);
   }
 };
 
 /**
- * Generate a soft stop listening sound
- * @param volume Volume level (0.0 to 1.0)
- * @param saveToFile Whether to save the generated sound to a file
+ * Generate a gentle confirmation sound for recognized speech
+ * Uses a soft rising ping sound
  */
-export const generateStopListeningSound = (volume: number = 0.2, saveToFile: boolean = false): HTMLAudioElement | null => {
+export const generateConfirmSound = (): void => {
   try {
     const ctx = getAudioContext();
-    const duration = 0.4; // seconds
-    
-    // Create oscillators for a gentle descending tone
     const oscillator = ctx.createOscillator();
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(659.25, ctx.currentTime); // E5
-    oscillator.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + duration); // A4
-    
-    // Create a gain node to control volume
     const gainNode = ctx.createGain();
-    gainNode.gain.setValueAtTime(0, ctx.currentTime);
-    gainNode.gain.linearRampToValueAtTime(volume, ctx.currentTime + 0.1);
-    gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + duration);
     
-    // Connect nodes
+    // Configure the oscillator with rising pitch
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(440, ctx.currentTime); // Start at A4
+    oscillator.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.2); // Rise to A5
+    
+    // Configure gain for a single soft ping
+    gainNode.gain.setValueAtTime(0, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 0.05); // Soft fade in
+    gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.2); // Gentle fade out
+    
+    // Connect nodes and start sound
     oscillator.connect(gainNode);
     gainNode.connect(ctx.destination);
     
-    // Start and stop the oscillator
     oscillator.start(ctx.currentTime);
-    oscillator.stop(ctx.currentTime + duration);
-    
-    if (saveToFile) {
-      // This would typically be done server-side
-      console.warn('Saving audio to file is not implemented in the browser');
-    }
-    
-    return null; // We're playing directly, not returning an audio element
-  } catch (err) {
-    console.error('Error generating stop listening sound:', err);
-    return null;
+    oscillator.stop(ctx.currentTime + 0.2);
+  } catch (error) {
+    console.error('Error generating confirmation sound:', error);
   }
 };
 
 /**
- * Play a gentle notification sound for errors
+ * Generate an error sound to indicate voice recognition is not available
+ * Uses a short descending tone
  */
-export const playErrorSound = (volume: number = 0.15): void => {
+export const playErrorSound = (): void => {
   try {
     const ctx = getAudioContext();
-    const duration = 0.3; // seconds
-    
-    // Create oscillator for error sound
     const oscillator = ctx.createOscillator();
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(330, ctx.currentTime); // E4
-    oscillator.frequency.exponentialRampToValueAtTime(220, ctx.currentTime + duration); // A3
-    
-    // Create a gain node to control volume
     const gainNode = ctx.createGain();
-    gainNode.gain.setValueAtTime(0, ctx.currentTime);
-    gainNode.gain.linearRampToValueAtTime(volume, ctx.currentTime + 0.05);
-    gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + duration);
     
-    // Connect nodes
+    // Configure the oscillator with descending pitch
+    oscillator.type = 'sawtooth'; // More noticeable error sound
+    oscillator.frequency.setValueAtTime(330, ctx.currentTime); // Start at E4
+    oscillator.frequency.linearRampToValueAtTime(220, ctx.currentTime + 0.3); // Drop to A3
+    
+    // Configure gain for error sound
+    gainNode.gain.setValueAtTime(0, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 0.05); // Slightly louder
+    gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3); // Fade out
+    
+    // Connect nodes and start sound
     oscillator.connect(gainNode);
     gainNode.connect(ctx.destination);
     
-    // Start and stop the oscillator
     oscillator.start(ctx.currentTime);
-    oscillator.stop(ctx.currentTime + duration);
-  } catch (err) {
-    console.error('Error playing error sound:', err);
+    oscillator.stop(ctx.currentTime + 0.3);
+  } catch (error) {
+    console.error('Error generating error sound:', error);
   }
 };
