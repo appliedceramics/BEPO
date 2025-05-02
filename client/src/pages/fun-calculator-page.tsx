@@ -515,8 +515,8 @@ export default function FunCalculatorPage() {
                   <span className="text-xs mt-1">🍔 Lunch/Dinner</span>
                 </motion.button>
                 <motion.button 
-                  className={`${mealType === "bedtime" ? 'bg-gradient-to-br from-blue-700 to-indigo-900' : 'bg-gradient-to-br from-blue-600 to-indigo-800'} 
-                    hover:from-blue-800 hover:to-indigo-900 text-white text-sm font-bold rounded-lg h-16 
+                  className={`${mealType === "bedtime" ? 'bg-gradient-to-br from-orange-600 to-purple-800' : 'bg-gradient-to-br from-orange-500 to-purple-700'} 
+                    hover:from-orange-700 hover:to-purple-900 text-white text-sm font-bold rounded-lg h-16 
                     flex flex-col items-center justify-center shadow-lg border-2 
                     ${mealType === "bedtime" ? 'border-yellow-300' : 'border-transparent'}`}
                   onClick={() => setMealType("bedtime" as MealType)}
@@ -553,7 +553,7 @@ export default function FunCalculatorPage() {
                 >
                   <button 
                     className={cn(
-                      "bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white font-bold rounded-lg h-full shadow-lg w-full",
+                      "bg-gradient-to-r from-blue-600 to-indigo-800 hover:from-blue-700 hover:to-indigo-900 text-white font-bold rounded-lg h-full shadow-lg w-full",
                       "flex flex-col relative overflow-hidden",
                       bgButtonActive && "ring-2 ring-yellow-300 ring-opacity-100"
                     )}
@@ -565,7 +565,7 @@ export default function FunCalculatorPage() {
                         Current BG {bgValue ? `(${bgValue})` : ''}
                       </div>
                       <div 
-                        className="bg-gradient-to-b from-cyan-600 to-teal-700 w-12 flex items-center justify-center text-xs cursor-pointer"
+                        className="bg-gradient-to-b from-blue-700 to-indigo-900 w-12 flex items-center justify-center text-xs cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
                           startVoiceInput('bg');
