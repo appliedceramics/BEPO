@@ -794,7 +794,7 @@ export default function FunCalculatorPage() {
               </div>
               
               {/* Number pad and operators - Compact layout */}
-              <div className="grid grid-cols-4 grid-rows-4 gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 {/* Row 1 */}
                 <motion.button 
                   className="bg-gradient-to-b from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
@@ -874,12 +874,7 @@ export default function FunCalculatorPage() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >3</motion.button>
-                <motion.button 
-                  className="bg-gradient-to-b from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
-                  onClick={() => handleOperator("-")}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >-</motion.button>
+                <div></div>
                 
                 {/* Row 4 */}
                 <motion.button 
@@ -900,14 +895,11 @@ export default function FunCalculatorPage() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >=</motion.button>
-                
-                {/* Addition button - takes the place of the last column for row 3 and 4, double height */}
                 <motion.button 
-                  className="bg-gradient-to-b from-sky-600 to-sky-700 hover:from-sky-500 hover:to-sky-600 text-white text-2xl font-bold rounded-lg row-span-2 flex items-center justify-center shadow-md"
+                  className="bg-gradient-to-b from-sky-600 to-sky-700 hover:from-sky-500 hover:to-sky-600 text-white text-2xl font-bold rounded-bl-lg rounded-br-lg h-12 flex items-center justify-center shadow-md"
                   onClick={() => handleOperator("+")}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  style={{ gridArea: '3 / 4 / 5 / 5', height: '107px' }}
                 >+</motion.button>
               </div>
               
