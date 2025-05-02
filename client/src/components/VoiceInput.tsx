@@ -1,101 +1,162 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Mic, Loader2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import React, { useEffect, useState } from 'react';
+import { useVoiceInput, extractNumber, extractOperation, extractCommand } from '@/lib/useVoiceInput';
+import { generateConfirmSound, generateStartListeningSound, generateStopListeningSound, playErrorSound } from '@/lib/generateAudioFeedback';
+import { MicIcon, StopCircleIcon } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface VoiceInputProps {
-  onResult: (result: string) => void;
-  buttonTitle?: string;
-  placeholder?: string;
-  inProgress?: boolean;
-  fieldType?: string; // Optional field type for component identification
+  onNumberInput: (value: string) => void;
+  onOperationInput: (operation: string) => void;
+  onCommandInput: (command: string) => void;
+  enabled?: boolean;
 }
 
-export function VoiceInput({
-  onResult,
-  buttonTitle = "Voice Input",
-  placeholder = "Speak now...",
-  inProgress = false,
-  fieldType,
-}: VoiceInputProps) {
-  const { toast } = useToast();
-  const [isListening, setIsListening] = useState(false);
-
-  const startListening = () => {
-    // Check if browser supports speech recognition
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      toast({
-        title: "Voice input not available",
-        description: "Speech recognition is not supported in your browser",
-        variant: "destructive",
-      });
+export const VoiceInput: React.FC<VoiceInputProps> = ({
+  onNumberInput,
+  onOperationInput,
+  onCommandInput,
+  enabled = true
+}) => {
+  const { 
+    isListening, 
+    transcript, 
+    finalTranscript, 
+    startListening, 
+    stopListening, 
+    resetTranscript,
+    hasRecognitionSupport 
+  } = useVoiceInput();
+  
+  const [lastProcessedTranscript, setLastProcessedTranscript] = useState('');
+  const [feedback, setFeedback] = useState('');
+  
+  // Process new transcripts to extract commands, numbers, etc.
+  useEffect(() => {
+    if (!enabled || !hasRecognitionSupport) return;
+    
+    if (finalTranscript && finalTranscript !== lastProcessedTranscript) {
+      // Process the new part of the transcript
+      const newText = finalTranscript.slice(lastProcessedTranscript.length).trim();
+      if (newText) {
+        setFeedback(`Heard: ${newText}`);
+        
+        // Check for commands first
+        const command = extractCommand(newText);
+        if (command) {
+          // Generate soft confirmation sound
+          generateConfirmSound();
+          onCommandInput(command);
+          setFeedback(`Command: ${command}`);
+        } else {
+          // Check for numbers
+          const number = extractNumber(newText);
+          if (number !== null) {
+            // Generate soft confirmation sound
+            generateConfirmSound();
+            onNumberInput(number.toString());
+            setFeedback(`Number: ${number}`);
+          }
+          
+          // Check for operations
+          const operation = extractOperation(newText);
+          if (operation) {
+            // Generate soft confirmation sound
+            generateConfirmSound();
+            onOperationInput(operation);
+            setFeedback(`Operation: ${operation}`);
+          }
+        }
+      }
+      
+      setLastProcessedTranscript(finalTranscript);
+    }
+  }, [finalTranscript, lastProcessedTranscript, onNumberInput, onOperationInput, onCommandInput, enabled, hasRecognitionSupport]);
+  
+  // Generate sound when listening starts/stops
+  useEffect(() => {
+    if (isListening) {
+      generateStartListeningSound();
+    } else if (lastProcessedTranscript) {
+      generateStopListeningSound();
+    }
+  }, [isListening, lastProcessedTranscript]);
+  
+  // Clear feedback after 3 seconds
+  useEffect(() => {
+    if (feedback) {
+      const timeoutId = setTimeout(() => setFeedback(''), 3000);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [feedback]);
+  
+  // Handle button click to toggle listening
+  const handleToggleListening = () => {
+    if (!hasRecognitionSupport) {
+      playErrorSound();
+      setFeedback('Voice recognition not supported in this browser');
       return;
     }
-
-    try {
-      setIsListening(true);
-      
-      // Initialize speech recognition
-      const SpeechRecognitionAPI = window.webkitSpeechRecognition || window.SpeechRecognition;
-      const recognition = new SpeechRecognitionAPI();
-      
-      recognition.lang = 'en-US';
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      
-      recognition.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        console.log("Voice input result:", transcript);
-        onResult(transcript);
-        setIsListening(false);
-      };
-
-      recognition.onerror = (event: any) => {
-        console.error("Speech recognition error", event.error);
-        toast({
-          title: "Voice input error",
-          description: `Error: ${event.error}. Please try again.`,
-          variant: "destructive",
-        });
-        setIsListening(false);
-      };
-
-      recognition.onend = () => {
-        setIsListening(false);
-      };
-
-      toast({
-        title: placeholder,
-        description: "Listening for your voice input...",
-      });
-      
-      recognition.start();
-    } catch (error) {
-      console.error("Error starting speech recognition:", error);
-      toast({
-        title: "Voice input error",
-        description: "Could not start voice recognition. Please try again.",
-        variant: "destructive",
-      });
-      setIsListening(false);
+    
+    if (isListening) {
+      stopListening();
+    } else {
+      resetTranscript();
+      setLastProcessedTranscript('');
+      startListening();
     }
   };
-
+  
+  if (!enabled) return null;
+  
   return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="icon"
-      onClick={startListening}
-      disabled={inProgress || isListening}
-      className="rounded-full bg-primary/10 hover:bg-primary/20 transition-all duration-200"
-      title={buttonTitle}
-    >
-      {isListening ? (
-        <Loader2 className="h-5 w-5 text-primary animate-spin" />
-      ) : (
-        <Mic className="h-5 w-5 text-primary" />
-      )}
-    </Button>
+    <div className="relative">
+      <motion.button
+        className={`rounded-full p-3 shadow-md flex items-center justify-center transition-colors ${isListening 
+          ? 'bg-pink-600 text-white animate-pulse' 
+          : 'bg-gradient-to-b from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white'}`}
+        onClick={handleToggleListening}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        title={isListening ? 'Stop listening' : 'Start voice input'}
+        aria-label={isListening ? 'Stop listening' : 'Start voice input'}
+        disabled={!hasRecognitionSupport}
+      >
+        {isListening ? (
+          <StopCircleIcon className="w-5 h-5" />
+        ) : (
+          <MicIcon className="w-5 h-5" />
+        )}
+      </motion.button>
+      
+      {/* Live transcript indicator */}
+      <AnimatePresence>
+        {isListening && transcript && (
+          <motion.div 
+            className="absolute top-full mt-2 bg-gray-800 text-white text-xs px-2 py-1 rounded shadow-md z-10 min-w-[100px] max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 0.8, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+          >
+            {transcript}
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Feedback message */}
+      <AnimatePresence>
+        {feedback && (
+          <motion.div 
+            className="absolute bottom-full mb-2 bg-blue-700/70 text-white text-xs px-2 py-1 rounded shadow-md"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 0.9, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+          >
+            {feedback}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
-}
+};
+
+export default VoiceInput;

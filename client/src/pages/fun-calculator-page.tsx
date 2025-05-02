@@ -11,6 +11,8 @@ import { Loader2, Mic } from "lucide-react";
 import { MealType, Profile } from "@shared/schema";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { VoiceInput } from "../components/VoiceInput";
+import { TypingEffect } from "../components/TypingEffect";
 
 export default function FunCalculatorPage() {
   const { user } = useAuth();
@@ -622,13 +624,32 @@ export default function FunCalculatorPage() {
             <div className="bg-gray-700 border border-gray-600 rounded-lg p-3 text-left min-h-[80px] text-xl font-bold text-white mb-3 flex flex-col justify-between">
               {/* Wizard instructions with typewriter effect */}
               {showTypingEffect ? (
-                <div className="text-green-300">{typingText}<span className="animate-pulse">|</span></div>
+                <TypingEffect 
+                  text={displayText} 
+                  className="text-green-300"
+                  onComplete={() => setShowTypingEffect(false)}
+                />
               ) : (
                 <div className={wizardStep !== 'purpose' ? "text-green-300 text-sm" : "text-white text-sm"}>{displayText}</div>
               )}
-              {/* Calculator display for values */}
-              <div className="text-right text-3xl mt-2">
-                {displayValue === "Select Dosage Purpose" ? "" : displayValue}
+              {/* Calculator display for values with voice input */}
+              <div className="flex justify-between items-center mt-2">
+                <div className="flex items-center">
+                  <VoiceInput 
+                    onNumberInput={(value) => inputDigit(value)}
+                    onOperationInput={(op) => handleOperator(op)}
+                    onCommandInput={(command) => {
+                      if (command === 'clear') {
+                        clearEntry();
+                      } else if (command === 'first' || command === 'other' || command === 'bedtime' || command === 'longActing') {
+                        setMealType(command as MealType);
+                      }
+                    }}
+                  />
+                </div>
+                <div className="text-right text-3xl flex-grow">
+                  {displayValue === "Select Dosage Purpose" ? "" : displayValue}
+                </div>
               </div>
               {/* Calculation history */}
               {calculationHistory.length > 0 && (
@@ -874,13 +895,7 @@ export default function FunCalculatorPage() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >3</motion.button>
-                <motion.button 
-                  className="bg-gradient-to-b from-sky-600 to-sky-700 hover:from-sky-500 hover:to-sky-600 text-white text-3xl font-bold rounded-lg flex items-center justify-center shadow-md"
-                  onClick={() => handleOperator("+")}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  style={{ gridRow: '3 / span 2', height: '100%', minHeight: '6rem' }}
-                >+</motion.button>
+                <div></div>
                 
                 {/* Row 4 */}
                 <motion.button 
