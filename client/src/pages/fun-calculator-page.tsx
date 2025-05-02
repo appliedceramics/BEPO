@@ -259,7 +259,8 @@ export default function FunCalculatorPage() {
     if (carbValue !== null && wizardStep === 'carbs') {
       setWizardStep('done');
       setCarbButtonActive(false);
-      // Show success message
+      // Clear instruction text and show success message
+      setDisplayText(""); // Clear the instruction text above
       setTimeout(() => {
         setDisplayValue("Calculation Success!");
         setShouldUseTypewriter(true); // Enable typewriter effect for success message
