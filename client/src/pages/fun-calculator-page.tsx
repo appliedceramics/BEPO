@@ -21,17 +21,22 @@ export default function FunCalculatorPage() {
   // Blood glucose and carb inputs for insulin calculation
   const [bgValue, setBgValue] = useState<number | null>(null);
   const [carbValue, setCarbValue] = useState<number | null>(null);
-  const [mealType, setMealType] = useState<string>("");
+  const [mealType, setMealType] = useState<MealType | "">("");
+
+  // Track state changes for debugging
+  useEffect(() => {
+    console.log("State updated: mealType =", mealType, ", carbValue =", carbValue, ", bgValue =", bgValue);
+  }, [mealType, carbValue, bgValue]);
   
   // Get user profile for unit preference
-  const { data: profile, isLoading: profileLoading } = useQuery({
+  const { data: profile, isLoading: profileLoading } = useQuery<Profile>({
     queryKey: ["/api/profile"],
     queryFn: getQueryFn({ on401: "returnNull" }),
     enabled: !!user,
   });
 
   // Get calculator settings
-  const { data: settings, isLoading: settingsLoading } = useQuery({
+  const { data: settings, isLoading: settingsLoading } = useQuery<any>({
     queryKey: ["/api/calculator-settings"],
     queryFn: getQueryFn({ on401: "returnNull" }),
     enabled: !!user,
@@ -39,8 +44,8 @@ export default function FunCalculatorPage() {
 
   // Initialize calculated insulin values
   const [insulinCalcResult, setInsulinCalcResult] = useState({
-    baseDose: 0,
-    correctionDose: 0,
+    mealInsulin: 0,
+    correctionInsulin: 0,
     totalInsulin: 0,
     bgMgdl: 0,
   });
@@ -127,23 +132,27 @@ export default function FunCalculatorPage() {
     if (settings && mealType && bgValue) {
       try {
         // Convert bg value if needed
-        const bgMgdl = profile?.bgUnit === "mmol/L" ? bgValueMmolToMgdl(bgValue) : bgValue;
+        const bgMgdl = profile?.bgUnit === "mmol/L" ? convertBgToMgdl(bgValue) : bgValue;
 
-        // Calculate insulin doses
+        console.log('Calculator detected input change - mealType:', mealType, 'carbValue:', carbValue, 'bgValue:', bgValue);
+
+        // Calculate insulin doses using default values if settings are missing
         const result = calculateInsulin({
-          mealType,
-          bgValue: profile?.bgUnit === "mmol/L" ? bgValue : null,
-          bgMgdl: profile?.bgUnit !== "mmol/L" ? bgValue : bgMgdl,
-          carbValue,
-          settings,
+          mealType: mealType as MealType,
+          bgValue: bgValue,
+          carbValue: carbValue || undefined,
+          insulinToCarbohydrateRatio: settings?.insulinToCarbohydrateRatio || 10,
+          targetBgValue: settings?.targetBgValue || 5.6,
+          correctionFactor: settings?.correctionFactor || 1.0,
+          insulinSensitivityFactor: settings?.insulinSensitivityFactor || 35
         });
 
         // Set calculated results
         setInsulinCalcResult({
-          baseDose: result.baseDose,
-          correctionDose: result.correctionDose,
+          mealInsulin: result.mealInsulin,
+          correctionInsulin: result.correctionInsulin,
           totalInsulin: result.totalInsulin,
-          bgMgdl: bgMgdl,
+          bgMgdl: result.bgMgdl,
         });
       } catch (error) {
         console.error("Error calculating insulin:", error);
@@ -221,7 +230,7 @@ export default function FunCalculatorPage() {
   );
 
   // Meal type selection buttons
-  const MealTypeButton = ({ type, label }: { type: string, label: string }) => (
+  const MealTypeButton = ({ type, label }: { type: MealType, label: string }) => (
     <button 
       className={`${mealType === type ? 'bg-blue-600' : 'bg-blue-400'} hover:bg-blue-500 text-white text-md font-bold rounded-xl p-2 flex-1 flex items-center justify-center shadow-md`} 
       onClick={() => setMealType(type)}
@@ -307,9 +316,24 @@ export default function FunCalculatorPage() {
                 
                 {/* Meal type selection */}
                 <div className="flex gap-2 mb-3">
-                  <MealTypeButton type="first" label="Breakfast" />
-                  <MealTypeButton type="other" label="Other Meal" />
-                  <MealTypeButton type="bedtime" label="Bedtime" />
+                  <button 
+                    className={`${mealType === "first" ? 'bg-blue-600' : 'bg-blue-400'} hover:bg-blue-500 text-white text-md font-bold rounded-xl p-2 flex-1 flex items-center justify-center shadow-md`}
+                    onClick={() => setMealType("first" as MealType)}
+                  >
+                    Breakfast
+                  </button>
+                  <button 
+                    className={`${mealType === "other" ? 'bg-blue-600' : 'bg-blue-400'} hover:bg-blue-500 text-white text-md font-bold rounded-xl p-2 flex-1 flex items-center justify-center shadow-md`}
+                    onClick={() => setMealType("other" as MealType)}
+                  >
+                    Other Meal
+                  </button>
+                  <button 
+                    className={`${mealType === "bedtime" ? 'bg-blue-600' : 'bg-blue-400'} hover:bg-blue-500 text-white text-md font-bold rounded-xl p-2 flex-1 flex items-center justify-center shadow-md`}
+                    onClick={() => setMealType("bedtime" as MealType)}
+                  >
+                    Bedtime
+                  </button>
                 </div>
                 
                 {/* Input setter buttons */}
@@ -330,13 +354,13 @@ export default function FunCalculatorPage() {
                           <div className="font-bold">Carbs:</div>
                           <div>{carbValue}g</div>
                           
-                          <div className="font-bold">Base Dose:</div>
-                          <div>{insulinCalcResult.baseDose.toFixed(1)} units</div>
+                          <div className="font-bold">Meal Insulin:</div>
+                          <div>{insulinCalcResult.mealInsulin.toFixed(1)} units</div>
                         </>
                       )}
                       
                       <div className="font-bold">Correction:</div>
-                      <div>{insulinCalcResult.correctionDose.toFixed(1)} units</div>
+                      <div>{insulinCalcResult.correctionInsulin.toFixed(1)} units</div>
                       
                       <div className="font-bold text-primary">Total Insulin:</div>
                       <div className="text-primary font-bold">{insulinCalcResult.totalInsulin.toFixed(1)} units</div>
