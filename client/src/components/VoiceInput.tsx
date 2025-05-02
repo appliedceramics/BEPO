@@ -56,28 +56,48 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({
           numberMatches
         });
         
-        // Pattern: numbers + plus + carb total = calculate and complete in one action
-        if (hasCarbTotal && hasAddition && numberMatches && numberMatches.length > 1) {
-          console.log("✓ Detected full carb calculation pattern:", lowerText);
+        // Pattern 1: Complete carbTotal calculation in one go - highest priority
+        // Example: "15 plus 20 plus 10 carb total"
+        if (numberMatches && numberMatches.length > 1) {
+          console.log("Multiple numbers detected", numberMatches);
           
-          // Extract and calculate the numbers
+          // Extract and calculate the numbers regardless of keywords
           const numbers = numberMatches.map(match => parseFloat(match));
           const sum = numbers.reduce((total, num) => total + num, 0);
-          console.log("Calculated sum:", sum, "from numbers:", numbers);
+          console.log("Calculated sum for all potential patterns:", sum, "from numbers:", numbers);
           
-          // Set the final calculated result
-          onNumberInput(sum.toString());
+          // Look for addition operators or carb total commands anywhere in the input
+          const hasAddition = additionOperators.some(op => lowerText.includes(op));
+          const hasCarbTotal = carbTotalCommands.some(cmd => lowerText.includes(cmd));
           
-          // Generate confirmation sound
-          generateConfirmSound();
+          // DEBUG - log all the pattern matching details
+          console.log("Voice pattern analysis:", {
+            hasCarbTotal,
+            hasAddition, 
+            numberMatches,
+            numbers,
+            sum
+          });
           
-          // Immediately send the carbTotal command to finalize the operation
-          setTimeout(() => {
-            console.log("Auto-completing with carbTotal command");
-            onCommandInput('carbTotal');
-          }, 300); // Small delay to ensure number is processed first
-          
-          setFeedback(`Calculated: ${numbers.join(' + ')} = ${sum}`);
+          // Check if we have both numbers and any carb total indicator
+          if (hasCarbTotal || lowerText.includes('equals') || lowerText.includes('=')) {
+            console.log("✓ SIMPLIFIED PATTERN DETECTED - finalizing calculation");
+            
+            // Apply the calculated sum as the result
+            onNumberInput(sum.toString());
+            
+            // Play an audible confirmation
+            generateConfirmSound();
+            
+            // Send the command to complete the carbTotal operation
+            setTimeout(() => {
+              console.log("Auto-completing with carbTotal command");
+              onCommandInput('carbTotal');
+            }, 300);
+            
+            setFeedback(`Calculated: ${numbers.join(' + ')} = ${sum}`);
+            return; // Exit early - we've handled this case
+          }
         }
         // Normal carb total command
         else if (hasCarbTotal) {

@@ -65,6 +65,14 @@ const commandKeywords: Record<string, string> = {
   'carbs total': 'carbTotal',
   'carbohydrate total': 'carbTotal',
   'total carbs': 'carbTotal',
+  'carb value': 'carbTotal',
+  'total value': 'carbTotal',
+  'that is a total of': 'carbTotal',
+  'that\'s a total of': 'carbTotal',
+  'that gives us': 'carbTotal',
+  'for a total of': 'carbTotal',
+  'in total': 'carbTotal',
+  'is equal to': 'carbTotal',
   'total': 'carbTotal'
 };
 
