@@ -45,7 +45,7 @@ export default function FunCalculatorPage() {
   const [purposeButtonsActive, setPurposeButtonsActive] = useState(true);
   const typewriterRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Voice input states
+  // Voice input states - disabled by default
   type VoiceInputModeType = 'none' | 'bg' | 'carb-total';
   const [voiceInputMode, setVoiceInputMode] = useState<VoiceInputModeType>('none');
   const [showVoiceInstructions, setShowVoiceInstructions] = useState(false);
@@ -940,18 +940,13 @@ export default function FunCalculatorPage() {
               ) : (
                 <div className={wizardStep !== 'purpose' ? "text-green-300 text-sm" : "text-white text-sm"}>{displayText}</div>
               )}
-              {/* Calculator display for values with voice input */}
+              {/* Calculator display for values with typewriter effect */}
               <div className="flex justify-between items-center mt-2">
-                <div className="flex items-center">
-                  <VoiceInput 
-                    onNumberInput={handleVoiceNumber}
-                    onOperationInput={handleVoiceOperation}
-                    onCommandInput={handleVoiceCommand}
-                    enabled={voiceInputMode !== 'none'}
-                  />
-                </div>
-                <div className="text-right text-3xl flex-grow">
-                  {displayValue === "Select Dosage Purpose" ? "" : displayValue}
+                <div className="text-right text-3xl w-full">
+                  {displayValue === "Select Dosage Purpose" ? "" : 
+                    wizardStep === 'purpose' || (wizardStep === 'bg' && displayValue === "0") || (wizardStep === 'carbs' && displayValue === "0") ?
+                    <TypingEffect text={displayValue} speed={80} /> : displayValue
+                  }
                 </div>
               </div>
               {/* Calculation history */}
