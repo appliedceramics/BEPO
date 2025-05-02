@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Card } from "@/components/ui/card";
 import { convertBgToMgdl } from "@/lib/correctionCalculator";
-import { useToast } from "@/hooks/use-toast";
+// import { useToast } from "@/hooks/use-toast"; // Disabled toasts
 import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
@@ -18,7 +18,7 @@ import { VoiceInstructions } from "../components/VoiceInstructions";
 
 export default function FunCalculatorPage() {
   const { user } = useAuth();
-  const { toast } = useToast();
+  // Toasts completely disabled as requested
   const [displayValue, setDisplayValue] = useState("Select Dosage Purpose");
   const [previousValue, setPreviousValue] = useState<number | null>(null);
   const [operation, setOperation] = useState<string | null>(null);
@@ -116,11 +116,7 @@ export default function FunCalculatorPage() {
         setCarbButtonActive(false);
         setPurposeButtonsActive(false);
 
-        // Show toast with dosage info
-        toast({
-          title: "24-Hour Insulin",
-          description: `Fixed dosage: ${settings.longActingDosage} units`
-        });
+        // Toasts disabled
       } 
       // For all other meal types, proceed normally
       else {
@@ -945,11 +941,9 @@ export default function FunCalculatorPage() {
               {/* Calculator display for values with typewriter effect */}
               <div className="flex justify-between items-center mt-2">
                 <div className="text-right text-3xl w-full">
-                  {displayValue === "Select Dosage Purpose" ? "" : 
-                    (displayValue && displayValue !== "0") ? (
-                      <TypingEffect text={displayValue} speed={40} className="text-yellow-300" />
-                    ) : displayValue
-                  }
+                  {displayValue === "Select Dosage Purpose" ? "" : (
+                    <span className="text-white">{displayValue}</span>
+                  )}
                 </div>
               </div>
               {/* Calculation history */}
