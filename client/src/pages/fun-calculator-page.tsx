@@ -814,12 +814,20 @@ export default function FunCalculatorPage() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >9</motion.button>
-                <motion.button 
-                  className="bg-gradient-to-b from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
-                  onClick={() => handleOperator("/")}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >÷</motion.button>
+                <div className="h-12 bg-gradient-to-b from-green-600 to-emerald-700 rounded-lg grid grid-cols-2 overflow-hidden shadow-md">
+                  <motion.button 
+                    className="h-full hover:bg-green-700/40 text-white text-xl font-bold flex items-center justify-center border-r border-green-800/30"
+                    onClick={() => handleOperator("/")}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >÷</motion.button>
+                  <motion.button 
+                    className="h-full hover:bg-green-700/40 text-white text-xl font-bold flex items-center justify-center"
+                    onClick={() => handleOperator("*")}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >×</motion.button>
+                </div>
                 
                 {/* Row 2 */}
                 <motion.button 
@@ -842,10 +850,10 @@ export default function FunCalculatorPage() {
                 >6</motion.button>
                 <motion.button 
                   className="bg-gradient-to-b from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
-                  onClick={() => handleOperator("*")}
+                  onClick={() => handleOperator("-")}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                >×</motion.button>
+                >-</motion.button>
                 
                 {/* Row 3 */}
                 <motion.button 
