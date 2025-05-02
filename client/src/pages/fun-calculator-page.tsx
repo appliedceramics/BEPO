@@ -15,7 +15,7 @@ import { motion } from "framer-motion";
 export default function FunCalculatorPage() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [displayValue, setDisplayValue] = useState("Why are you taking insulin?");
+  const [displayValue, setDisplayValue] = useState("Select Dosage Purpose");
   const [previousValue, setPreviousValue] = useState<number | null>(null);
   const [operation, setOperation] = useState<string | null>(null);
   const [waitingForSecondOperand, setWaitingForSecondOperand] = useState(false);
