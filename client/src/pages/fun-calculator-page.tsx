@@ -343,143 +343,199 @@ export default function FunCalculatorPage() {
     }
   };
 
+  // Add state for carb total mode
+  const [carbTotalMode, setCarbTotalMode] = useState(false);
+
+  // Handle carb total mode toggle
+  const toggleCarbTotalMode = () => {
+    if (!carbTotalMode) {
+      setCarbTotalMode(true);
+      toast({
+        title: "Carb Total Mode Activated",
+        description: "Use calculator to add up carb values, then press '=' for total",
+      });
+      // Clear calculator to start fresh
+      clearCalculator();
+    } else {
+      // If already in carb total mode, this will finalize the calculation
+      const total = parseFloat(displayValue);
+      if (!isNaN(total)) {
+        setCarbValue(total);
+        toast({
+          title: "Carb Total Set",
+          description: `Carbohydrate value set to ${total}g`,
+        });
+      }
+      setCarbTotalMode(false);
+    }
+  };
+
+  // Validate Total For Me button
+  const handleTotalForMe = () => {
+    if (!carbTotalMode) {
+      toast({
+        title: "Action Required",
+        description: "Please press 'Carb Total' button first",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    calculateTotalForMe();
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navigation />
       
       <div className="flex-1 flex justify-center items-center p-4 bg-gradient-to-b from-blue-50 to-purple-50">
-        <div className="w-full max-w-3xl bg-white rounded-3xl shadow-xl overflow-hidden">
-          {/* Calculator header */}
-          <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-4 text-center">
-            <h1 className="text-3xl font-bold text-white">BEPO Fun Calculator</h1>
+        <div className="w-full max-w-md bg-gray-800 rounded-3xl shadow-2xl overflow-hidden">
+          {/* Calculator header - TITLE */}
+          <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-3 text-center">
+            <h1 className="text-2xl font-bold text-white">BEPO Fun Calculator</h1>
           </div>
           
-          {/* Insulin calculator section - MOVED TO TOP */}
-          <div className="p-4 bg-yellow-100">
-            <h2 className="text-xl font-bold text-center mb-2">Insulin Calculator</h2>
-            
-            {/* Meal type selection */}
-            <div className="flex gap-2 mb-3">
-              <button 
-                className={`${mealType === "first" ? 'bg-blue-600' : 'bg-blue-400'} hover:bg-blue-500 text-white text-md font-bold rounded-xl p-2 flex-1 flex items-center justify-center shadow-md`}
-                onClick={() => setMealType("first" as MealType)}
-              >
-                Breakfast
-              </button>
-              <button 
-                className={`${mealType === "other" ? 'bg-blue-600' : 'bg-blue-400'} hover:bg-blue-500 text-white text-md font-bold rounded-xl p-2 flex-1 flex items-center justify-center shadow-md`}
-                onClick={() => setMealType("other" as MealType)}
-              >
-                Other Meal
-              </button>
-              <button 
-                className={`${mealType === "bedtime" ? 'bg-blue-600' : 'bg-blue-400'} hover:bg-blue-500 text-white text-md font-bold rounded-xl p-2 flex-1 flex items-center justify-center shadow-md`}
-                onClick={() => setMealType("bedtime" as MealType)}
-              >
-                Bedtime
-              </button>
+          {/* Display area */}
+          <div className="p-3 bg-gray-900">
+            <div className="text-right text-gray-400 mb-1 text-xs">
+              {carbTotalMode ? "CARB TOTAL MODE" : ""}
             </div>
-            
-            {/* Input setter buttons with voice support */}
-            <div className="flex gap-2 mb-3">
-              <div className="flex-1 flex flex-col gap-1">
-                <InputSetterButton action={setAsBloodGlucose} label={`Set BG (${profile?.bgUnit || 'mmol/L'})`} />
-                <button 
-                  className="bg-blue-400 hover:bg-blue-500 text-white text-xs font-bold rounded-lg py-1 flex items-center justify-center shadow-md"
-                  onClick={() => startVoiceInput('bg')}
-                >
-                  🎤 Voice Input
-                </button>
-              </div>
-              
-              <div className="flex-1 flex flex-col gap-1">
-                <InputSetterButton action={setAsCarbs} label="Set Carbs (g)" />
-                <button 
-                  className="bg-blue-400 hover:bg-blue-500 text-white text-xs font-bold rounded-lg py-1 flex items-center justify-center shadow-md"
-                  onClick={() => startVoiceInput('carbs')}
-                >
-                  🎤 Voice Input
-                </button>
-              </div>
-            </div>
-            
-            {/* Total For Me button */}
-            <button
-              className="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold rounded-xl py-2 mb-3 shadow-md"
-              onClick={calculateTotalForMe}
-            >
-              Total For Me (Use Current Value)
-            </button>
-            
-            {/* Insulin calculation results */}
-            {mealType && bgValue ? (
-              <div className="bg-white p-3 rounded-lg shadow-inner">
-                <div className="grid grid-cols-2 gap-1 text-sm">
-                  <div className="font-bold">Blood Glucose:</div>
-                  <div>{bgValue} {profile?.bgUnit || 'mmol/L'}</div>
-                  
-                  {carbValue !== null && (
-                    <>
-                      <div className="font-bold">Carbs:</div>
-                      <div>{carbValue}g</div>
-                      
-                      <div className="font-bold">Meal Insulin:</div>
-                      <div>{insulinCalcResult.mealInsulin.toFixed(1)} units</div>
-                    </>
-                  )}
-                  
-                  <div className="font-bold">Correction:</div>
-                  <div>{insulinCalcResult.correctionInsulin.toFixed(1)} units</div>
-                  
-                  <div className="font-bold text-primary">Total Insulin:</div>
-                  <div className="text-primary font-bold">{insulinCalcResult.totalInsulin.toFixed(1)} units</div>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center text-gray-500 italic">
-                Select meal type and enter blood glucose to calculate insulin
-              </div>
-            )}
-          </div>
-          
-          {/* Display area with previous answer */}
-          <div className="p-4 bg-gray-100">
-            <div className="text-right text-gray-500 mb-1">
-              Previous Answer: {previousValue !== null ? previousValue : "0"}
-            </div>
-            <div className="bg-white border-2 border-gray-300 rounded-xl p-4 text-right text-5xl font-bold">
+            <div className="bg-gray-700 border border-gray-600 rounded-lg p-3 text-right text-4xl font-bold text-white mb-3">
               {displayValue}
             </div>
           </div>
           
-          <div className="p-4">
-            {/* Main calculator area */}
-            <div className="flex flex-col gap-4">
-              {/* Clear button */}
-              <ClearButton />
-              
-              {/* Number pad */}
-              <div className="bg-blue-100 p-4 rounded-xl grid grid-cols-4 gap-4">
-                <NumberButton digit="7" />
-                <NumberButton digit="8" />
-                <NumberButton digit="9" />
-                <OperatorButton operator="/" label="÷" />
-                
-                <NumberButton digit="4" />
-                <NumberButton digit="5" />
-                <NumberButton digit="6" />
-                <OperatorButton operator="*" label="×" />
-                
-                <NumberButton digit="1" />
-                <NumberButton digit="2" />
-                <NumberButton digit="3" />
-                <OperatorButton operator="-" label="-" />
-                
-                <NumberButton digit="0" />
-                <DecimalButton />
-                <EqualsButton />
-                <OperatorButton operator="+" label="+" />
+          <div className="p-3 bg-gray-800">
+            {/* Calculator body with all controls integrated */}
+            <div className="flex flex-col gap-2">
+              {/* Purpose of Dosage buttons - First row */}
+              <div className="grid grid-cols-4 gap-2 mb-2">
+                <button 
+                  className={`${mealType === "first" ? 'bg-blue-600' : 'bg-blue-400'} hover:bg-blue-500 text-white text-sm font-bold rounded-lg h-14 flex items-center justify-center shadow-md`}
+                  onClick={() => setMealType("first" as MealType)}
+                >
+                  <span className="text-center">Meal 1</span>
+                </button>
+                <button 
+                  className={`${mealType === "other" ? 'bg-blue-600' : 'bg-blue-400'} hover:bg-blue-500 text-white text-sm font-bold rounded-lg h-14 flex items-center justify-center shadow-md`}
+                  onClick={() => setMealType("other" as MealType)}
+                >
+                  <span className="text-center">Other Meal</span>
+                </button>
+                <button 
+                  className={`${mealType === "bedtime" ? 'bg-blue-600' : 'bg-blue-400'} hover:bg-blue-500 text-white text-sm font-bold rounded-lg h-14 flex items-center justify-center shadow-md`}
+                  onClick={() => setMealType("bedtime" as MealType)}
+                >
+                  <span className="text-center">Bedtime</span>
+                </button>
+                <button 
+                  className={`${mealType === "longActing" ? 'bg-green-600' : 'bg-green-500'} hover:bg-green-600 text-white text-sm font-bold rounded-lg h-14 flex items-center justify-center shadow-md`}
+                  onClick={() => setMealType("longActing" as MealType)}
+                >
+                  <span className="text-center">24-Hour</span>
+                </button>
               </div>
+              
+              {/* Current BG and Carb Total - Second row */}
+              <div className="grid grid-cols-2 gap-2 mb-2">
+                <div className="flex flex-col">
+                  <button 
+                    className="bg-teal-500 hover:bg-teal-600 text-white text-sm font-bold rounded-lg h-14 shadow-md flex items-center justify-center mb-1"
+                    onClick={setAsBloodGlucose}
+                  >
+                    Current BG {bgValue ? `(${bgValue})` : ''}
+                  </button>
+                  <button 
+                    className="bg-teal-400 hover:bg-teal-500 text-white text-xs font-bold rounded-lg h-8 flex items-center justify-center shadow-md"
+                    onClick={() => startVoiceInput('bg')}
+                  >
+                    🎤 Voice Input
+                  </button>
+                </div>
+                <div className="flex flex-col">
+                  <button 
+                    className={`${carbTotalMode ? 'bg-yellow-600' : 'bg-yellow-500'} hover:bg-yellow-600 text-white text-sm font-bold rounded-lg h-14 shadow-md flex items-center justify-center mb-1`}
+                    onClick={toggleCarbTotalMode}
+                  >
+                    Carb Total {carbValue ? `(${carbValue}g)` : ''}
+                  </button>
+                  <button 
+                    className="bg-yellow-400 hover:bg-yellow-500 text-white text-xs font-bold rounded-lg h-8 flex items-center justify-center shadow-md"
+                    onClick={() => startVoiceInput('carbs')}
+                  >
+                    🎤 Voice Input
+                  </button>
+                </div>
+              </div>
+              
+              {/* Clear and Total For Me - Third row */}
+              <div className="grid grid-cols-4 gap-2 mb-2">
+                <button 
+                  className="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-lg h-10 col-span-2 flex items-center justify-center shadow-md"
+                  onClick={clearCalculator}
+                >
+                  CLEAR ENTRY
+                </button>
+                <button
+                  className={`${carbTotalMode ? 'bg-purple-600' : 'bg-purple-500'} hover:bg-purple-600 text-white text-xs font-bold rounded-lg h-10 col-span-2 flex items-center justify-center shadow-md`}
+                  onClick={handleTotalForMe}
+                >
+                  Total For Me
+                </button>
+              </div>
+              
+              {/* Number pad and operators - Compact layout */}
+              <div className="grid grid-cols-4 gap-2">
+                <button className="bg-gray-600 hover:bg-gray-500 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => inputDigit("7")}>7</button>
+                <button className="bg-gray-600 hover:bg-gray-500 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => inputDigit("8")}>8</button>
+                <button className="bg-gray-600 hover:bg-gray-500 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => inputDigit("9")}>9</button>
+                <button className="bg-green-500 hover:bg-green-600 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => handleOperator("/")}>÷</button>
+                
+                <button className="bg-gray-600 hover:bg-gray-500 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => inputDigit("4")}>4</button>
+                <button className="bg-gray-600 hover:bg-gray-500 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => inputDigit("5")}>5</button>
+                <button className="bg-gray-600 hover:bg-gray-500 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => inputDigit("6")}>6</button>
+                <button className="bg-green-500 hover:bg-green-600 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => handleOperator("*")}>×</button>
+                
+                <button className="bg-gray-600 hover:bg-gray-500 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => inputDigit("1")}>1</button>
+                <button className="bg-gray-600 hover:bg-gray-500 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => inputDigit("2")}>2</button>
+                <button className="bg-gray-600 hover:bg-gray-500 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => inputDigit("3")}>3</button>
+                <button className="bg-green-500 hover:bg-green-600 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => handleOperator("-")}>-</button>
+                
+                <button className="bg-gray-600 hover:bg-gray-500 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => inputDigit("0")}>0</button>
+                <button className="bg-gray-600 hover:bg-gray-500 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={inputDecimal}>.</button>
+                <button className="bg-purple-500 hover:bg-purple-600 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={handleEquals}>=</button>
+                <button className="bg-green-500 hover:bg-green-600 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md" onClick={() => handleOperator("+")}>+</button>
+              </div>
+              
+              {/* Insulin calculation results */}
+              {mealType && bgValue ? (
+                <div className="bg-gray-700 p-3 rounded-lg shadow-inner mt-2 text-white">
+                  <div className="grid grid-cols-2 gap-1 text-sm">
+                    <div className="font-bold">Blood Glucose:</div>
+                    <div>{bgValue} {profile?.bgUnit || 'mmol/L'}</div>
+                    
+                    {carbValue !== null && (
+                      <>
+                        <div className="font-bold">Carbs:</div>
+                        <div>{carbValue}g</div>
+                        
+                        <div className="font-bold">Meal Insulin:</div>
+                        <div>{insulinCalcResult.mealInsulin.toFixed(1)} units</div>
+                      </>
+                    )}
+                    
+                    <div className="font-bold">Correction:</div>
+                    <div>{insulinCalcResult.correctionInsulin.toFixed(1)} units</div>
+                    
+                    <div className="font-bold text-green-300">Total Insulin:</div>
+                    <div className="text-green-300 font-bold">{insulinCalcResult.totalInsulin.toFixed(1)} units</div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center text-gray-400 italic text-sm mt-2">
+                  Select meal type and enter values to calculate insulin
+                </div>
+              )}
             </div>
           </div>
         </div>
