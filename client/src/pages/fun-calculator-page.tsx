@@ -273,6 +273,41 @@ export default function FunCalculatorPage() {
     console.log("State updated: mealType =", mealType, ", carbValue =", carbValue, ", bgValue =", bgValue);
   }, [mealType, carbValue, bgValue]);
   
+  // Monitor for "Calculation Success!" to handle AC button afterward
+  useEffect(() => {
+    // When display shows "Calculation Success!", add pulse animation to AC button
+    if (displayValue === "Calculation Success!") {
+      // Add CSS for pulse animation if not already present
+      if (!document.getElementById('pulse-animation-style')) {
+        const style = document.createElement('style');
+        style.id = 'pulse-animation-style';
+        style.innerHTML = `
+          @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+          }
+          .calculator-ac-button.pulse-animation {
+            animation: pulse 1.5s infinite;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+      
+      // Add pulse animation class to the AC button
+      const acButton = document.querySelector('.calculator-ac-button');
+      if (acButton) {
+        acButton.classList.add('pulse-animation');
+      }
+    } else {
+      // Remove pulse animation when not showing "Calculation Success!"
+      const acButton = document.querySelector('.calculator-ac-button');
+      if (acButton) {
+        acButton.classList.remove('pulse-animation');
+      }
+    }
+  }, [displayValue]);
+  
   // Initialize calculated insulin values
   const [insulinCalcResult, setInsulinCalcResult] = useState({
     mealInsulin: 0,
@@ -861,7 +896,7 @@ export default function FunCalculatorPage() {
               {/* Clear and AI Food Search - Third row */}
               <div className="grid grid-cols-7 gap-2 mb-2">
                 <motion.button 
-                  className="bg-gradient-to-r from-slate-800 to-red-900 hover:from-slate-700 hover:to-red-800 text-white text-xs font-bold rounded-lg h-10 col-span-2 flex items-center justify-center shadow-lg"
+                  className="calculator-ac-button bg-gradient-to-r from-slate-800 to-red-900 hover:from-slate-700 hover:to-red-800 text-white text-xs font-bold rounded-lg h-10 col-span-2 flex items-center justify-center shadow-lg"
                   onClick={allClear}
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
