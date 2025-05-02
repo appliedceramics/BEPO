@@ -512,17 +512,22 @@ export default function FunCalculatorPage() {
                     )}
                     onClick={setAsBloodGlucose}
                   >
-                    <div className="flex-grow flex items-center justify-center text-sm pt-1">
-                      Current BG {bgValue ? `(${bgValue})` : ''}
-                    </div>
-                    <div 
-                      className="bg-teal-600 w-full py-1 flex items-center justify-center text-xs cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        startVoiceInput('bg');
-                      }}
-                    >
-                      <Mic className="h-3 w-3 mr-1" /> Voice Input
+                    <div className="h-full flex">
+                      <div className="flex-grow flex items-center justify-center text-sm">
+                        Current BG {bgValue ? `(${bgValue})` : ''}
+                      </div>
+                      <div 
+                        className="bg-teal-600 w-12 flex items-center justify-center text-xs cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          startVoiceInput('bg');
+                        }}
+                      >
+                        <div className="flex flex-col items-center">
+                          <Mic className="h-4 w-4 mb-1" /> 
+                          <span className="text-[10px]">Voice</span>
+                        </div>
+                      </div>
                     </div>
                   </button>
                 </motion.div>
@@ -540,17 +545,22 @@ export default function FunCalculatorPage() {
                     )}
                     onClick={toggleCarbTotalMode}
                   >
-                    <div className="flex-grow flex items-center justify-center text-sm pt-1">
-                      Carb Total {carbValue ? `(${carbValue}g)` : ''}
-                    </div>
-                    <div 
-                      className="bg-yellow-600 w-full py-1 flex items-center justify-center text-xs cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        startVoiceInput('carbs');
-                      }}
-                    >
-                      <Mic className="h-3 w-3 mr-1" /> Voice Input
+                    <div className="h-full flex">
+                      <div className="flex-grow flex items-center justify-center text-sm">
+                        Carb Total {carbValue ? `(${carbValue}g)` : ''}
+                      </div>
+                      <div 
+                        className="bg-yellow-600 w-12 flex items-center justify-center text-xs cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          startVoiceInput('carbs');
+                        }}
+                      >
+                        <div className="flex flex-col items-center">
+                          <Mic className="h-4 w-4 mb-1" /> 
+                          <span className="text-[10px]">Voice</span>
+                        </div>
+                      </div>
                     </div>
                   </button>
                 </motion.div>
