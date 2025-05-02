@@ -357,42 +357,47 @@ export default function FunCalculatorPage() {
 
   // Calculate insulin when inputs change
   useEffect(() => {
-    // Only calculate if we have all necessary inputs
-    if (settings && mealType && bgValue) {
-      try {
-        // Convert bg value if needed
-        const bgMgdl = profile?.bgUnit === "mmol/L" ? convertBgToMgdl(bgValue) : bgValue;
-
-        console.log('Calculator detected input change - mealType:', mealType, 'carbValue:', carbValue, 'bgValue:', bgValue);
-
-        // Calculate insulin doses using default values if settings are missing
-        const calculationParams = {
-          mealType: mealType as MealType,
-          bgValue: bgValue,
-          carbValue: carbValue || undefined,
-          insulinToCarbohydrateRatio: settings?.insulinToCarbohydrateRatio || 10,
-          targetBgValue: settings?.targetBgValue || 5.6,
-          correctionFactor: settings?.correctionFactor || 1.0,
-          insulinSensitivityFactor: settings?.insulinSensitivityFactor || 35
-        };
-
-        // For long-acting insulin, add the fixed dosage from settings
-        if (mealType === 'longActing' && settings?.longActingDosage) {
-          calculationParams.longActingDosage = settings.longActingDosage;
+    // Check if we can calculate insulin based on inputs
+    if (settings && mealType) {
+      // For long-acting insulin, we don't need blood glucose values
+      const canCalculate = mealType === 'longActing' || bgValue;
+      
+      if (canCalculate) {
+        try {
+          console.log('Calculator detected input change - mealType:', mealType, 'carbValue:', carbValue, 'bgValue:', bgValue);
+  
+          // Calculate insulin doses using default values if settings are missing
+          const calculationParams: any = {
+            mealType: mealType as MealType,
+            insulinToCarbohydrateRatio: settings?.insulinToCarbohydrateRatio || 10,
+            targetBgValue: settings?.targetBgValue || 5.6,
+            correctionFactor: settings?.correctionFactor || 1.0,
+            insulinSensitivityFactor: settings?.insulinSensitivityFactor || 35
+          };
+          
+          // For non-long-acting insulin, we need BG value and possibly carb value
+          if (mealType !== 'longActing') {
+            // Convert bg value if needed
+            calculationParams.bgValue = bgValue;
+            calculationParams.carbValue = carbValue || undefined;
+          } else {
+            // For long-acting insulin, add the fixed dosage from settings
+            calculationParams.longActingDosage = settings?.longActingDosage || 0;
+          }
+  
+          const result = calculateInsulin(calculationParams);
+  
+          // Set calculated results
+          setInsulinCalcResult({
+            mealInsulin: result.mealInsulin,
+            correctionInsulin: result.correctionInsulin,
+            totalInsulin: result.totalInsulin,
+            bgMgdl: result.bgMgdl,
+            calculationMethod: result.calculationMethod || ""
+          });
+        } catch (error) {
+          console.error("Error calculating insulin:", error);
         }
-
-        const result = calculateInsulin(calculationParams);
-
-        // Set calculated results
-        setInsulinCalcResult({
-          mealInsulin: result.mealInsulin,
-          correctionInsulin: result.correctionInsulin,
-          totalInsulin: result.totalInsulin,
-          bgMgdl: result.bgMgdl,
-          calculationMethod: result.calculationMethod || ""
-        });
-      } catch (error) {
-        console.error("Error calculating insulin:", error);
       }
     }
   }, [mealType, bgValue, carbValue, settings, profile]);
@@ -835,10 +840,10 @@ export default function FunCalculatorPage() {
                 >6</motion.button>
                 <motion.button 
                   className="bg-gradient-to-b from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
-                  onClick={() => handleOperator("*")}
+                  onClick={() => handleOperator("-")}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                >×</motion.button>
+                >-</motion.button>
                 
                 <motion.button 
                   className="bg-gradient-to-b from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
@@ -860,10 +865,10 @@ export default function FunCalculatorPage() {
                 >3</motion.button>
                 <motion.button 
                   className="bg-gradient-to-b from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
-                  onClick={() => handleOperator("-")}
+                  onClick={() => handleOperator("*")}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                >-</motion.button>
+                >×</motion.button>
                 
                 <motion.button 
                   className="bg-gradient-to-b from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
@@ -878,13 +883,14 @@ export default function FunCalculatorPage() {
                   whileTap={{ scale: 0.95 }}
                 >.</motion.button>
                 <motion.button 
-                  className="bg-gradient-to-b from-purple-600 to-fuchsia-700 hover:from-purple-700 hover:to-fuchsia-800 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
+                  className="bg-gradient-to-b from-purple-600 to-fuchsia-700 hover:from-purple-700 hover:to-fuchsia-800 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md col-span-2"
                   onClick={handleEquals}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >=</motion.button>
+                {/* Addition button takes two spaces and uses Lunch/Dinner color */}
                 <motion.button 
-                  className="bg-gradient-to-b from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
+                  className="bg-gradient-to-b from-sky-600 to-sky-700 hover:from-sky-500 hover:to-sky-600 text-white text-xl font-bold rounded-lg h-12 col-span-2 flex items-center justify-center shadow-md"
                   onClick={() => handleOperator("+")}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}

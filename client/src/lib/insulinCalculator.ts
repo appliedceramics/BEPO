@@ -49,20 +49,20 @@ export function calculateInsulin(params: CalculationParams): CalculationResult {
     longActingDosage = 0
   } = params;
   
-  // Convert BG values from mmol/L to mg/dL for calculations
-  const bgMgdl = convertBgToMgdl(bgValue);
-  const targetBgMgdl = convertBgToMgdl(targetBgValue);
-
-  // For long-acting insulin, we use the fixed dosage from settings
+  // For long-acting insulin, we use the fixed dosage from settings and don't need BG values
   if (mealType === "longActing") {
     return {
       mealInsulin: 0,
       correctionInsulin: 0,
       totalInsulin: longActingDosage,
-      bgMgdl,
+      bgMgdl: 0, // Not needed for long-acting insulin
       calculationMethod: "Fixed long-acting insulin dosage"
     };
   }
+  
+  // Convert BG values from mmol/L to mg/dL for calculations
+  const bgMgdl = convertBgToMgdl(bgValue);
+  const targetBgMgdl = convertBgToMgdl(targetBgValue);
   
   // Step 1: Calculate insulin for food (Meal Insulin)
   let mealInsulin = 0;
