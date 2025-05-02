@@ -32,14 +32,23 @@ const numericKeywords: Record<string, string> = {
 const operationKeywords: Record<string, string> = {
   'plus': '+',
   'add': '+',
+  'added to': '+',
+  'sum': '+',
+  'and': '+',  // Add 'and' as a synonym for plus
+  'then': '+', // Add 'then' as another synonym for plus
   'minus': '-',
   'subtract': '-',
+  'less': '-',
+  'take away': '-',
   'times': '*',
   'multiply': '*',
-  'divided by': '/',
+  'multiplied by': '*',
   'divide': '/',
+  'divided by': '/',
+  'over': '/',
   'equals': '=',
-  'equal': '='
+  'equal': '=',
+  'is': '='
 };
 
 // Define function commands

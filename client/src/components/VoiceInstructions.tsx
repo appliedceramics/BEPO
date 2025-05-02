@@ -55,13 +55,20 @@ export const VoiceInstructions: React.FC<VoiceInstructionsProps> = ({ isVisible,
   
   return (
     <motion.div
-      className="bg-gray-800/90 text-white p-2 rounded-md shadow-md text-xs max-w-xs border border-gray-600 mb-2"
+      className="bg-gray-800/95 text-white p-3 rounded-md shadow-xl text-xs max-w-xs border border-gray-600 mb-2"
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      transition={{ duration: 0.2 }}
+      transition={{ duration: 0.3 }}
     >
-      {content}
+      <div className="relative">
+        {/* Microphone indicator */}
+        <div className="absolute -top-2 -right-2 bg-pink-600 rounded-full w-5 h-5 flex items-center justify-center">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
+          <span className="relative block h-3 w-3 rounded-full bg-pink-500"></span>
+        </div>
+        {content}
+      </div>
     </motion.div>
   );
 };

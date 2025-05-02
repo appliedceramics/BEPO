@@ -570,8 +570,17 @@ export default function FunCalculatorPage() {
   // Handle voice input commands and operations
   const handleVoiceCommand = (command: string) => {
     console.log("Voice command received:", command, "Mode:", voiceInputMode);
-    if (command === 'carbTotal' && voiceInputMode === 'carb-total') {
+    
+    if (command === 'carbTotal') {
+      // Allow carb total command to work in any mode, but log more details if not in carb-total mode
+      if (voiceInputMode !== 'carb-total') {
+        console.log("WARNING: Carb Total command received but not in carb-total mode!", 
+                    "Current mode:", voiceInputMode, 
+                    "Will still attempt to process...");
+      }
       processVoiceCarbTotal();
+    } else {
+      console.log("Other command received:", command);
     }
   };
   

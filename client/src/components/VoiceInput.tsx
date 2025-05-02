@@ -38,15 +38,26 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({
       // Process the new part of the transcript
       const newText = finalTranscript.slice(lastProcessedTranscript.length).trim();
       if (newText) {
+        console.log("New voice input detected:", newText);
         setFeedback(`Heard: ${newText}`);
         
         // Look for any carb total variations
         const carbTotalCommands = ['carb total', 'carbs total', 'carbohydrate total', 'total carbs', 'total'];
         const lowerText = newText.toLowerCase();
+        
+        console.log("Checking for carb total commands in:", lowerText);
+        
+        // Check each command variation individually for better debugging
+        carbTotalCommands.forEach(cmd => {
+          if (lowerText.includes(cmd)) {
+            console.log(`Found command match: '${cmd}' in the text`);
+          }
+        });
+        
         const hasCarbTotal = carbTotalCommands.some(cmd => lowerText.includes(cmd));
         
         if (hasCarbTotal) {
-          console.log("Detected carb total command in:", lowerText);
+          console.log("✓ Detected carb total command in:", lowerText);
           // Generate confirmation sound
           generateConfirmSound();
           onCommandInput('carbTotal');
