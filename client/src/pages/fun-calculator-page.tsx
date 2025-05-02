@@ -40,7 +40,7 @@ const DisplayTypingEffect = ({ text }: { text: string }) => {
     };
   }, [text]);
   
-  return <span className="text-yellow-300">{displayedText}</span>;
+  return <span className="digital-display">{displayedText}</span>;
 };
 
 export default function FunCalculatorPage() {
@@ -603,18 +603,18 @@ export default function FunCalculatorPage() {
         <h1 className="text-xl font-bold mb-4 text-gray-800">BEPO Insulin Calculator</h1>
         
         <Card className="bg-white border border-gray-300 shadow-lg overflow-hidden">
-          <div className="bg-gray-200 p-4 rounded-t-lg">
-            <div className="calculator-display bg-gray-700 rounded-lg p-3 shadow-inner overflow-hidden">
+          <div className="bg-gray-800 p-4 rounded-t-lg">
+            <div className="calculator-display bg-gray-900 rounded-lg p-3 shadow-inner overflow-hidden digital-display-container">
               {/* Instruction text with typing effect if active */}
               {showTypingEffect ? (
                 <TypingEffect 
                   text={displayText} 
                   speed={40} 
-                  className={wizardStep !== 'purpose' ? "text-green-300 text-sm" : "text-white text-sm"} 
+                  className="digital-display text-sm" 
                   onComplete={() => setShowTypingEffect(false)}
                 />
               ) : (
-                <div className={wizardStep !== 'purpose' ? "text-green-300 text-sm" : "text-white text-sm"}>{displayText}</div>
+                <div className="digital-display text-sm">{displayText}</div>
               )}
               {/* Calculator display for values with typewriter effect */}
               <div className="flex justify-between items-center mt-2">
@@ -623,14 +623,14 @@ export default function FunCalculatorPage() {
                     shouldUseTypewriter ? (
                       <DisplayTypingEffect text={displayValue} />
                     ) : (
-                      <span className="text-white">{displayValue}</span>
+                      <span className="digital-display">{displayValue}</span>
                     )
                   )}
                 </div>
               </div>
               {/* Calculation history */}
               {calculationHistory.length > 0 && (
-                <div className="text-xs text-gray-400 mt-2 text-right">
+                <div className="text-xs digital-display mt-2 text-right opacity-80">
                   {calculationHistory.join(' ')}
                 </div>
               )}

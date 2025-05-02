@@ -51,8 +51,8 @@ export const TypingEffect: React.FC<TypingEffectProps> = ({
   }, [text, speed, onComplete]);
   
   return (
-    <div className={className}>
-      {displayedText}<span className="animate-pulse">|</span>
+    <div className={`digital-display ${className}`}>
+      {displayedText}<span className="animate-pulse text-green-400">|</span>
     </div>
   );
 };
