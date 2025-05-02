@@ -247,18 +247,9 @@ export function calculateCarbTotal(transcript: string): number | null {
   // Convert to lowercase and ensure consistent spacing
   const text = transcript.toLowerCase();
   
-  // Check if the text includes any carb total command
-  const carbTotalCommands = ['carb total', 'carbs total', 'total carbs', 'total', 'carbohydrate total'];
-  const hasCarbTotal = carbTotalCommands.some(cmd => text.includes(cmd));
+  console.log("Processing potential carb total for:", text);
   
-  if (!hasCarbTotal) {
-    console.log("No carb total command found in:", text);
-    return null;
-  }
-  
-  console.log("Processing carb total for:", text);
-  
-  // Extract all numbers from the full transcript
+  // Extract all numbers from the full transcript regardless of carb total command
   const allNumberMatches = text.match(/\d+\.?\d*/g);
   if (allNumberMatches && allNumberMatches.length > 0) {
     // Check if we have any addition operator in the text
@@ -266,9 +257,13 @@ export function calculateCarbTotal(transcript: string): number | null {
     const hasPlusOperator = additionOperators.some(op => text.includes(op));
     console.log("Checking for addition operators:", additionOperators.filter(op => text.includes(op)));
     
+    // Check if the text includes any carb total command at the end
+    const carbTotalCommands = ['carb total', 'carbs total', 'total carbs', 'total', 'carbohydrate total'];
+    const hasCarbTotal = carbTotalCommands.some(cmd => text.includes(cmd));
+    
     if (hasPlusOperator) {
       console.log("Found numbers with plus operator:", allNumberMatches);
-      // Sum all numbers if plus is in the text
+      // Sum all numbers
       let total = 0;
       allNumberMatches.forEach(match => {
         total += parseFloat(match);

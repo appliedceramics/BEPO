@@ -549,6 +549,18 @@ export default function FunCalculatorPage() {
       // Clear the voice input state
       setVoiceInputMode('none');
       
+      // Show completion message with typewriter effect
+      setDisplayText("Great! Now take your dosage.");
+      setShowTypingEffect(true);
+        
+      // Scroll to bottom to see results after a short delay
+      setTimeout(() => {
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: 'smooth'
+        });
+      }, 500);
+      
       console.log("Successfully set carb value to:", finalValue);
     } else {
       console.log("Failed to calculate a valid carb total value");
@@ -557,6 +569,8 @@ export default function FunCalculatorPage() {
         description: "Could not calculate carb total. Please try again.",
         variant: "destructive"
       });
+      // Also deactivate voice input if there's an error
+      setVoiceInputMode('none');
     }
   };
   

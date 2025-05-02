@@ -41,43 +41,59 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({
         console.log("New voice input detected:", newText);
         setFeedback(`Heard: ${newText}`);
         
-        // Look for any carb total variations
-        const carbTotalCommands = ['carb total', 'carbs total', 'carbohydrate total', 'total carbs', 'total'];
         const lowerText = newText.toLowerCase();
+        // First check for combined pattern like "15 plus 20 plus 10 carb total"
+        const carbTotalCommands = ['carb total', 'carbs total', 'carbohydrate total', 'total carbs', 'total'];
+        const hasCarbTotal = carbTotalCommands.some(cmd => lowerText.includes(cmd));
+        const additionOperators = ['plus', '+', 'and', 'then', 'with', 'sum', 'add'];
+        const hasAddition = additionOperators.some(op => lowerText.includes(op));
+        const numberMatches = lowerText.match(/\d+(\.\d+)?/g);
         
-        console.log("Checking for carb total commands in:", lowerText);
-        
-        // Check each command variation individually for better debugging
-        carbTotalCommands.forEach(cmd => {
-          if (lowerText.includes(cmd)) {
-            console.log(`Found command match: '${cmd}' in the text`);
-          }
+        console.log("Voice input analysis:", {
+          text: lowerText,
+          hasCarbTotal,
+          hasAddition,
+          numberMatches
         });
         
-        const hasCarbTotal = carbTotalCommands.some(cmd => lowerText.includes(cmd));
-        
-        if (hasCarbTotal) {
+        // Pattern: numbers + plus + carb total = calculate and complete in one action
+        if (hasCarbTotal && hasAddition && numberMatches && numberMatches.length > 1) {
+          console.log("✓ Detected full carb calculation pattern:", lowerText);
+          
+          // Extract and calculate the numbers
+          const numbers = numberMatches.map(match => parseFloat(match));
+          const sum = numbers.reduce((total, num) => total + num, 0);
+          console.log("Calculated sum:", sum, "from numbers:", numbers);
+          
+          // Set the final calculated result
+          onNumberInput(sum.toString());
+          
+          // Generate confirmation sound
+          generateConfirmSound();
+          
+          // Immediately send the carbTotal command to finalize the operation
+          setTimeout(() => {
+            console.log("Auto-completing with carbTotal command");
+            onCommandInput('carbTotal');
+          }, 300); // Small delay to ensure number is processed first
+          
+          setFeedback(`Calculated: ${numbers.join(' + ')} = ${sum}`);
+        }
+        // Normal carb total command
+        else if (hasCarbTotal) {
           console.log("✓ Detected carb total command in:", lowerText);
           // Generate confirmation sound
           generateConfirmSound();
           onCommandInput('carbTotal');
           setFeedback(`Command: Carb Total`);
         } 
-        // Check for number sequences separated by "plus"
-        else if (newText.toLowerCase().includes('plus')) {
-          // Process a sequence like "15 plus 20 plus 10"
-          const processText = newText.toLowerCase().replace(/\s+/g, ' ');
-          console.log("Processing voice input with plus:", processText);
-          
-          // Extract all numbers from the text
-          const numbers: number[] = [];
-          const numberMatches = processText.match(/\d+(\.\d+)?/g);
+        // Check for number sequences separated by "plus" without carb total
+        else if (hasAddition) {
+          console.log("Processing voice input with plus:", lowerText);
           
           if (numberMatches && numberMatches.length > 1) {
             // Convert matches to numbers
-            numberMatches.forEach(match => {
-              numbers.push(parseFloat(match));
-            });
+            const numbers = numberMatches.map(match => parseFloat(match));
             
             // Calculate the sum
             const sum = numbers.reduce((total, num) => total + num, 0);
