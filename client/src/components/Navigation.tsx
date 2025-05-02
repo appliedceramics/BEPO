@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Loader2, User, LogOut, Settings, Calculator, Utensils } from "lucide-react";
+import { Loader2, User, LogOut, Settings, Calculator, Utensils, Gamepad } from "lucide-react";
 
 export function Navigation() {
   const { user, logoutMutation, isLoading } = useAuth();
@@ -70,6 +70,13 @@ export function Navigation() {
                   <Link href="/meal-planner" className="flex w-full cursor-pointer items-center">
                     <Utensils className="mr-2 h-4 w-4" />
                     <span>Meal Planner</span>
+                  </Link>
+                </DropdownMenuItem>
+                
+                <DropdownMenuItem asChild>
+                  <Link href="/fun-calculator" className="flex w-full cursor-pointer items-center">
+                    <Gamepad className="mr-2 h-4 w-4" />
+                    <span>Fun Calculator</span>
                   </Link>
                 </DropdownMenuItem>
 
