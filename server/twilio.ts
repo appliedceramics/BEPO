@@ -43,16 +43,25 @@ function formatInsulinMessage(log: InsulinLog, name: string): string {
     hour12: false
   });
   
+  // Determine meal type string, adding support for long-acting
   const mealTypeText = log.mealType === 'first' 
     ? 'breakfast' 
     : log.mealType === 'other' 
       ? 'a meal' 
-      : 'bedtime';
+      : log.mealType === 'longActing'
+        ? '24-Hour insulin'
+        : 'bedtime';
   
   // Round to the nearest whole unit of insulin
   const totalInsulin = typeof log.totalInsulin === 'string' ? parseFloat(log.totalInsulin) : log.totalInsulin;
   const roundedInsulin = Math.round(totalInsulin);
   
+  // Different message format for long-acting insulin (doesn't include BG values)
+  if (log.mealType === 'longActing') {
+    return `${name} took ${roundedInsulin} units of 24-Hour insulin on ${formattedDate} at ${formattedTime}.`;
+  }
+  
+  // Regular format for other meal types including BG values
   return `${name} took ${roundedInsulin} units of insulin on ${formattedDate} at ${formattedTime} for ${mealTypeText}. 
 BG: ${log.bgValue} mmol/L (${log.bgMgdl} mg/dL).
 ${log.carbValue ? `Carbs: ${log.carbValue}g.` : ''}`;
@@ -71,16 +80,38 @@ function formatEmailHtml(log: InsulinLog, name: string): string {
     hour12: false
   });
   
+  // Determine meal type string, adding support for long-acting
   const mealTypeText = log.mealType === 'first' 
     ? 'breakfast' 
     : log.mealType === 'other' 
       ? 'a meal' 
-      : 'bedtime';
+      : log.mealType === 'longActing'
+        ? '24-Hour insulin'
+        : 'bedtime';
   
   // Round to the nearest whole unit of insulin
   const totalInsulin = typeof log.totalInsulin === 'string' ? parseFloat(log.totalInsulin) : log.totalInsulin;
   const roundedInsulin = Math.round(totalInsulin);
   
+  // Different HTML format for long-acting insulin (without BG values)
+  if (log.mealType === 'longActing') {
+    return `
+      <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #4a6cf7;">BEPO 24-Hour Insulin Update</h2>
+        <div style="background-color: #f9f9f9; border-radius: 10px; padding: 15px; margin: 20px 0;">
+          <p style="font-size: 16px;">
+            <strong>${name}</strong> took <strong>${roundedInsulin} units of 24-Hour insulin</strong> 
+            on ${formattedDate} at ${formattedTime}.
+          </p>
+        </div>
+        <p style="color: #666; font-size: 14px;">
+          This is an automated notification from the BEPO Insulin Calculator.
+        </p>
+      </div>
+    `;
+  }
+  
+  // Regular HTML format for other meal types
   return `
     <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
       <h2 style="color: #4a6cf7;">BEPO Insulin Calculator Update</h2>

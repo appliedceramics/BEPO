@@ -179,9 +179,9 @@ export default function FunCalculatorPage() {
         setDisplayText(`Your 24-Hour insulin dosage is ${settings.longActingDosage} units`);
         setShowTypingEffect(true);
         
-        // Set a default BG value since it's not needed for calculation
-        const defaultBg = 5.6; // Default target BG
-        setBgValue(defaultBg);
+        // Don't set a default BG value for long-acting insulin
+        // since it's not needed and would incorrectly appear in notifications
+        setBgValue(null);
         
         // Update display to show the fixed dosage
         setDisplayValue(settings.longActingDosage.toString());
@@ -642,30 +642,40 @@ export default function FunCalculatorPage() {
   
   // Handler for logging insulin dose and sending notifications
   const handleLogInsulinDose = () => {
-    if (!bgValue || !mealType || isLoggingDose || logSuccess) return;
+    // For long-acting insulin, we don't require a BG value
+    if ((!bgValue && mealType !== 'longActing') || !mealType || isLoggingDose || logSuccess) return;
     
     // For long-acting insulin, the correction insulin is 0
     const totalInsulin = mealType === 'longActing' 
       ? settings?.longActingDosage || 0
       : insulinCalcResult.totalInsulin;
       
-    // Convert bgValue to mg/dL if needed
-    const bgMgdl = convertBgToMgdl(bgValue);
-    
     // Create log object for API (convert numbers to strings as required by the schema)
-    const logData = {
-      bgValue: bgValue.toString(),
-      bgMgdl: bgMgdl.toString(),
+    let logData: any = {
       mealType: mealType,
       carbValue: carbValue ? carbValue.toString() : null,
-      mealInsulin: (mealType === 'longActing' ? 0 : insulinCalcResult.mealInsulin).toString(),
-      correctionInsulin: (mealType === 'longActing' ? 0 : insulinCalcResult.correctionInsulin).toString(),
       totalInsulin: totalInsulin.toString(),
       insulinSensitivityFactor: (settings?.insulinSensitivityFactor || 35).toString(),
       targetBgValue: (settings?.targetBgValue || 5.6).toString(),
       icRatio: (settings?.insulinToCarbohydrateRatio || 10).toString(),
       correctionFactor: (settings?.correctionFactor || 1.0).toString()
     };
+    
+    // Add BG related fields only if we have a BG value (not for long-acting)
+    if (bgValue) {
+      // Convert bgValue to mg/dL if needed
+      const bgMgdl = convertBgToMgdl(bgValue);
+      logData.bgValue = bgValue.toString();
+      logData.bgMgdl = bgMgdl.toString();
+      logData.mealInsulin = (mealType === 'longActing' ? 0 : insulinCalcResult.mealInsulin).toString();
+      logData.correctionInsulin = (mealType === 'longActing' ? 0 : insulinCalcResult.correctionInsulin).toString();
+    } else {
+      // For long-acting insulin, set default values for required fields
+      logData.bgValue = null;
+      logData.bgMgdl = null;
+      logData.mealInsulin = "0";
+      logData.correctionInsulin = "0";
+    }
     
     // Set loading state
     setIsLoggingDose(true);
