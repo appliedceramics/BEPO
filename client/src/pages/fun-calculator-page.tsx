@@ -596,15 +596,15 @@ export default function FunCalculatorPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-900 text-white">
+    <div className="flex flex-col min-h-screen bg-gray-100 text-gray-900">
       <Navigation />
       
       <div className="flex-1 container py-4 px-2 sm:px-4 max-w-3xl mx-auto">
-        <h1 className="text-xl font-bold mb-4">BEPO Insulin Calculator</h1>
+        <h1 className="text-xl font-bold mb-4 text-gray-800">BEPO Insulin Calculator</h1>
         
-        <Card className="bg-gray-900 border-gray-800 overflow-hidden">
-          <div className="bg-black p-4 rounded-t-lg">
-            <div className="calculator-display bg-gray-800 rounded-lg p-3 shadow-inner overflow-hidden">
+        <Card className="bg-white border border-gray-300 shadow-lg overflow-hidden">
+          <div className="bg-gray-200 p-4 rounded-t-lg">
+            <div className="calculator-display bg-gray-700 rounded-lg p-3 shadow-inner overflow-hidden">
               {/* Instruction text with typing effect if active */}
               {showTypingEffect ? (
                 <TypingEffect 
@@ -637,7 +637,7 @@ export default function FunCalculatorPage() {
             </div>
           </div>
           
-          <div className="p-3 bg-gray-800">
+          <div className="p-3 bg-gray-300">
             {/* Calculator body with all controls integrated */}
             <div className="flex flex-col gap-2">
               {/* Purpose of Dosage buttons - First row */}
@@ -890,32 +890,32 @@ export default function FunCalculatorPage() {
         
         {/* Results display */}
         {wizardStep === 'done' && (
-          <Card className="mt-4 bg-gray-800 border-gray-700 overflow-hidden">
+          <Card className="mt-4 bg-white border border-gray-300 shadow-lg overflow-hidden">
             <div className="p-4">
-              <h2 className="text-lg font-semibold mb-2 text-cyan-300">Insulin Dosage:</h2>
+              <h2 className="text-lg font-semibold mb-2 text-cyan-700">Insulin Dosage:</h2>
               
               <div className="grid grid-cols-2 gap-4">
                 {mealType !== 'longActing' ? (
                   <>
                     <div>
-                      <p className="text-gray-400 text-sm">Meal Insulin:</p>
-                      <p className="text-2xl font-bold text-white">{insulinCalcResult.mealInsulin.toFixed(1)} units</p>
+                      <p className="text-gray-600 text-sm">Meal Insulin:</p>
+                      <p className="text-2xl font-bold text-gray-800">{insulinCalcResult.mealInsulin.toFixed(1)} units</p>
                     </div>
                     <div>
-                      <p className="text-gray-400 text-sm">Correction Insulin:</p>
-                      <p className="text-2xl font-bold text-white">{insulinCalcResult.correctionInsulin.toFixed(1)} units</p>
+                      <p className="text-gray-600 text-sm">Correction Insulin:</p>
+                      <p className="text-2xl font-bold text-gray-800">{insulinCalcResult.correctionInsulin.toFixed(1)} units</p>
                     </div>
-                    <div className="col-span-2 border-t border-gray-700 pt-2 mt-2">
-                      <p className="text-gray-400 text-sm">Total Insulin:</p>
-                      <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-300 to-cyan-300">
+                    <div className="col-span-2 border-t border-gray-300 pt-2 mt-2">
+                      <p className="text-gray-600 text-sm">Total Insulin:</p>
+                      <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-cyan-600">
                         {insulinCalcResult.totalInsulin.toFixed(1)} units
                       </p>
                     </div>
                   </>
                 ) : (
                   <div className="col-span-2">
-                    <p className="text-gray-400 text-sm">24-Hour Insulin:</p>
-                    <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-300 to-cyan-300">
+                    <p className="text-gray-600 text-sm">24-Hour Insulin:</p>
+                    <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-cyan-600">
                       {settings?.longActingDosage || '0'} units
                     </p>
                   </div>
@@ -923,7 +923,7 @@ export default function FunCalculatorPage() {
               </div>
               
               {mealType !== 'longActing' && (
-                <div className="mt-4 text-xs text-gray-400">
+                <div className="mt-4 text-xs text-gray-600">
                   <p>Method: {insulinCalcResult.calculationMethod}</p>
                   <p className="mt-1">BG in mg/dL: {insulinCalcResult.bgMgdl.toFixed(0)}</p>
                 </div>
@@ -941,13 +941,13 @@ export default function FunCalculatorPage() {
               exit={{ opacity: 0, y: 20 }}
               className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50"
             >
-              <Card className="w-full max-w-md bg-gray-800 border-gray-700 overflow-hidden">
+              <Card className="w-full max-w-md bg-white border border-gray-300 shadow-lg overflow-hidden">
                 <div className="p-4">
                   <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-semibold text-cyan-300">AI Food Search</h2>
+                    <h2 className="text-lg font-semibold text-cyan-700">AI Food Search</h2>
                     <button 
                       onClick={closeAIFoodSearch}
-                      className="text-gray-400 hover:text-white"
+                      className="text-gray-500 hover:text-gray-800"
                     >
                       ×
                     </button>
@@ -959,7 +959,7 @@ export default function FunCalculatorPage() {
                       placeholder="Search for a food (e.g., pizza, pasta, apple)"
                       value={foodSearchQuery}
                       onChange={(e) => setFoodSearchQuery(e.target.value)}
-                      className="flex-1 bg-gray-700 border border-gray-600 rounded-l-lg px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                      className="flex-1 bg-gray-100 border border-gray-300 rounded-l-lg px-3 py-2 text-gray-800 focus:outline-none focus:ring-1 focus:ring-cyan-500"
                     />
                     <button
                       onClick={searchFoods}
@@ -972,42 +972,42 @@ export default function FunCalculatorPage() {
                   
                   {isFoodSearchLoading ? (
                     <div className="flex justify-center p-8">
-                      <Loader2 className="h-8 w-8 animate-spin text-cyan-500" />
+                      <Loader2 className="h-8 w-8 animate-spin text-cyan-600" />
                     </div>
                   ) : foodSearchResults.length > 0 ? (
                     <div className="space-y-4">
                       {foodSearchResults.map((food, index) => (
-                        <Card key={index} className="bg-gray-700 border-gray-600 overflow-hidden">
+                        <Card key={index} className="bg-gray-100 border border-gray-300 overflow-hidden">
                           <div className="p-3">
-                            <h3 className="font-semibold text-white">{food.name}</h3>
-                            <p className="text-sm text-gray-300 mt-1">{food.description}</p>
+                            <h3 className="font-semibold text-gray-800">{food.name}</h3>
+                            <p className="text-sm text-gray-600 mt-1">{food.description}</p>
                             
                             <div className="mt-3 space-y-2">
-                              <h4 className="text-xs font-medium text-gray-400">Portion Sizes:</h4>
+                              <h4 className="text-xs font-medium text-gray-600">Portion Sizes:</h4>
                               <div className="grid grid-cols-3 gap-2">
                                 <button 
                                   onClick={() => selectFoodPortion(food.portions.small.carbValue)}
-                                  className="bg-gray-600 hover:bg-gray-500 text-xs p-2 rounded text-center flex flex-col items-center transition-colors"
+                                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs p-2 rounded text-center flex flex-col items-center transition-colors"
                                 >
                                   <span className="font-medium">Small</span>
-                                  <span className="text-gray-300 mt-1">{food.portions.small.carbValue}g carbs</span>
-                                  <span className="text-gray-400 text-xs mt-1">{food.portions.small.description}</span>
+                                  <span className="text-gray-700 mt-1">{food.portions.small.carbValue}g carbs</span>
+                                  <span className="text-gray-600 text-xs mt-1">{food.portions.small.description}</span>
                                 </button>
                                 <button 
                                   onClick={() => selectFoodPortion(food.portions.medium.carbValue)}
-                                  className="bg-gray-600 hover:bg-gray-500 text-xs p-2 rounded text-center flex flex-col items-center transition-colors"
+                                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs p-2 rounded text-center flex flex-col items-center transition-colors"
                                 >
                                   <span className="font-medium">Medium</span>
-                                  <span className="text-gray-300 mt-1">{food.portions.medium.carbValue}g carbs</span>
-                                  <span className="text-gray-400 text-xs mt-1">{food.portions.medium.description}</span>
+                                  <span className="text-gray-700 mt-1">{food.portions.medium.carbValue}g carbs</span>
+                                  <span className="text-gray-600 text-xs mt-1">{food.portions.medium.description}</span>
                                 </button>
                                 <button 
                                   onClick={() => selectFoodPortion(food.portions.large.carbValue)}
-                                  className="bg-gray-600 hover:bg-gray-500 text-xs p-2 rounded text-center flex flex-col items-center transition-colors"
+                                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs p-2 rounded text-center flex flex-col items-center transition-colors"
                                 >
                                   <span className="font-medium">Large</span>
-                                  <span className="text-gray-300 mt-1">{food.portions.large.carbValue}g carbs</span>
-                                  <span className="text-gray-400 text-xs mt-1">{food.portions.large.description}</span>
+                                  <span className="text-gray-700 mt-1">{food.portions.large.carbValue}g carbs</span>
+                                  <span className="text-gray-600 text-xs mt-1">{food.portions.large.description}</span>
                                 </button>
                               </div>
                             </div>
@@ -1016,11 +1016,11 @@ export default function FunCalculatorPage() {
                       ))}
                     </div>
                   ) : foodSearchQuery ? (
-                    <div className="text-center py-8 text-gray-400">
+                    <div className="text-center py-8 text-gray-500">
                       No results found. Try a different search term.
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-gray-400">
+                    <div className="text-center py-8 text-gray-500">
                       Enter a food name to get carbohydrate information.
                     </div>
                   )}
