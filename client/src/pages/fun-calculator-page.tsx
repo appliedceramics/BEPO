@@ -604,9 +604,9 @@ export default function FunCalculatorPage() {
               {/* Purpose of Dosage buttons - First row */}
               <div className="grid grid-cols-4 gap-2 mb-2">
                 <motion.button 
-                  className={`bg-transparent border-2 ${mealType === "first" ? 'border-yellow-400 text-yellow-400' : 'border-yellow-300 text-yellow-300'} 
-                    hover:bg-yellow-500/10 rounded-lg h-16 
-                    flex items-center justify-center shadow-lg`}
+                  className={`bg-gradient-to-b ${mealType === "first" ? 'from-yellow-600 to-yellow-700 text-white' : 'from-yellow-700 to-yellow-800 text-white'} 
+                    hover:from-yellow-500 hover:to-yellow-600 rounded-lg h-16 
+                    flex items-center justify-center shadow-md`}
                   onClick={() => setMealType("first" as MealType)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -616,9 +616,9 @@ export default function FunCalculatorPage() {
                   <span className="text-center text-lg" style={{ fontFamily: 'Arial Narrow, sans-serif' }}>Breakfast</span>
                 </motion.button>
                 <motion.button 
-                  className={`bg-transparent border-2 ${mealType === "other" ? 'border-sky-400 text-sky-400' : 'border-sky-300 text-sky-300'} 
-                    hover:bg-sky-500/10 rounded-lg h-16 
-                    flex items-center justify-center shadow-lg`}
+                  className={`bg-gradient-to-b ${mealType === "other" ? 'from-sky-600 to-sky-700 text-white' : 'from-sky-700 to-sky-800 text-white'} 
+                    hover:from-sky-500 hover:to-sky-600 rounded-lg h-16 
+                    flex items-center justify-center shadow-md`}
                   onClick={() => setMealType("other" as MealType)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -628,9 +628,9 @@ export default function FunCalculatorPage() {
                   <span className="text-center text-lg" style={{ fontFamily: 'Arial Narrow, sans-serif' }}>Lunch / Dinner</span>
                 </motion.button>
                 <motion.button 
-                  className={`bg-transparent border-2 ${mealType === "bedtime" ? 'border-orange-600 text-orange-600' : 'border-orange-500 text-orange-500'} 
-                    hover:bg-orange-500/10 rounded-lg h-16 
-                    flex items-center justify-center shadow-lg`}
+                  className={`bg-gradient-to-b ${mealType === "bedtime" ? 'from-orange-600 to-orange-700 text-white' : 'from-orange-700 to-orange-800 text-white'} 
+                    hover:from-orange-500 hover:to-orange-600 rounded-lg h-16 
+                    flex items-center justify-center shadow-md`}
                   onClick={() => setMealType("bedtime" as MealType)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -640,9 +640,9 @@ export default function FunCalculatorPage() {
                   <span className="text-center text-lg" style={{ fontFamily: 'Arial Narrow, sans-serif' }}>Bedtime Correction</span>
                 </motion.button>
                 <motion.button 
-                  className={`bg-transparent border-2 ${mealType === "longActing" ? 'border-green-500 text-green-500' : 'border-green-400 text-green-400'} 
-                    hover:bg-green-500/10 rounded-lg h-16 
-                    flex items-center justify-center shadow-lg`}
+                  className={`bg-gradient-to-b ${mealType === "longActing" ? 'from-green-600 to-green-700 text-white' : 'from-green-700 to-green-800 text-white'} 
+                    hover:from-green-500 hover:to-green-600 rounded-lg h-16 
+                    flex items-center justify-center shadow-md`}
                   onClick={() => setMealType("longActing" as MealType)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
