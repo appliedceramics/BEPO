@@ -407,6 +407,18 @@ export default function FunCalculatorPage() {
           title: "Carb Total Set",
           description: `Carbohydrate value set to ${total}g`,
         });
+        
+        // Show completion message with typewriter effect
+        setDisplayText("Great! Now take your dosage.");
+        setShowTypingEffect(true);
+        
+        // Scroll to bottom to see results after a short delay
+        setTimeout(() => {
+          window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: 'smooth'
+          });
+        }, 500);
       }
       setCarbTotalMode(false);
     }
@@ -765,9 +777,23 @@ export default function FunCalculatorPage() {
                     <div className="font-bold flex items-center text-lg col-span-2 mt-2 border-t border-gray-600 pt-2 justify-center">
                       <span className="mr-2">💪</span> Total Insulin
                     </div>
-                    <div className="col-span-2 bg-gradient-to-r from-green-500 to-emerald-500 p-2 rounded-lg text-center text-xl font-bold">
-                      {insulinCalcResult.totalInsulin.toFixed(1)} units
-                    </div>
+                    <motion.button 
+                      className="col-span-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 p-3 rounded-lg text-center text-xl font-bold relative overflow-hidden"
+                      onClick={() => {
+                        // Log and notify about insulin dose
+                        toast({
+                          title: "Insulin Logged",
+                          description: `Logged ${insulinCalcResult.totalInsulin.toFixed(1)} units and notified contacts`,
+                        });
+                      }}
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      <div className="flex flex-col">
+                        <span className="text-white">{insulinCalcResult.totalInsulin.toFixed(1)} units</span>
+                        <span className="text-xs mt-1 text-white/80 font-normal">👆 Click to Log & Notify</span>
+                      </div>
+                    </motion.button>
                   </div>
                 </motion.div>
               ) : (
