@@ -101,7 +101,7 @@ export default function FunCalculatorPage() {
           }
           setShowTypingEffect(false);
         }
-      }, 50); // Speed of typing
+      }, 100); // Speed of typing (slowed down by half)
       
       return () => {
         if (typewriterRef.current) {
@@ -599,7 +599,7 @@ export default function FunCalculatorPage() {
     <div className="flex flex-col min-h-screen bg-gray-100 text-gray-900">
       <Navigation />
       
-      <div className="flex-1 container py-4 px-2 sm:px-4 max-w-3xl mx-auto">
+      <div className="flex-1 container py-4 px-2 sm:px-4 max-w-2xl mx-auto">
         <h1 className="text-xl font-bold mb-4 text-gray-800">BEPO Insulin Calculator</h1>
         
         <Card className="bg-white border border-gray-300 shadow-lg overflow-hidden">
@@ -639,6 +639,7 @@ export default function FunCalculatorPage() {
             <div className="flex flex-col gap-2">
               {/* Purpose of Dosage buttons - First row */}
               <div className="grid grid-cols-4 gap-2 mb-2">
+                {/* Purpose buttons with improved sequential heartbeat animation */}
                 <motion.button 
                   className={`bg-gradient-to-b ${mealType === "first" ? 'from-yellow-600 to-yellow-700 text-white' : 'from-yellow-700 to-yellow-800 text-white'} 
                     hover:from-yellow-500 hover:to-yellow-600 rounded-lg h-16 
@@ -646,8 +647,13 @@ export default function FunCalculatorPage() {
                   onClick={() => setMealType("first" as MealType)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  animate={purposeButtonsActive ? { scale: [1, 1.08, 1] } : {}}
-                  transition={purposeButtonsActive ? { repeat: Infinity, duration: 1.2 } : {}}
+                  animate={purposeButtonsActive ? { scale: [1, 1.12, 1] } : {}}
+                  transition={purposeButtonsActive ? { 
+                    repeat: Infinity, 
+                    duration: 1.5,
+                    repeatDelay: 3.0, // Wait for other buttons to finish before starting again
+                    ease: "easeInOut"
+                  } : {}}
                 >
                   <span className="text-center text-lg" style={{ fontFamily: 'Arial Narrow, sans-serif' }}>Breakfast</span>
                 </motion.button>
@@ -658,8 +664,14 @@ export default function FunCalculatorPage() {
                   onClick={() => setMealType("other" as MealType)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  animate={purposeButtonsActive ? { scale: [1, 1.08, 1] } : {}}
-                  transition={purposeButtonsActive ? { repeat: Infinity, duration: 1.2, delay: 0.1 } : {}}
+                  animate={purposeButtonsActive ? { scale: [1, 1.12, 1] } : {}}
+                  transition={purposeButtonsActive ? { 
+                    repeat: Infinity, 
+                    duration: 1.5,
+                    delay: 1.5, // Start after first button finishes
+                    repeatDelay: 3.0, // Wait for other buttons to finish
+                    ease: "easeInOut"
+                  } : {}}
                 >
                   <span className="text-center text-lg" style={{ fontFamily: 'Arial Narrow, sans-serif' }}>Lunch / Dinner</span>
                 </motion.button>
@@ -670,8 +682,14 @@ export default function FunCalculatorPage() {
                   onClick={() => setMealType("bedtime" as MealType)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  animate={purposeButtonsActive ? { scale: [1, 1.08, 1] } : {}}
-                  transition={purposeButtonsActive ? { repeat: Infinity, duration: 1.2, delay: 0.2 } : {}}
+                  animate={purposeButtonsActive ? { scale: [1, 1.12, 1] } : {}}
+                  transition={purposeButtonsActive ? { 
+                    repeat: Infinity, 
+                    duration: 1.5,
+                    delay: 3.0, // Start after second button finishes
+                    repeatDelay: 3.0, // Wait for other buttons to finish
+                    ease: "easeInOut"
+                  } : {}}
                 >
                   <span className="text-center text-lg" style={{ fontFamily: 'Arial Narrow, sans-serif' }}>Bedtime Correction</span>
                 </motion.button>
@@ -682,8 +700,14 @@ export default function FunCalculatorPage() {
                   onClick={() => setMealType("longActing" as MealType)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  animate={purposeButtonsActive ? { scale: [1, 1.08, 1] } : {}}
-                  transition={purposeButtonsActive ? { repeat: Infinity, duration: 1.2, delay: 0.3 } : {}}
+                  animate={purposeButtonsActive ? { scale: [1, 1.12, 1] } : {}}
+                  transition={purposeButtonsActive ? { 
+                    repeat: Infinity, 
+                    duration: 1.5,
+                    delay: 4.5, // Start after third button finishes
+                    repeatDelay: 3.0, // Wait for first button to start again
+                    ease: "easeInOut"
+                  } : {}}
                 >
                   <span className="text-center text-lg" style={{ fontFamily: 'Arial Narrow, sans-serif' }}>24-Hour Acting</span>
                 </motion.button>
