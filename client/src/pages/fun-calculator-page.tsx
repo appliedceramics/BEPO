@@ -15,7 +15,7 @@ import { motion } from "framer-motion";
 export default function FunCalculatorPage() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [displayValue, setDisplayValue] = useState("Select Dosage Purpose");
+  const [displayValue, setDisplayValue] = useState("Why are you taking insulin?");
   const [previousValue, setPreviousValue] = useState<number | null>(null);
   const [operation, setOperation] = useState<string | null>(null);
   const [waitingForSecondOperand, setWaitingForSecondOperand] = useState(false);
@@ -28,11 +28,12 @@ export default function FunCalculatorPage() {
   
   // Wizard state
   const [wizardStep, setWizardStep] = useState<'purpose' | 'bg' | 'carbs' | 'done'>('purpose');
-  const [displayText, setDisplayText] = useState("Select Dosage Purpose");
+  const [displayText, setDisplayText] = useState("Why are you taking insulin?");
   const [typingText, setTypingText] = useState("");
-  const [showTypingEffect, setShowTypingEffect] = useState(false);
+  const [showTypingEffect, setShowTypingEffect] = useState(true);
   const [bgButtonActive, setBgButtonActive] = useState(false);
   const [carbButtonActive, setCarbButtonActive] = useState(false);
+  const [purposeButtonsActive, setPurposeButtonsActive] = useState(true);
   const typewriterRef = useRef<NodeJS.Timeout | null>(null);
   
   // Typewriter effect for display text
@@ -74,6 +75,7 @@ export default function FunCalculatorPage() {
       setShowTypingEffect(true);
       setBgButtonActive(true);
       setCarbButtonActive(false);
+      setPurposeButtonsActive(false); // Stop pulsing purpose buttons when one is selected
       // Auto clear display for number entry
       setDisplayValue("0");
     }
@@ -443,8 +445,10 @@ export default function FunCalculatorPage() {
       <div className="flex-1 flex justify-center items-center p-4 bg-gradient-to-b from-blue-50 to-purple-50">
         <div className="w-full max-w-md bg-gray-800 rounded-3xl shadow-2xl overflow-hidden">
           {/* Calculator header - TITLE */}
-          <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-3 text-center">
-            <h1 className="text-2xl font-bold text-white">BEPO Fun Calculator</h1>
+          <div className="bg-gradient-to-r from-blue-600 to-blue-800 p-3 text-center">
+            <h1 className="text-2xl font-bold text-white">
+              <span className="bg-gradient-to-r from-yellow-300 to-yellow-100 bg-clip-text text-transparent font-extrabold" style={{ fontFamily: 'Comic Sans MS, cursive' }}>BEPO</span> Fun Calc
+            </h1>
           </div>
           
           {/* Display area with wizard instructions */}
@@ -472,25 +476,29 @@ export default function FunCalculatorPage() {
               {/* Purpose of Dosage buttons - First row */}
               <div className="grid grid-cols-4 gap-2 mb-2">
                 <motion.button 
-                  className={`${mealType === "first" ? 'bg-gradient-to-br from-blue-500 to-purple-600' : 'bg-gradient-to-br from-blue-400 to-purple-500'} 
-                    hover:from-blue-600 hover:to-purple-700 text-white text-sm font-bold rounded-lg h-16 
+                  className={`${mealType === "first" ? 'bg-gradient-to-br from-orange-500 to-amber-600' : 'bg-gradient-to-br from-orange-400 to-amber-500'} 
+                    hover:from-orange-600 hover:to-amber-700 text-white text-sm font-bold rounded-lg h-16 
                     flex flex-col items-center justify-center shadow-lg border-2 
                     ${mealType === "first" ? 'border-yellow-300' : 'border-transparent'}`}
                   onClick={() => setMealType("first" as MealType)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  animate={purposeButtonsActive ? { scale: [1, 1.08, 1] } : {}}
+                  transition={purposeButtonsActive ? { repeat: Infinity, duration: 1.2 } : {}}
                 >
                   <span className="text-center font-bold">Meal 1</span>
                   <span className="text-xs mt-1">🍳 Breakfast</span>
                 </motion.button>
                 <motion.button 
-                  className={`${mealType === "other" ? 'bg-gradient-to-br from-indigo-500 to-pink-500' : 'bg-gradient-to-br from-indigo-400 to-pink-400'} 
-                    hover:from-indigo-600 hover:to-pink-600 text-white text-sm font-bold rounded-lg h-16 
+                  className={`${mealType === "other" ? 'bg-gradient-to-br from-teal-500 to-cyan-600' : 'bg-gradient-to-br from-teal-400 to-cyan-500'} 
+                    hover:from-teal-600 hover:to-cyan-700 text-white text-sm font-bold rounded-lg h-16 
                     flex flex-col items-center justify-center shadow-lg border-2 
                     ${mealType === "other" ? 'border-yellow-300' : 'border-transparent'}`}
                   onClick={() => setMealType("other" as MealType)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  animate={purposeButtonsActive ? { scale: [1, 1.08, 1] } : {}}
+                  transition={purposeButtonsActive ? { repeat: Infinity, duration: 1.2, delay: 0.1 } : {}}
                 >
                   <span className="text-center font-bold">Other Meal</span>
                   <span className="text-xs mt-1">🍔 Lunch/Dinner</span>
@@ -503,6 +511,8 @@ export default function FunCalculatorPage() {
                   onClick={() => setMealType("bedtime" as MealType)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  animate={purposeButtonsActive ? { scale: [1, 1.08, 1] } : {}}
+                  transition={purposeButtonsActive ? { repeat: Infinity, duration: 1.2, delay: 0.2 } : {}}
                 >
                   <span className="text-center font-bold">Bedtime</span>
                   <span className="text-xs mt-1">😴 Evening</span>
@@ -515,6 +525,8 @@ export default function FunCalculatorPage() {
                   onClick={() => setMealType("longActing" as MealType)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  animate={purposeButtonsActive ? { scale: [1, 1.08, 1] } : {}}
+                  transition={purposeButtonsActive ? { repeat: Infinity, duration: 1.2, delay: 0.3 } : {}}
                 >
                   <span className="text-center font-bold">24-Hour</span>
                   <span className="text-xs mt-1">⏱️ Long Acting</span>
