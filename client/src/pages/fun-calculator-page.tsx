@@ -1038,18 +1038,6 @@ export default function FunCalculatorPage() {
                         <span className="mr-1">📊</span> 
                         Current BG {bgValue ? `(${bgValue})` : ''}
                       </div>
-                      <div 
-                        className="bg-gradient-to-b from-blue-700 to-indigo-900 w-12 flex items-center justify-center text-xs cursor-pointer"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          startVoiceInput('bg');
-                        }}
-                      >
-                        <div className="flex flex-col items-center">
-                          <Mic className="h-4 w-4 mb-1" /> 
-                          <span className="text-[10px]">Voice</span>
-                        </div>
-                      </div>
                     </div>
                   </button>
                 </motion.div>
@@ -1080,18 +1068,6 @@ export default function FunCalculatorPage() {
                       <div className="flex-grow flex items-center justify-center text-sm">
                         <span className="mr-1">🍽️</span>
                         Carb Total {carbValue ? `(${carbValue}g)` : ''}
-                      </div>
-                      <div 
-                        className="bg-gradient-to-b from-amber-600 to-yellow-700 w-12 flex items-center justify-center text-xs cursor-pointer"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          startVoiceInput('carbs');
-                        }}
-                      >
-                        <div className="flex flex-col items-center">
-                          <Mic className="h-4 w-4 mb-1" /> 
-                          <span className="text-[10px]">Voice</span>
-                        </div>
                       </div>
                     </div>
                   </button>
