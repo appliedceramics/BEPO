@@ -84,7 +84,7 @@ export default function FunCalculatorPage() {
   useEffect(() => {
     if (bgValue !== null && wizardStep === 'bg') {
       setWizardStep('carbs');
-      setDisplayText("Now, add-up your carb count and press = when done");
+      setDisplayText("Now add-up your carb count, press = for total and Carb Total button to enter");
       setShowTypingEffect(true);
       setBgButtonActive(false);
       setCarbButtonActive(true);
@@ -242,10 +242,36 @@ export default function FunCalculatorPage() {
   
   // All clear (reset calculator completely)
   const allClear = () => {
-    setDisplayValue("0");
+    // Clear display and calculation state
+    setDisplayValue("Select Dosage Purpose");
     setPreviousValue(null);
     setOperation(null);
     setWaitingForSecondOperand(false);
+    
+    // Reset wizard to initial state
+    setWizardStep('purpose');
+    setDisplayText("Why are you taking insulin?");
+    setShowTypingEffect(true);
+    
+    // Clear blood glucose and carb values
+    setBgValue(null);
+    setCarbValue(null);
+    
+    // Reset meal type
+    setMealType(undefined);
+    
+    // Reset button states
+    setBgButtonActive(false);
+    setCarbButtonActive(false);
+    setPurposeButtonsActive(true);
+    
+    // Exit carb total mode if active
+    setCarbTotalMode(false);
+    
+    toast({
+      title: "Calculator Reset",
+      description: "Calculator has been reset completely",
+    });
   };
 
   // Calculate insulin when inputs change
