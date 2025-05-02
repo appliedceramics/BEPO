@@ -2,18 +2,19 @@ import { useState, useEffect, useRef } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Card } from "@/components/ui/card";
 import { convertBgToMgdl } from "@/lib/correctionCalculator";
-import { useQuery } from "@tanstack/react-query";
-import { getQueryFn } from "@/lib/queryClient";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
 import { calculateInsulin, CalculationResult } from "@/lib/insulinCalculator";
-import { Loader2, Mic } from "lucide-react";
-import { MealType, Profile } from "@shared/schema";
+import { Loader2, Mic, PencilLine } from "lucide-react";
+import { MealType, Profile, InsulinLog } from "@shared/schema";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { VoiceInput } from "../components/VoiceInput";
 import { extractNumber, extractOperation, extractCommand, calculateCarbTotal } from "@/lib/useVoiceInput";
 import { TypingEffect } from "../components/TypingEffect";
 import { VoiceInstructions } from "../components/VoiceInstructions";
+import { useToast } from "@/hooks/use-toast";
 
 // Custom typing effect for calculator display
 const DisplayTypingEffect = ({ text }: { text: string }) => {
@@ -950,6 +951,29 @@ export default function FunCalculatorPage() {
                   <p className="mt-1">BG in mg/dL: {insulinCalcResult.bgMgdl.toFixed(0)}</p>
                 </div>
               )}
+              
+              {/* Log Button */}
+              <div className="mt-6 flex justify-center">
+                <motion.button 
+                  className="bg-gradient-to-r from-green-600 to-cyan-600 hover:from-green-500 hover:to-cyan-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg flex items-center justify-center gap-2 w-full"
+                  onClick={handleLogInsulinDose}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  disabled={isLoggingDose}
+                >
+                  {isLoggingDose ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      Logging...
+                    </>
+                  ) : (
+                    <>
+                      <PencilLine className="h-5 w-5" />
+                      Log Insulin & Notify Recipients
+                    </>
+                  )}
+                </motion.button>
+              </div>
             </div>
           </Card>
         )}
