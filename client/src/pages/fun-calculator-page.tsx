@@ -477,16 +477,9 @@ export default function FunCalculatorPage() {
       setVoiceInputMode('bg');
     }
     
-    // Show voice instructions
-    setShowVoiceInstructions(true);
-    
-    // Show toast notification for voice input started
+    // Show toast notification and instructions for voice input
+    // (setShowVoiceInstructions is now handled inside notifyVoiceInputStarted)
     notifyVoiceInputStarted();
-    
-    // Auto-hide instructions after 15 seconds
-    setTimeout(() => {
-      setShowVoiceInstructions(false);
-    }, 15000);
   };
   
   // Play a soft success sound
@@ -645,18 +638,34 @@ export default function FunCalculatorPage() {
         toast({
           title: "Voice BG Input",
           description: "Speak your blood glucose value",
+          duration: 5000,
         });
       } else if (voiceInputMode === 'carb-total') {
         toast({
           title: "Voice Carb Total",
           description: "Say numbers separated by 'plus', then say 'carb total'",
+          duration: 5000,
         });
       }
+      
+      // Show voice instructions unconditionally for better guidance
+      setShowVoiceInstructions(true);
+      // Auto-hide instructions after 15 seconds
+      setTimeout(() => {
+        setShowVoiceInstructions(false);
+      }, 15000);
     } else {
+      // Show a more detailed error message with browser compatibility info
+      const isChromium = navigator.userAgent.indexOf('Chrome') > -1;
+      const browserInfo = isChromium ? 
+        "Voice input works best in Chrome, Edge, or Opera browsers" : 
+        "Please try using Chrome, Edge, or Opera browsers";
+      
       toast({
         title: "Voice Input Not Supported",
-        description: "Your browser doesn't support voice input",
+        description: `Your browser doesn't support voice input. ${browserInfo}`,
         variant: "destructive",
+        duration: 7000,
       });
     }
     

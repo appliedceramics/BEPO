@@ -205,8 +205,22 @@ export function useVoiceInput(): UseVoiceInputReturn {
 export function extractCommand(transcript: string): string | null {
   const text = transcript.toLowerCase();
   
+  // Log for debugging
+  console.log("Extracting command from text:", text);
+  
+  // Check specific phrases that might include commands
+  const totalPhrases = ['that is a total of', 'that\'s a total of', 'that gives us', 'for a total of'];
+  for (const phrase of totalPhrases) {
+    if (text.includes(phrase)) {
+      console.log(`Found special phrase: '${phrase}' - treating as 'carbTotal'`);
+      return 'carbTotal';
+    }
+  }
+  
+  // Check regular command keywords
   for (const [keyword, command] of Object.entries(commandKeywords)) {
     if (text.includes(keyword)) {
+      console.log(`Found command keyword: '${keyword}' -> '${command}'`);
       return command;
     }
   }
@@ -247,8 +261,10 @@ export function calculateCarbTotal(transcript: string): number | null {
   // Extract all numbers from the full transcript
   const allNumberMatches = text.match(/\d+\.?\d*/g);
   if (allNumberMatches && allNumberMatches.length > 0) {
-    // Check if we have "plus" in the text
-    const hasPlusOperator = text.includes('plus') || text.includes('+');
+    // Check if we have any addition operator in the text
+    const additionOperators = ['plus', '+', 'and', 'then', 'with', 'sum', 'add'];
+    const hasPlusOperator = additionOperators.some(op => text.includes(op));
+    console.log("Checking for addition operators:", additionOperators.filter(op => text.includes(op)));
     
     if (hasPlusOperator) {
       console.log("Found numbers with plus operator:", allNumberMatches);
