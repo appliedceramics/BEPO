@@ -67,19 +67,60 @@ export default function FunCalculatorPage() {
     }
   }, [showTypingEffect, displayText]);
   
+  // Get user profile for unit preference
+  const { data: profile, isLoading: profileLoading } = useQuery<Profile>({
+    queryKey: ["/api/profile"],
+    queryFn: getQueryFn({ on401: "returnNull" }),
+    enabled: !!user,
+  });
+
+  // Get calculator settings
+  const { data: settings, isLoading: settingsLoading } = useQuery<any>({
+    queryKey: ["/api/calculator-settings"],
+    queryFn: getQueryFn({ on401: "returnNull" }),
+    enabled: !!user,
+  });
+
   // Update wizard steps based on user actions
   useEffect(() => {
     if (mealType) {
-      setWizardStep('bg');
-      setDisplayText("Enter Current BG Count & Press Current BG");
-      setShowTypingEffect(true);
-      setBgButtonActive(true);
-      setCarbButtonActive(false);
-      setPurposeButtonsActive(false); // Stop pulsing purpose buttons when one is selected
-      // Auto clear display for number entry
-      setDisplayValue("0");
+      // For long-acting insulin, skip BG input and use fixed dosage
+      if (mealType === "longActing" && settings?.longActingDosage) {
+        setWizardStep('done');
+        setDisplayText(`Your 24-Hour insulin dosage is ${settings.longActingDosage} units`);
+        setShowTypingEffect(true);
+        
+        // Set a default BG value since it's not needed for calculation
+        const defaultBg = 5.6; // Default target BG
+        setBgValue(defaultBg);
+        
+        // Update display to show the fixed dosage
+        setDisplayValue(settings.longActingDosage.toString());
+        
+        // Update button states
+        setBgButtonActive(false);
+        setCarbButtonActive(false);
+        setPurposeButtonsActive(false);
+
+        // Show toast with dosage info
+        toast({
+          title: "24-Hour Insulin",
+          description: `Fixed dosage: ${settings.longActingDosage} units`
+        });
+      } 
+      // For all other meal types, proceed normally
+      else {
+        setWizardStep('bg');
+        setDisplayText("Enter Current BG Count & Press Current BG");
+        setShowTypingEffect(true);
+        setBgButtonActive(true);
+        setCarbButtonActive(false);
+        setPurposeButtonsActive(false); // Stop pulsing purpose buttons when one is selected
+        // Auto clear display for number entry
+        setDisplayValue("0");
+      }
     }
-  }, [mealType]);
+  }, [mealType, settings]);
   
   useEffect(() => {
     if (bgValue !== null && wizardStep === 'bg') {
@@ -148,20 +189,6 @@ export default function FunCalculatorPage() {
     console.log("State updated: mealType =", mealType, ", carbValue =", carbValue, ", bgValue =", bgValue);
   }, [mealType, carbValue, bgValue]);
   
-  // Get user profile for unit preference
-  const { data: profile, isLoading: profileLoading } = useQuery<Profile>({
-    queryKey: ["/api/profile"],
-    queryFn: getQueryFn({ on401: "returnNull" }),
-    enabled: !!user,
-  });
-
-  // Get calculator settings
-  const { data: settings, isLoading: settingsLoading } = useQuery<any>({
-    queryKey: ["/api/calculator-settings"],
-    queryFn: getQueryFn({ on401: "returnNull" }),
-    enabled: !!user,
-  });
-
   // Initialize calculated insulin values
   const [insulinCalcResult, setInsulinCalcResult] = useState({
     mealInsulin: 0,
