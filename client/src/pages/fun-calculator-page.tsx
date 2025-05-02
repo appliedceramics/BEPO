@@ -451,6 +451,8 @@ export default function FunCalculatorPage() {
 
   // Voice input handling
   const startVoiceInput = (inputType: 'bg' | 'carbs') => {
+    console.log("Starting voice input for:", inputType);
+    
     // Don't allow carb voice input for bedtime
     if (inputType === 'carbs' && mealType === 'bedtime') {
       toast({
@@ -461,17 +463,30 @@ export default function FunCalculatorPage() {
       return;
     }
     
-    // Set the voice input mode and show instructions
-    setVoiceInputMode(inputType === 'bg' ? 'bg' : 'carb-total');
+    // For carb totaling, reset the calculator
+    if (inputType === 'carbs') {
+      // Reset calculator for carb total
+      setDisplayValue("0");
+      setPreviousValue(null);
+      setOperation(null);
+      setWaitingForSecondOperand(false);
+      // Set as carb-total mode
+      setVoiceInputMode('carb-total');
+    } else {
+      // Set blood glucose input mode
+      setVoiceInputMode('bg');
+    }
+    
+    // Show voice instructions
     setShowVoiceInstructions(true);
     
     // Show toast notification for voice input started
     notifyVoiceInputStarted();
     
-    // Auto-hide instructions after 10 seconds
+    // Auto-hide instructions after 15 seconds
     setTimeout(() => {
       setShowVoiceInstructions(false);
-    }, 10000);
+    }, 15000);
   };
   
   // Play a soft success sound
@@ -505,12 +520,26 @@ export default function FunCalculatorPage() {
     // Process all the numbers that have been spoken so far
     // and add them up for the carb total
     const totalValue = calculateFromDisplay();
-    console.log("Calculated total value:", totalValue);
+    console.log("Calculated total value:", totalValue, "Current display value:", displayValue);
     
-    if (totalValue !== null) {
+    // If we don't have a value from the calculation, try to parse the display value directly
+    let finalValue = totalValue;
+    if (finalValue === null) {
+      try {
+        const parsedValue = parseFloat(displayValue);
+        if (!isNaN(parsedValue)) {
+          console.log("Using parsed display value instead:", parsedValue);
+          finalValue = parsedValue;
+        }
+      } catch (error) {
+        console.error("Error parsing display value:", error);
+      }
+    }
+    
+    if (finalValue !== null) {
       // Set the carb value and update display
-      setCarbValue(totalValue);
-      setDisplayValue(totalValue.toString());
+      setCarbValue(finalValue);
+      setDisplayValue(finalValue.toString());
       
       // Update the wizard state to done since we've completed the process
       setWizardStep('done');
@@ -521,11 +550,20 @@ export default function FunCalculatorPage() {
       // Show success toast with the calculation details
       toast({
         title: "Voice Carb Total",
-        description: `Calculated ${totalValue}g carbs`
+        description: `Calculated ${finalValue}g carbs`
       });
       
       // Clear the voice input state
       setVoiceInputMode('none');
+      
+      console.log("Successfully set carb value to:", finalValue);
+    } else {
+      console.log("Failed to calculate a valid carb total value");
+      toast({
+        title: "Voice Input Error",
+        description: "Could not calculate carb total. Please try again.",
+        variant: "destructive"
+      });
     }
   };
   
@@ -593,10 +631,18 @@ export default function FunCalculatorPage() {
   // Toast notification for voice input start
   const notifyVoiceInputStarted = () => {
     if (hasSpeechRecognition) {
-      toast({
-        title: "Voice Input Started",
-        description: voiceInputMode === 'bg' ? "Speak blood glucose value" : "Speak carbohydrate value",
-      });
+      // Different messages based on the voice input mode
+      if (voiceInputMode === 'bg') {
+        toast({
+          title: "Voice BG Input",
+          description: "Speak your blood glucose value",
+        });
+      } else if (voiceInputMode === 'carb-total') {
+        toast({
+          title: "Voice Carb Total",
+          description: "Say numbers separated by 'plus', then say 'carb total'",
+        });
+      }
     } else {
       toast({
         title: "Voice Input Not Supported",
@@ -604,6 +650,8 @@ export default function FunCalculatorPage() {
         variant: "destructive",
       });
     }
+    
+    console.log("Voice input mode is now:", voiceInputMode);
   };
 
   // Calculate total for me (use display value for all fields)

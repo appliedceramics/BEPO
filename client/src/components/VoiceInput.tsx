@@ -40,8 +40,13 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({
       if (newText) {
         setFeedback(`Heard: ${newText}`);
         
-        // Check for "carb total" command specifically for carb total calculations
-        if (newText.toLowerCase().includes('carb total')) {
+        // Look for any carb total variations
+        const carbTotalCommands = ['carb total', 'carbs total', 'carbohydrate total', 'total carbs', 'total'];
+        const lowerText = newText.toLowerCase();
+        const hasCarbTotal = carbTotalCommands.some(cmd => lowerText.includes(cmd));
+        
+        if (hasCarbTotal) {
+          console.log("Detected carb total command in:", lowerText);
           // Generate confirmation sound
           generateConfirmSound();
           onCommandInput('carbTotal');

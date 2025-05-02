@@ -52,7 +52,11 @@ const commandKeywords: Record<string, string> = {
   'bedtime': 'bedtime',
   'long acting': 'longActing',
   'basal': 'longActing',
-  'carb total': 'carbTotal'
+  'carb total': 'carbTotal',
+  'carbs total': 'carbTotal',
+  'carbohydrate total': 'carbTotal',
+  'total carbs': 'carbTotal',
+  'total': 'carbTotal'
 };
 
 // We'll use the Web Audio API for generating sounds in the application
@@ -220,60 +224,41 @@ export function calculateCarbTotal(transcript: string): number | null {
   // Convert to lowercase and ensure consistent spacing
   const text = transcript.toLowerCase();
   
-  // Check if the text includes 'carb total' command
-  if (!text.includes('carb total')) {
+  // Check if the text includes any carb total command
+  const carbTotalCommands = ['carb total', 'carbs total', 'total carbs', 'total', 'carbohydrate total'];
+  const hasCarbTotal = carbTotalCommands.some(cmd => text.includes(cmd));
+  
+  if (!hasCarbTotal) {
+    console.log("No carb total command found in:", text);
     return null;
   }
   
-  // We need to specifically look for numbers separated by 'plus' or 'and'
-  // First, split the text to get the part after 'carb total' if it exists
-  const parts = text.split('carb total');
-  const relevantText = parts.length > 1 ? parts[1] : text;
+  console.log("Processing carb total for:", text);
   
-  // Two approaches:
-  // 1. Try to parse expressions like "4 plus 8 plus 12"
-  // Extract numbers and check if they are separated by plus
-  const numbers: number[] = [];
-  const numberMatches = relevantText.match(/\d+\.?\d*/g);
-  
-  // If we have number matches, check if they're separated by "plus"
-  if (numberMatches && numberMatches.length > 0) {
-    // Check if "plus" appears between numbers
-    const hasPlusBetweenNumbers = relevantText.match(/\d+\s+(plus|and)\s+\d+/i);
+  // Extract all numbers from the full transcript
+  const allNumberMatches = text.match(/\d+\.?\d*/g);
+  if (allNumberMatches && allNumberMatches.length > 0) {
+    // Check if we have "plus" in the text
+    const hasPlusOperator = text.includes('plus') || text.includes('+');
     
-    if (hasPlusBetweenNumbers) {
-      // Build a proper expression by replacing "plus" with "+" and evaluating
-      let expression = relevantText;
-      expression = expression.replace(/plus/gi, '+').replace(/and/gi, '+');
-      
-      // Extract all numbers from the expression
-      const numberPattern = /\d+\.?\d*/g;
-      const matches = expression.match(numberPattern);
-      
-      if (matches && matches.length > 0) {
-        // Parse and sum the numbers
-        let total = 0;
-        matches.forEach(match => {
-          total += parseFloat(match);
-        });
-        return total;
-      }
+    if (hasPlusOperator) {
+      console.log("Found numbers with plus operator:", allNumberMatches);
+      // Sum all numbers if plus is in the text
+      let total = 0;
+      allNumberMatches.forEach(match => {
+        total += parseFloat(match);
+      });
+      console.log("Calculated sum:", total);
+      return total;
     } else {
-      // If no "plus" found, just return the last number
-      return parseFloat(numberMatches[numberMatches.length - 1]);
+      // If there's no "plus", return the last number which is likely the most recent
+      const lastNumber = parseFloat(allNumberMatches[allNumberMatches.length - 1]);
+      console.log("No plus found, using last number:", lastNumber);
+      return lastNumber;
     }
   }
   
-  // 2. Fallback: Simply extract all numbers and sum them
-  const allNumberMatches = text.match(/\d+\.?\d*/g);
-  if (allNumberMatches && allNumberMatches.length > 0) {
-    let total = 0;
-    allNumberMatches.forEach(match => {
-      total += parseFloat(match);
-    });
-    return total;
-  }
-  
+  console.log("No numbers found in voice input");
   return null;
 }
 

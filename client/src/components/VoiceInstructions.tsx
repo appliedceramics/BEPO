@@ -20,16 +20,19 @@ export const VoiceInstructions: React.FC<VoiceInstructionsProps> = ({ isVisible,
       <>
         <div className="font-bold text-amber-300 mb-1">Voice Carb Counting:</div>
         <div className="text-sm">
-          Say multiple numbers separated by "plus":
+          1️⃣ Say numbers with "plus" between them:
         </div>
         <div className="text-sm bg-gray-700/60 px-2 py-1 rounded my-1">
-          <span className="text-amber-300">15</span> plus <span className="text-amber-300">20</span> plus <span className="text-amber-300">10</span>
+          Example: <span className="text-amber-300">15</span> plus <span className="text-amber-300">20</span> plus <span className="text-amber-300">10</span>
         </div>
-        <div className="text-xs mt-1">
-          Then say <span className="bg-amber-700/60 px-1 rounded font-bold">Carb Total</span> to calculate
+        <div className="text-xs mt-2">
+          2️⃣ When finished, say <span className="bg-amber-700/60 px-1 rounded font-bold">"Carb Total"</span> to calculate
         </div>
-        <div className="text-xs mt-1 text-green-300">
-          Your numbers will be automatically added: 15 + 20 + 10 = 45
+        <div className="text-xs mt-1 text-gray-400 italic">
+          (Other phrases that work: "total carbs", "carbs total", "total")
+        </div>
+        <div className="text-xs mt-2 text-green-300">
+          ✓ Your numbers will be automatically added: 15 + 20 + 10 = 45
         </div>
       </>
     );
@@ -38,8 +41,13 @@ export const VoiceInstructions: React.FC<VoiceInstructionsProps> = ({ isVisible,
       <>
         <div className="font-bold text-blue-300 mb-1">Blood Glucose Voice Input:</div>
         <div className="text-sm">
-          Say your current BG reading (e.g., <span className="bg-gray-700 px-1 rounded">"5.6"</span> or
-          <span className="bg-gray-700 px-1 rounded">"one two three"</span>)
+          Simply say your BG reading as a number:
+        </div>
+        <div className="text-sm bg-gray-700/60 px-2 py-1 rounded my-1">
+          Examples: <span className="text-blue-300">"5.6"</span> or <span className="text-blue-300">"123"</span>
+        </div>
+        <div className="text-xs mt-1 text-gray-300">
+          The voice recognition will automatically detect when you finish speaking
         </div>
       </>
     );
