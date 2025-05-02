@@ -260,6 +260,89 @@ export default function FunCalculatorPage() {
     );
   }
 
+  // Voice input handling
+  const startVoiceInput = (inputType: 'bg' | 'carbs') => {
+    // Check if browser supports speech recognition
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      // @ts-ignore - Speech recognition API not fully typed in TypeScript
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        // Try to parse number from speech
+        const match = transcript.match(/\d+(\.\d+)?/);
+        if (match) {
+          const value = parseFloat(match[0]);
+          if (!isNaN(value)) {
+            // Update calculator display
+            setDisplayValue(value.toString());
+            
+            // Set the appropriate value based on input type
+            if (inputType === 'bg') {
+              setBgValue(value);
+              toast({
+                title: "Voice Input: Blood Glucose",
+                description: `Set to ${value} ${profile?.bgUnit || 'mmol/L'}`,
+              });
+            } else {
+              setCarbValue(value);
+              toast({
+                title: "Voice Input: Carbs",
+                description: `Set to ${value}g`,
+              });
+            }
+          }
+        }
+      };
+      
+      recognition.onend = () => {
+        toast({
+          title: "Voice Input Ended",
+          description: inputType === 'bg' ? "Blood glucose voice input complete" : "Carbs voice input complete",
+        });
+      };
+      
+      recognition.onerror = (event: any) => {
+        toast({
+          title: "Voice Input Error",
+          description: event.error,
+          variant: "destructive",
+        });
+      };
+      
+      // Start listening
+      recognition.start();
+      toast({
+        title: "Voice Input Started",
+        description: inputType === 'bg' ? "Speak blood glucose value" : "Speak carbohydrate value",
+      });
+    } else {
+      toast({
+        title: "Voice Input Not Supported",
+        description: "Your browser doesn't support voice input",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Calculate total for me (use display value for all fields)
+  const calculateTotalForMe = () => {
+    const value = parseFloat(displayValue);
+    if (!isNaN(value)) {
+      setBgValue(value);
+      setCarbValue(value);
+      setMealType("first" as MealType);
+      toast({
+        title: "Total For Me",
+        description: `Using ${value} for both blood glucose and carbs`,
+      });
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navigation />
@@ -269,6 +352,94 @@ export default function FunCalculatorPage() {
           {/* Calculator header */}
           <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-4 text-center">
             <h1 className="text-3xl font-bold text-white">BEPO Fun Calculator</h1>
+          </div>
+          
+          {/* Insulin calculator section - MOVED TO TOP */}
+          <div className="p-4 bg-yellow-100">
+            <h2 className="text-xl font-bold text-center mb-2">Insulin Calculator</h2>
+            
+            {/* Meal type selection */}
+            <div className="flex gap-2 mb-3">
+              <button 
+                className={`${mealType === "first" ? 'bg-blue-600' : 'bg-blue-400'} hover:bg-blue-500 text-white text-md font-bold rounded-xl p-2 flex-1 flex items-center justify-center shadow-md`}
+                onClick={() => setMealType("first" as MealType)}
+              >
+                Breakfast
+              </button>
+              <button 
+                className={`${mealType === "other" ? 'bg-blue-600' : 'bg-blue-400'} hover:bg-blue-500 text-white text-md font-bold rounded-xl p-2 flex-1 flex items-center justify-center shadow-md`}
+                onClick={() => setMealType("other" as MealType)}
+              >
+                Other Meal
+              </button>
+              <button 
+                className={`${mealType === "bedtime" ? 'bg-blue-600' : 'bg-blue-400'} hover:bg-blue-500 text-white text-md font-bold rounded-xl p-2 flex-1 flex items-center justify-center shadow-md`}
+                onClick={() => setMealType("bedtime" as MealType)}
+              >
+                Bedtime
+              </button>
+            </div>
+            
+            {/* Input setter buttons with voice support */}
+            <div className="flex gap-2 mb-3">
+              <div className="flex-1 flex flex-col gap-1">
+                <InputSetterButton action={setAsBloodGlucose} label={`Set BG (${profile?.bgUnit || 'mmol/L'})`} />
+                <button 
+                  className="bg-blue-400 hover:bg-blue-500 text-white text-xs font-bold rounded-lg py-1 flex items-center justify-center shadow-md"
+                  onClick={() => startVoiceInput('bg')}
+                >
+                  🎤 Voice Input
+                </button>
+              </div>
+              
+              <div className="flex-1 flex flex-col gap-1">
+                <InputSetterButton action={setAsCarbs} label="Set Carbs (g)" />
+                <button 
+                  className="bg-blue-400 hover:bg-blue-500 text-white text-xs font-bold rounded-lg py-1 flex items-center justify-center shadow-md"
+                  onClick={() => startVoiceInput('carbs')}
+                >
+                  🎤 Voice Input
+                </button>
+              </div>
+            </div>
+            
+            {/* Total For Me button */}
+            <button
+              className="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold rounded-xl py-2 mb-3 shadow-md"
+              onClick={calculateTotalForMe}
+            >
+              Total For Me (Use Current Value)
+            </button>
+            
+            {/* Insulin calculation results */}
+            {mealType && bgValue ? (
+              <div className="bg-white p-3 rounded-lg shadow-inner">
+                <div className="grid grid-cols-2 gap-1 text-sm">
+                  <div className="font-bold">Blood Glucose:</div>
+                  <div>{bgValue} {profile?.bgUnit || 'mmol/L'}</div>
+                  
+                  {carbValue !== null && (
+                    <>
+                      <div className="font-bold">Carbs:</div>
+                      <div>{carbValue}g</div>
+                      
+                      <div className="font-bold">Meal Insulin:</div>
+                      <div>{insulinCalcResult.mealInsulin.toFixed(1)} units</div>
+                    </>
+                  )}
+                  
+                  <div className="font-bold">Correction:</div>
+                  <div>{insulinCalcResult.correctionInsulin.toFixed(1)} units</div>
+                  
+                  <div className="font-bold text-primary">Total Insulin:</div>
+                  <div className="text-primary font-bold">{insulinCalcResult.totalInsulin.toFixed(1)} units</div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center text-gray-500 italic">
+                Select meal type and enter blood glucose to calculate insulin
+              </div>
+            )}
           </div>
           
           {/* Display area with previous answer */}
@@ -281,9 +452,9 @@ export default function FunCalculatorPage() {
             </div>
           </div>
           
-          <div className="p-4 flex flex-row gap-4">
+          <div className="p-4">
             {/* Main calculator area */}
-            <div className="flex flex-col gap-4 flex-1">
+            <div className="flex flex-col gap-4">
               {/* Clear button */}
               <ClearButton />
               
@@ -308,69 +479,6 @@ export default function FunCalculatorPage() {
                 <DecimalButton />
                 <EqualsButton />
                 <OperatorButton operator="+" label="+" />
-              </div>
-              
-              {/* Insulin calculator section */}
-              <div className="bg-yellow-100 p-4 rounded-xl">
-                <h2 className="text-xl font-bold text-center mb-2">Insulin Calculator</h2>
-                
-                {/* Meal type selection */}
-                <div className="flex gap-2 mb-3">
-                  <button 
-                    className={`${mealType === "first" ? 'bg-blue-600' : 'bg-blue-400'} hover:bg-blue-500 text-white text-md font-bold rounded-xl p-2 flex-1 flex items-center justify-center shadow-md`}
-                    onClick={() => setMealType("first" as MealType)}
-                  >
-                    Breakfast
-                  </button>
-                  <button 
-                    className={`${mealType === "other" ? 'bg-blue-600' : 'bg-blue-400'} hover:bg-blue-500 text-white text-md font-bold rounded-xl p-2 flex-1 flex items-center justify-center shadow-md`}
-                    onClick={() => setMealType("other" as MealType)}
-                  >
-                    Other Meal
-                  </button>
-                  <button 
-                    className={`${mealType === "bedtime" ? 'bg-blue-600' : 'bg-blue-400'} hover:bg-blue-500 text-white text-md font-bold rounded-xl p-2 flex-1 flex items-center justify-center shadow-md`}
-                    onClick={() => setMealType("bedtime" as MealType)}
-                  >
-                    Bedtime
-                  </button>
-                </div>
-                
-                {/* Input setter buttons */}
-                <div className="flex gap-2 mb-3">
-                  <InputSetterButton action={setAsBloodGlucose} label={`Set BG (${profile?.bgUnit || 'mmol/L'})`} />
-                  <InputSetterButton action={setAsCarbs} label="Set Carbs (g)" />
-                </div>
-                
-                {/* Insulin calculation results */}
-                {mealType && bgValue ? (
-                  <div className="bg-white p-3 rounded-lg shadow-inner">
-                    <div className="grid grid-cols-2 gap-1 text-sm">
-                      <div className="font-bold">Blood Glucose:</div>
-                      <div>{bgValue} {profile?.bgUnit || 'mmol/L'}</div>
-                      
-                      {carbValue !== null && (
-                        <>
-                          <div className="font-bold">Carbs:</div>
-                          <div>{carbValue}g</div>
-                          
-                          <div className="font-bold">Meal Insulin:</div>
-                          <div>{insulinCalcResult.mealInsulin.toFixed(1)} units</div>
-                        </>
-                      )}
-                      
-                      <div className="font-bold">Correction:</div>
-                      <div>{insulinCalcResult.correctionInsulin.toFixed(1)} units</div>
-                      
-                      <div className="font-bold text-primary">Total Insulin:</div>
-                      <div className="text-primary font-bold">{insulinCalcResult.totalInsulin.toFixed(1)} units</div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center text-gray-500 italic">
-                    Select meal type and enter blood glucose to calculate insulin
-                  </div>
-                )}
               </div>
             </div>
           </div>
