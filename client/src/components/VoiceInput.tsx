@@ -46,6 +46,37 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({
           generateConfirmSound();
           onCommandInput('carbTotal');
           setFeedback(`Command: Carb Total`);
+        } 
+        // Check for number sequences separated by "plus"
+        else if (newText.toLowerCase().includes('plus')) {
+          // Process a sequence like "15 plus 20 plus 10"
+          const parts = newText.toLowerCase().split('plus').map(p => p.trim());
+          const numbers = parts.map(part => {
+            // Extract numbers from each part
+            const match = part.match(/\d+(\.\d+)?/g);
+            return match ? parseFloat(match[0]) : null;
+          }).filter(num => num !== null) as number[];
+          
+          if (numbers.length > 1) {
+            // Calculate the sum
+            const sum = numbers.reduce((total, num) => total + num, 0);
+            
+            // Send each number and plus operation to build the calculation
+            numbers.forEach((num, index) => {
+              if (index === 0) {
+                // First number
+                onNumberInput(num.toString());
+              } else {
+                // For subsequent numbers, send a plus operation then the number
+                onOperationInput('+');
+                onNumberInput(num.toString());
+              }
+            });
+            
+            // Generate confirmation sound
+            generateConfirmSound();
+            setFeedback(`Calculated: ${numbers.join(' + ')} = ${sum}`);
+          }
         } else {
           // Check for other commands
           const command = extractCommand(newText);
