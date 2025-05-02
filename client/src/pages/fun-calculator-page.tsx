@@ -875,11 +875,11 @@ export default function FunCalculatorPage() {
                   whileTap={{ scale: 0.95 }}
                 >3</motion.button>
                 <motion.button 
-                  className="bg-gradient-to-b from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
-                  onClick={inputDecimal}
+                  className="bg-gradient-to-b from-purple-600 to-fuchsia-700 hover:from-purple-700 hover:to-fuchsia-800 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
+                  onClick={handleEquals}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                >.</motion.button>
+                >=</motion.button>
                 
                 {/* Row 4 */}
                 <motion.button 
@@ -895,11 +895,11 @@ export default function FunCalculatorPage() {
                   whileTap={{ scale: 0.95 }}
                 >-</motion.button>
                 <motion.button 
-                  className="bg-gradient-to-b from-purple-600 to-fuchsia-700 hover:from-purple-700 hover:to-fuchsia-800 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
-                  onClick={handleEquals}
+                  className="bg-gradient-to-b from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
+                  onClick={inputDecimal}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                >=</motion.button>
+                >.</motion.button>
                 
                 {/* Addition button - takes the place of the last column for row 3 and 4, double height */}
                 <motion.button 
