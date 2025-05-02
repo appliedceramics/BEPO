@@ -50,16 +50,25 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({
         // Check for number sequences separated by "plus"
         else if (newText.toLowerCase().includes('plus')) {
           // Process a sequence like "15 plus 20 plus 10"
-          const parts = newText.toLowerCase().split('plus').map(p => p.trim());
-          const numbers = parts.map(part => {
-            // Extract numbers from each part
-            const match = part.match(/\d+(\.\d+)?/g);
-            return match ? parseFloat(match[0]) : null;
-          }).filter(num => num !== null) as number[];
+          const processText = newText.toLowerCase().replace(/\s+/g, ' ');
+          console.log("Processing voice input with plus:", processText);
           
-          if (numbers.length > 1) {
+          // Extract all numbers from the text
+          const numbers: number[] = [];
+          const numberMatches = processText.match(/\d+(\.\d+)?/g);
+          
+          if (numberMatches && numberMatches.length > 1) {
+            // Convert matches to numbers
+            numberMatches.forEach(match => {
+              numbers.push(parseFloat(match));
+            });
+            
             // Calculate the sum
             const sum = numbers.reduce((total, num) => total + num, 0);
+            console.log("Extracted numbers:", numbers, "Sum:", sum);
+            
+            // Clear previous calculation
+            onCommandInput('clear');
             
             // Send each number and plus operation to build the calculation
             numbers.forEach((num, index) => {
@@ -75,7 +84,9 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({
             
             // Generate confirmation sound
             generateConfirmSound();
-            setFeedback(`Calculated: ${numbers.join(' + ')} = ${sum}`);
+            setFeedback(`Added: ${numbers.join(' + ')}`);
+          } else {
+            console.log("Could not extract multiple numbers from voice input");
           }
         } else {
           // Check for other commands

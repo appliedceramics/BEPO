@@ -474,53 +474,66 @@ export default function FunCalculatorPage() {
     }, 10000);
   };
   
+  // Play a soft success sound
+  const playSuccessSound = () => {
+    try {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(880, ctx.currentTime); // A5 note
+      oscillator.frequency.linearRampToValueAtTime(1320, ctx.currentTime + 0.15); // E6 note
+      
+      gainNode.gain.setValueAtTime(0, ctx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.05, ctx.currentTime + 0.05); // Very quiet
+      gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      
+      oscillator.start(ctx.currentTime);
+      oscillator.stop(ctx.currentTime + 0.3);
+    } catch (error) {
+      console.error('Error playing sound:', error);
+    }
+  };
+
+  // Process carb total from voice input
+  const processVoiceCarbTotal = () => {
+    console.log("Processing voice carb total");
+    // Process all the numbers that have been spoken so far
+    // and add them up for the carb total
+    const totalValue = calculateFromDisplay();
+    console.log("Calculated total value:", totalValue);
+    
+    if (totalValue !== null) {
+      // Set the carb value and update display
+      setCarbValue(totalValue);
+      setDisplayValue(totalValue.toString());
+      
+      // Update the wizard state to done since we've completed the process
+      setWizardStep('done');
+      
+      // Play a success sound
+      playSuccessSound();
+      
+      // Show success toast with the calculation details
+      toast({
+        title: "Voice Carb Total",
+        description: `Calculated ${totalValue}g carbs`
+      });
+      
+      // Clear the voice input state
+      setVoiceInputMode('none');
+    }
+  };
+  
   // Handle voice input commands and operations
   const handleVoiceCommand = (command: string) => {
+    console.log("Voice command received:", command, "Mode:", voiceInputMode);
     if (command === 'carbTotal' && voiceInputMode === 'carb-total') {
-      // Process all the numbers that have been spoken so far
-      // and add them up for the carb total
-      const totalValue = calculateFromDisplay();
-      if (totalValue !== null) {
-        // Set the carb value and update display
-        setCarbValue(totalValue);
-        setDisplayValue(totalValue.toString());
-        
-        // Update the wizard state to done since we've completed the process
-        setWizardStep('done');
-        
-        // Play a success sound
-        try {
-          const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-          const oscillator = ctx.createOscillator();
-          const gainNode = ctx.createGain();
-          
-          oscillator.type = 'sine';
-          oscillator.frequency.setValueAtTime(880, ctx.currentTime); // A5 note
-          oscillator.frequency.linearRampToValueAtTime(1320, ctx.currentTime + 0.15); // E6 note
-          
-          gainNode.gain.setValueAtTime(0, ctx.currentTime);
-          gainNode.gain.linearRampToValueAtTime(0.05, ctx.currentTime + 0.05); // Very quiet
-          gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
-          
-          oscillator.connect(gainNode);
-          gainNode.connect(ctx.destination);
-          
-          oscillator.start(ctx.currentTime);
-          oscillator.stop(ctx.currentTime + 0.3);
-        } catch (error) {
-          console.error('Error playing sound:', error);
-        }
-        
-        // Show success toast with the calculation details
-        toast({
-          title: "Voice Carb Total",
-          description: `Calculated ${totalValue}g carbs`,
-          variant: "success"
-        });
-        
-        // Clear the voice input state
-        setVoiceInputMode('none');
-      }
+      processVoiceCarbTotal();
     }
   };
   
