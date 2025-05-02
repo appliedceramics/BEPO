@@ -40,30 +40,38 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({
       if (newText) {
         setFeedback(`Heard: ${newText}`);
         
-        // Check for commands first
-        const command = extractCommand(newText);
-        if (command) {
-          // Generate soft confirmation sound
+        // Check for "carb total" command specifically for carb total calculations
+        if (newText.toLowerCase().includes('carb total')) {
+          // Generate confirmation sound
           generateConfirmSound();
-          onCommandInput(command);
-          setFeedback(`Command: ${command}`);
+          onCommandInput('carbTotal');
+          setFeedback(`Command: Carb Total`);
         } else {
-          // Check for numbers
-          const number = extractNumber(newText);
-          if (number !== null) {
+          // Check for other commands
+          const command = extractCommand(newText);
+          if (command) {
             // Generate soft confirmation sound
             generateConfirmSound();
-            onNumberInput(number.toString());
-            setFeedback(`Number: ${number}`);
-          }
-          
-          // Check for operations
-          const operation = extractOperation(newText);
-          if (operation) {
-            // Generate soft confirmation sound
-            generateConfirmSound();
-            onOperationInput(operation);
-            setFeedback(`Operation: ${operation}`);
+            onCommandInput(command);
+            setFeedback(`Command: ${command}`);
+          } else {
+            // Check for numbers
+            const number = extractNumber(newText);
+            if (number !== null) {
+              // Generate soft confirmation sound
+              generateConfirmSound();
+              onNumberInput(number.toString());
+              setFeedback(`Number: ${number}`);
+            }
+            
+            // Check for operations
+            const operation = extractOperation(newText);
+            if (operation) {
+              // Generate soft confirmation sound
+              generateConfirmSound();
+              onOperationInput(operation);
+              setFeedback(`Operation: ${operation}`);
+            }
           }
         }
       }

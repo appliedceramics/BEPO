@@ -41,7 +41,8 @@ export default function FunCalculatorPage() {
   const typewriterRef = useRef<NodeJS.Timeout | null>(null);
   
   // Voice input states
-  const [voiceInputMode, setVoiceInputMode] = useState<'none' | 'bg' | 'carb-total'>('none');
+  type VoiceInputModeType = 'none' | 'bg' | 'carb-total';
+  const [voiceInputMode, setVoiceInputMode] = useState<VoiceInputModeType>('none');
   const [showVoiceInstructions, setShowVoiceInstructions] = useState(false);
   
   // Typewriter effect for display text
@@ -459,6 +460,9 @@ export default function FunCalculatorPage() {
     setVoiceInputMode(inputType === 'bg' ? 'bg' : 'carb-total');
     setShowVoiceInstructions(true);
     
+    // Show toast notification for voice input started
+    notifyVoiceInputStarted();
+    
     // Auto-hide instructions after 10 seconds
     setTimeout(() => {
       setShowVoiceInstructions(false);
@@ -530,17 +534,7 @@ export default function FunCalculatorPage() {
     }
   };
   
-  // Component to handle voice input for the calculator
-  const VoiceInputComponent = () => {
-    return (
-      <VoiceInput
-        onNumberInput={handleVoiceNumber}
-        onOperationInput={handleVoiceOperation}
-        onCommandInput={handleVoiceCommand}
-        enabled={voiceInputMode !== 'none'}
-      />
-    );
-  };
+  // This component is now integrated directly in the return JSX where needed
   
   // Check if browser supports speech recognition
   const hasSpeechRecognition = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
