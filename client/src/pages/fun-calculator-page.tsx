@@ -195,6 +195,7 @@ export default function FunCalculatorPage() {
     correctionInsulin: 0,
     totalInsulin: 0,
     bgMgdl: 0,
+    calculationMethod: ""
   });
 
   // Handle number input
@@ -388,6 +389,7 @@ export default function FunCalculatorPage() {
           correctionInsulin: result.correctionInsulin,
           totalInsulin: result.totalInsulin,
           bgMgdl: result.bgMgdl,
+          calculationMethod: result.calculationMethod || ""
         });
       } catch (error) {
         console.error("Error calculating insulin:", error);
