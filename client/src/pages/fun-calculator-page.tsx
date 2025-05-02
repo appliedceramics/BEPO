@@ -90,8 +90,15 @@ export default function FunCalculatorPage() {
       setCarbButtonActive(true);
       // Auto clear display for number entry
       setDisplayValue("0");
+      
+      // Automatically enable Carb Total mode when entering carbs step
+      if (!carbTotalMode) {
+        setTimeout(() => {
+          toggleCarbTotalMode();
+        }, 800); // Small delay to allow transition animation and instructions to show first
+      }
     }
-  }, [bgValue, wizardStep]);
+  }, [bgValue, wizardStep, carbTotalMode, toggleCarbTotalMode]);
   
   // Auto clear display after = in carb total mode
   useEffect(() => {
