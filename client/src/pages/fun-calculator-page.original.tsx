@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Card } from "@/components/ui/card";
 import { convertBgToMgdl } from "@/lib/correctionCalculator";
+// import { useToast } from "@/hooks/use-toast"; // Disabled toasts
 import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
@@ -15,49 +16,18 @@ import { extractNumber, extractOperation, extractCommand, calculateCarbTotal } f
 import { TypingEffect } from "../components/TypingEffect";
 import { VoiceInstructions } from "../components/VoiceInstructions";
 
-// Custom typing effect for calculator display
-const DisplayTypingEffect = ({ text }: { text: string }) => {
-  const [displayedText, setDisplayedText] = useState("");
-  
-  useEffect(() => {
-    let currentIndex = 0;
-    let timerId: NodeJS.Timeout | null = null;
-    
-    const typeNextChar = () => {
-      if (currentIndex < text.length) {
-        setDisplayedText(text.substring(0, currentIndex + 1));
-        currentIndex++;
-        timerId = setTimeout(typeNextChar, 50);
-      }
-    };
-    
-    // Start typing
-    typeNextChar();
-    
-    // Clean up on unmount or when text changes
-    return () => {
-      if (timerId) clearTimeout(timerId);
-    };
-  }, [text]);
-  
-  return <span className="text-yellow-300">{displayedText}</span>;
-};
-
 export default function FunCalculatorPage() {
   const { user } = useAuth();
-  // Dummy toast function that does nothing - disables notifications
-  const toast = () => {};
-  
+  // Toasts completely disabled as requested
   const [displayValue, setDisplayValue] = useState("Select Dosage Purpose");
   const [previousValue, setPreviousValue] = useState<number | null>(null);
   const [operation, setOperation] = useState<string | null>(null);
   const [waitingForSecondOperand, setWaitingForSecondOperand] = useState(false);
-  const [shouldUseTypewriter, setShouldUseTypewriter] = useState(false); // Control typewriter effect for display
   
   // Blood glucose and carb inputs for insulin calculation
   const [bgValue, setBgValue] = useState<number | null>(null);
   const [carbValue, setCarbValue] = useState<number | null>(null);
-  const [mealType, setMealType] = useState<MealType | "">(); 
+  const [mealType, setMealType] = useState<MealType | "">();
   const [carbTotalMode, setCarbTotalMode] = useState(false);
   
   // Wizard state
@@ -140,15 +110,13 @@ export default function FunCalculatorPage() {
         
         // Update display to show the fixed dosage
         setDisplayValue(settings.longActingDosage.toString());
-        setShouldUseTypewriter(true); // Enable typewriter effect
         
         // Update button states
         setBgButtonActive(false);
         setCarbButtonActive(false);
         setPurposeButtonsActive(false);
 
-        // Show toast with dosage info - disabled
-        toast();
+        // Toasts disabled
       } 
       // For all other meal types, proceed normally
       else {
@@ -174,7 +142,10 @@ export default function FunCalculatorPage() {
         setBgButtonActive(false);
         // Don't activate carb button for bedtime
         setCarbButtonActive(false);
-        toast();
+        toast({
+          title: "Bedtime Calculation",
+          description: "Just using blood glucose for bedtime calculation (no carbs needed)",
+        });
       } else {
         // For all other meal types, proceed to carb counting
         setWizardStep('carbs');
@@ -184,7 +155,6 @@ export default function FunCalculatorPage() {
         setCarbButtonActive(true);
         // Auto clear display for number entry
         setDisplayValue("0");
-        setShouldUseTypewriter(false);
         // We'll auto-activate Carb Total in a separate effect to avoid the initialization error
       }
     }
@@ -202,7 +172,10 @@ export default function FunCalculatorPage() {
         setWaitingForSecondOperand(false);
         setCalculationHistory([]);
         
-        toast();
+        toast({
+          title: "Carb Total Mode Activated",
+          description: "Use calculator to add up carb values, then press Carb Total button again to set",
+        });
       }, 800); // Small delay to allow transition animation and instructions to show first
       
       return () => clearTimeout(timer);
@@ -245,12 +218,10 @@ export default function FunCalculatorPage() {
     if (waitingForSecondOperand) {
       setDisplayValue(digit);
       setWaitingForSecondOperand(false);
-      setShouldUseTypewriter(true); // Enable typewriter effect
     } else {
       // Apply typewriter effect to newly entered numbers
       const newDisplayValue = displayValue === "0" || displayValue === "Select Dosage Purpose" ? digit : displayValue + digit;
       setDisplayValue(newDisplayValue);
-      setShouldUseTypewriter(true); // Enable typewriter effect
     }
   };
 
@@ -264,7 +235,6 @@ export default function FunCalculatorPage() {
     if (waitingForSecondOperand) {
       setDisplayValue("0.");
       setWaitingForSecondOperand(false);
-      setShouldUseTypewriter(true); // Enable typewriter effect
       return;
     }
 
@@ -275,7 +245,6 @@ export default function FunCalculatorPage() {
       } else {
         setDisplayValue(displayValue + ".");
       }
-      setShouldUseTypewriter(true); // Enable typewriter effect
     }
   };
 
@@ -339,7 +308,6 @@ export default function FunCalculatorPage() {
       setPreviousValue(null);
       setOperation(null);
       setWaitingForSecondOperand(false);
-      setShouldUseTypewriter(true); // Enable typewriter effect
       
       // Add final calculation to history
       const operatorSymbol = operation === '+' ? '+' : operation === '-' ? '-' : operation === '*' ? '×' : '÷';
@@ -350,7 +318,10 @@ export default function FunCalculatorPage() {
       // In the carbs step but with no calculation, set the direct value
       // Only do this if not in Carb Total mode
       setCarbValue(inputValue);
-      toast();
+      toast({
+        title: "Carbs Set",
+        description: `Carbohydrate value set to ${inputValue}g`,
+      });
     }
   };
 
@@ -390,7 +361,10 @@ export default function FunCalculatorPage() {
     // Exit carb total mode if active
     setCarbTotalMode(false);
     
-    toast();
+    toast({
+      title: "Calculator Reset",
+      description: "Calculator has been reset completely",
+    });
   };
 
   // Calculate insulin when inputs change
@@ -445,27 +419,65 @@ export default function FunCalculatorPage() {
     const value = parseFloat(displayValue);
     if (!isNaN(value)) {
       setBgValue(value);
-      toast();
+      toast({
+        title: "Blood Glucose Set",
+        description: `Blood glucose value set to ${value} ${profile?.bgUnit || "mmol/L"}`,
+      });
     }
   };
 
   const setAsCarbs = () => {
     // Don't allow setting carbs for bedtime
     if (mealType === 'bedtime') {
-      toast();
+      toast({
+        title: "Not Needed for Bedtime",
+        description: "Carbohydrate counting is not needed for bedtime insulin",
+        variant: "destructive"
+      });
       return;
     }
     
     const value = parseFloat(displayValue);
     if (!isNaN(value)) {
       setCarbValue(value);
-      toast();
+      toast({
+        title: "Carbs Set",
+        description: `Carbohydrate value set to ${value}g`,
+      });
     }
   };
 
-  // Voice input handling - disabled but keeping function for compatibility
+  // Voice input handling
   const startVoiceInput = (inputType: 'bg' | 'carbs') => {
-    console.log("Voice input disabled");
+    console.log("Starting voice input for:", inputType);
+    
+    // Don't allow carb voice input for bedtime
+    if (inputType === 'carbs' && mealType === 'bedtime') {
+      toast({
+        title: "Not Needed for Bedtime",
+        description: "Carbohydrate counting is not needed for bedtime insulin",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // For carb totaling, reset the calculator
+    if (inputType === 'carbs') {
+      // Reset calculator for carb total
+      setDisplayValue("0");
+      setPreviousValue(null);
+      setOperation(null);
+      setWaitingForSecondOperand(false);
+      // Set as carb-total mode
+      setVoiceInputMode('carb-total');
+    } else {
+      // Set blood glucose input mode
+      setVoiceInputMode('bg');
+    }
+    
+    // Show toast notification and instructions for voice input
+    // (setShowVoiceInstructions is now handled inside notifyVoiceInputStarted)
+    notifyVoiceInputStarted();
   };
   
   // Play a soft success sound
@@ -493,124 +505,434 @@ export default function FunCalculatorPage() {
     }
   };
 
-  // Voice-related functions kept for compatibility but disabled
+  // Process carb total from voice input
   const processVoiceCarbTotal = () => {
-    console.log("Voice input disabled");
-  };
-
-  // For calculating the current display value (used in carb total)
-  const calculateFromDisplay = (): number | null => {
-    // If there's an active operation, perform the calculation
-    if (previousValue !== null && operation) {
-      const currentValue = parseFloat(displayValue);
-      if (!isNaN(currentValue)) {
-        return performCalculation(operation, previousValue, currentValue);
+    console.log("Processing voice carb total");
+    // Process all the numbers that have been spoken so far
+    // and add them up for the carb total
+    const totalValue = calculateFromDisplay();
+    console.log("Calculated total value:", totalValue, "Current display value:", displayValue);
+    
+    // If we don't have a value from the calculation, try to parse the display value directly
+    let finalValue = totalValue;
+    if (finalValue === null) {
+      try {
+        const parsedValue = parseFloat(displayValue);
+        if (!isNaN(parsedValue)) {
+          console.log("Using parsed display value instead:", parsedValue);
+          finalValue = parsedValue;
+        }
+      } catch (error) {
+        console.error("Error parsing display value:", error);
       }
     }
     
-    // Otherwise, just return the current display value
-    const value = parseFloat(displayValue);
-    return isNaN(value) ? null : value;
+    if (finalValue !== null) {
+      // Set the carb value and update display
+      setCarbValue(finalValue);
+      setDisplayValue(finalValue.toString());
+      
+      // Update the wizard state to done since we've completed the process
+      setWizardStep('done');
+      
+      // Play a success sound
+      playSuccessSound();
+      
+      // Show success toast with the calculation details
+      toast({
+        title: "Voice Carb Total",
+        description: `Calculated ${finalValue}g carbs`
+      });
+      
+      // Clear the voice input state
+      setVoiceInputMode('none');
+      
+      // Show completion message with typewriter effect
+      setDisplayText("Great! Now take your dosage.");
+      setShowTypingEffect(true);
+        
+      // Scroll to bottom to see results after a short delay
+      setTimeout(() => {
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: 'smooth'
+        });
+      }, 500);
+      
+      console.log("Successfully set carb value to:", finalValue);
+    } else {
+      console.log("Failed to calculate a valid carb total value");
+      toast({
+        title: "Voice Input Error",
+        description: "Could not calculate carb total. Please try again.",
+        variant: "destructive"
+      });
+      // Also deactivate voice input if there's an error
+      setVoiceInputMode('none');
+    }
   };
   
-  // Toggle carb total mode
+  // Handle voice input commands and operations
+  const handleVoiceCommand = (command: string) => {
+    console.log("Voice command received:", command, "Mode:", voiceInputMode);
+    
+    if (command === 'carbTotal') {
+      // Allow carb total command to work in any mode, but log more details if not in carb-total mode
+      if (voiceInputMode !== 'carb-total') {
+        console.log("WARNING: Carb Total command received but not in carb-total mode!", 
+                    "Current mode:", voiceInputMode, 
+                    "Will still attempt to process...");
+      }
+      processVoiceCarbTotal();
+    } else {
+      console.log("Other command received:", command);
+    }
+  };
+  
+  // Process voice input for numbers
+  const handleVoiceNumber = (number: string) => {
+    // Add the number to the display
+    if (voiceInputMode === 'bg') {
+      setDisplayValue(number);
+    } else if (voiceInputMode === 'carb-total') {
+      // In carb-total mode, we add numbers
+      if (displayValue === "0" || waitingForSecondOperand) {
+        setDisplayValue(number);
+        setWaitingForSecondOperand(false);
+      } else {
+        // Append to existing display
+        setDisplayValue(displayValue + number);
+      }
+    }
+  };
+  
+  // Process voice operations like "plus"
+  const handleVoiceOperation = (op: string) => {
+    if (voiceInputMode === 'carb-total' && op === '+') {
+      handleOperator('+');
+    }
+  };
+  
+  // Calculate the sum from the current calculation state
+  const calculateFromDisplay = (): number | null => {
+    try {
+      // If we have a previous value and an operation
+      if (previousValue !== null && operation === '+') {
+        const inputValue = parseFloat(displayValue);
+        if (!isNaN(inputValue)) {
+          return previousValue + inputValue;
+        }
+      }
+      
+      // If we just have a single value
+      const value = parseFloat(displayValue);
+      if (!isNaN(value)) {
+        return value;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error calculating from display:', error);
+      return null;
+    }
+  };
+  
+  // This component is now integrated directly in the return JSX where needed
+  
+  // Check if browser supports speech recognition
+  const hasSpeechRecognition = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+  
+  // Toast notification for voice input start
+  const notifyVoiceInputStarted = () => {
+    if (hasSpeechRecognition) {
+      // Different messages based on the voice input mode
+      if (voiceInputMode === 'bg') {
+        toast({
+          title: "Voice BG Input",
+          description: "Speak your blood glucose value",
+          duration: 5000,
+        });
+      } else if (voiceInputMode === 'carb-total') {
+        toast({
+          title: "Voice Carb Total",
+          description: "Say numbers separated by 'plus', then say 'carb total'",
+          duration: 5000,
+        });
+      }
+      
+      // Show voice instructions unconditionally for better guidance
+      setShowVoiceInstructions(true);
+      // Auto-hide instructions after 15 seconds
+      setTimeout(() => {
+        setShowVoiceInstructions(false);
+      }, 15000);
+    } else {
+      // Show a more detailed error message with browser compatibility info
+      const isChromium = navigator.userAgent.indexOf('Chrome') > -1;
+      const browserInfo = isChromium ? 
+        "Voice input works best in Chrome, Edge, or Opera browsers" : 
+        "Please try using Chrome, Edge, or Opera browsers";
+      
+      toast({
+        title: "Voice Input Not Supported",
+        description: `Your browser doesn't support voice input. ${browserInfo}`,
+        variant: "destructive",
+        duration: 7000,
+      });
+    }
+    
+    console.log("Voice input mode is now:", voiceInputMode);
+  };
+
+  // Calculate total for me (use display value for all fields)
+  const calculateTotalForMe = () => {
+    const value = parseFloat(displayValue);
+    if (!isNaN(value)) {
+      setBgValue(value);
+      setCarbValue(value);
+      setMealType("first" as MealType);
+      toast({
+        title: "Total For Me",
+        description: `Using ${value} for both blood glucose and carbs`,
+      });
+    }
+  };
+
+  // Handle carb total mode toggle
   const toggleCarbTotalMode = () => {
-    if (wizardStep === 'purpose' || wizardStep === 'bg') {
-      // Can't activate carb total mode until we're ready
-      toast();
+    // Don't allow carb total mode for bedtime
+    if (mealType === 'bedtime') {
+      toast({
+        title: "Not Needed for Bedtime",
+        description: "Carbohydrate counting is not needed for bedtime insulin",
+        variant: "destructive"
+      });
       return;
     }
     
-    if (carbTotalMode) {
-      // Ready to set the carb value
-      const value = parseFloat(displayValue);
-      if (!isNaN(value)) {
-        setCarbValue(value);
-        toast();
-      }
-    } else {
+    if (!carbTotalMode) {
       setCarbTotalMode(true);
-      // Clear calculator for new calculation
+      toast({
+        title: "Carb Total Mode Activated",
+        description: "Use calculator to add up carb values, then press Carb Total button again to set",
+      });
+      // Clear display for calculation but keep wizard state and current BG
       setDisplayValue("0");
       setPreviousValue(null);
       setOperation(null);
       setWaitingForSecondOperand(false);
-      setCalculationHistory([]);
-      toast();
+    } else {
+      // If already in carb total mode, this will finalize the calculation
+      const total = parseFloat(displayValue);
+      if (!isNaN(total)) {
+        setCarbValue(total);
+        toast({
+          title: "Carb Total Set",
+          description: `Carbohydrate value set to ${total}g`,
+        });
+        
+        // Show completion message with typewriter effect
+        setDisplayText("Great! Now take your dosage.");
+        setShowTypingEffect(true);
+        
+        // Scroll to bottom to see results after a short delay
+        setTimeout(() => {
+          window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: 'smooth'
+          });
+        }, 500);
+      }
+      setCarbTotalMode(false);
     }
   };
-  
-  // Handle voice input results (function kept for compatibility but unused)
-  const handleVoiceResult = (transcript: string) => {
-    console.log("Voice input disabled");
-  };
-  
-  // Voice input start notification - kept for compatibility but unused
-  const notifyVoiceInputStarted = () => {
-    console.log("Voice input disabled");
-  };
-  
-  // AI food search
-  const openAIFoodSearch = () => {
-    setWizardStep('ai-search');
-    setFoodSearchQuery("");
-    setFoodSearchResults([]);
-    toast();
-  };
-  
-  const closeAIFoodSearch = () => {
-    setWizardStep(bgValue ? 'carbs' : 'bg');
-  };
-  
-  const searchFoods = async () => {
-    if (!foodSearchQuery.trim()) return;
-    
-    setIsFoodSearchLoading(true);
-    
-    try {
+
+  // AI food search functionality
+  const { data: foodSuggestions, isLoading: aiLoading, refetch: searchFood } = useQuery<any>({ 
+    queryKey: ['/api/food-suggestions', foodSearchQuery],
+    queryFn: async () => {
+      if (!foodSearchQuery) return [];
       const response = await fetch('/api/food-suggestions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: foodSearchQuery })
       });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setFoodSearchResults([data]); // API returns a single detailed result
-      } else {
-        console.error("Failed to search foods:", await response.text());
-      }
-    } catch (error) {
-      console.error("Error searching foods:", error);
-    } finally {
-      setIsFoodSearchLoading(false);
+      return response.json();
+    },
+    enabled: false, // We'll trigger manually with refetch
+  });
+
+  // Handle search form submit
+  const handleFoodSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (foodSearchQuery.trim().length < 2) {
+      toast({
+        title: "Search Query Required",
+        description: "Please enter at least 2 characters",
+        variant: "destructive"
+      });
+      return;
     }
+    setIsFoodSearchLoading(true);
+    await searchFood();
+    setIsFoodSearchLoading(false);
   };
   
-  const selectFoodPortion = (carbValue: number) => {
-    setWizardStep('carbs');
-    setDisplayValue(String(carbValue));
-    setCarbValue(carbValue);
-    setShouldUseTypewriter(true); // Enable typewriter effect
-    toast();
+  // Handle AI Food Search button
+  const openAIFoodSearch = () => {
+    // Clear previous search results
+    setFoodSearchQuery('');
+    setFoodSearchResults([]);
+    
+    // Update UI state
+    setWizardStep('ai-search');
+    setDisplayText("Search for foods to find their carb content");
+    setShowTypingEffect(true);
+    
+    toast({
+      title: "AI Food Search",
+      description: "Enter a food description to get carb values"
+    });
+  };
+  
+  // Handle food selection from search
+  const handleFoodSelection = (food: any) => {
+    if (food && food.portions && food.portions.medium) {
+      // Set the carb value from the selected food
+      const carbValue = food.portions.medium.carbValue;
+      setCarbValue(carbValue);
+      setDisplayValue(carbValue.toString());
+      
+      // Update wizard state
+      setWizardStep('done');
+      
+      toast({
+        title: "Food Selected",
+        description: `Added ${food.name} (${carbValue}g carbs)`,
+      });
+    }
   };
 
+  if (profileLoading || settingsLoading) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Navigation />
+        <div className="flex-1 flex items-center justify-center">
+          <Loader2 className="animate-spin h-12 w-12 text-primary" />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col min-h-screen bg-gray-900 text-white">
+    <div className="flex flex-col min-h-screen">
       <Navigation />
       
-      <div className="flex-1 container py-4 px-2 sm:px-4 max-w-3xl mx-auto">
-        <h1 className="text-xl font-bold mb-4">BEPO Insulin Calculator</h1>
+      <div className="flex-1 flex justify-center items-center p-4 bg-gradient-to-b from-blue-50 to-purple-50">
+        {/* Food search dialog */}
+        {wizardStep === 'ai-search' && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-gray-800 rounded-lg shadow-xl w-full max-w-md overflow-hidden">
+              <div className="bg-gradient-to-r from-teal-600 to-emerald-600 p-4">
+                <h3 className="text-xl font-bold text-white">AI Food Search</h3>
+              </div>
+              
+              <div className="p-4">
+                <form onSubmit={handleFoodSearch} className="mb-4">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={foodSearchQuery}
+                      onChange={(e) => setFoodSearchQuery(e.target.value)}
+                      placeholder="Search for food (e.g., 'apple', 'pizza slice')"
+                      className="flex-1 bg-gray-700 text-white border border-gray-600 rounded-md px-3 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                    />
+                    <button 
+                      type="submit" 
+                      className="bg-teal-600 hover:bg-teal-700 text-white px-4 rounded-md" 
+                      disabled={isFoodSearchLoading}
+                    >
+                      {isFoodSearchLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Search'}
+                    </button>
+                  </div>
+                </form>
+                
+                <div className="max-h-64 overflow-y-auto">
+                  {foodSuggestions && foodSuggestions.length > 0 ? (
+                    <div className="space-y-3">
+                      {foodSuggestions.map((food: any, index: number) => (
+                        <div 
+                          key={index} 
+                          className="bg-gray-700 rounded-lg p-3 cursor-pointer hover:bg-gray-600"
+                          onClick={() => handleFoodSelection(food)}
+                        >
+                          <div className="font-medium text-white">{food.name}</div>
+                          <div className="text-gray-300 text-sm">{food.description}</div>
+                          <div className="grid grid-cols-3 gap-2 mt-2 text-sm">
+                            <div className="bg-gray-800 p-2 rounded text-center">
+                              <div className="text-gray-400">Small</div>
+                              <div className="text-amber-400">{food.portions.small.carbValue}g</div>
+                            </div>
+                            <div className="bg-gray-800 p-2 rounded text-center">
+                              <div className="text-gray-400">Medium</div>
+                              <div className="text-amber-400">{food.portions.medium.carbValue}g</div>
+                            </div>
+                            <div className="bg-gray-800 p-2 rounded text-center">
+                              <div className="text-gray-400">Large</div>
+                              <div className="text-amber-400">{food.portions.large.carbValue}g</div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : isFoodSearchLoading ? (
+                    <div className="text-center py-6 text-gray-400">Searching...</div>
+                  ) : foodSearchQuery && foodSuggestions?.length === 0 ? (
+                    <div className="text-center py-6 text-gray-400">No foods found for '{foodSearchQuery}'</div>
+                  ) : (
+                    <div className="text-center py-6 text-gray-400">Enter a food to get AI-powered carb information</div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="bg-gray-900 p-4 flex justify-between">
+                <button 
+                  className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md" 
+                  onClick={() => setWizardStep('carbs')}
+                >
+                  Cancel
+                </button>
+                <button 
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md"
+                  onClick={() => setWizardStep('carbs')}
+                  disabled={!foodSuggestions || foodSuggestions.length === 0}
+                >
+                  Manual Entry
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         
-        <Card className="bg-gray-900 border-gray-800 overflow-hidden">
-          <div className="bg-black p-4 rounded-t-lg">
-            <div className="calculator-display bg-gray-800 rounded-lg p-3 shadow-inner overflow-hidden">
-              {/* Instruction text with typing effect if active */}
+        <div className="w-full max-w-md bg-gray-800 rounded-3xl shadow-2xl overflow-hidden">
+          {/* Calculator header - TITLE */}
+          <div className="bg-gradient-to-r from-blue-600 to-blue-800 p-3 text-center">
+            <h1 className="text-2xl font-bold text-white">
+              <span className="bg-gradient-to-r from-yellow-300 to-yellow-100 bg-clip-text text-transparent font-extrabold" style={{ fontFamily: 'Comic Sans MS, cursive' }}>BEPO</span> Fun Calc
+            </h1>
+          </div>
+          
+          {/* Display area with wizard instructions */}
+          <div className="p-3 bg-gray-900">
+            <div className="text-right text-gray-400 mb-1 text-xs">
+              {carbTotalMode ? "CARB TOTAL MODE" : ""}
+            </div>
+            <div className="bg-gray-700 border border-gray-600 rounded-lg p-3 text-left min-h-[80px] text-xl font-bold text-white mb-3 flex flex-col justify-between">
+              {/* Wizard instructions with typewriter effect */}
               {showTypingEffect ? (
                 <TypingEffect 
                   text={displayText} 
-                  speed={40} 
-                  className={wizardStep !== 'purpose' ? "text-green-300 text-sm" : "text-white text-sm"} 
+                  className="text-green-300"
                   onComplete={() => setShowTypingEffect(false)}
                 />
               ) : (
@@ -620,11 +942,7 @@ export default function FunCalculatorPage() {
               <div className="flex justify-between items-center mt-2">
                 <div className="text-right text-3xl w-full">
                   {displayValue === "Select Dosage Purpose" ? "" : (
-                    shouldUseTypewriter ? (
-                      <DisplayTypingEffect text={displayValue} />
-                    ) : (
-                      <span className="text-white">{displayValue}</span>
-                    )
+                    <span className="text-white">{displayValue}</span>
                   )}
                 </div>
               </div>
@@ -832,11 +1150,11 @@ export default function FunCalculatorPage() {
                   whileTap={{ scale: 0.95 }}
                 >6</motion.button>
                 <motion.button 
-                  className="bg-gradient-to-b from-green-600 to-emerald-700 hover:from-green-500 hover:to-emerald-600 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
+                  className="bg-gradient-to-b from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
                   onClick={() => handleOperator("-")}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                >−</motion.button>
+                >-</motion.button>
                 
                 {/* Row 3: 1 2 3 plus */}
                 <motion.button 
@@ -857,14 +1175,18 @@ export default function FunCalculatorPage() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >3</motion.button>
-                <motion.button 
-                  className="bg-gradient-to-b from-red-500 to-orange-600 hover:from-red-400 hover:to-orange-500 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
-                  onClick={() => handleOperator("+")}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >+</motion.button>
+                <div className="row-span-2">
+                  {/* Plus button in the red box area as in reference image */}
+                  <motion.button 
+                    className="bg-gradient-to-b from-sky-600 to-sky-700 hover:from-sky-500 hover:to-sky-600 text-white text-3xl font-bold rounded-lg w-full h-full flex items-center justify-center shadow-md"
+                    onClick={() => handleOperator("+")}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    style={{ minHeight: '6.2rem' }}
+                  >+</motion.button>
+                </div>
                 
-                {/* Row 4: decimal 0 equals */}
+                {/* Row 4: decimal 0 = */}
                 <motion.button 
                   className="bg-gradient-to-b from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
                   onClick={inputDecimal}
@@ -878,157 +1200,102 @@ export default function FunCalculatorPage() {
                   whileTap={{ scale: 0.95 }}
                 >0</motion.button>
                 <motion.button 
-                  className="bg-gradient-to-b from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white text-xl font-bold rounded-lg h-12 col-span-2 flex items-center justify-center shadow-md"
+                  className="bg-gradient-to-b from-purple-600 to-fuchsia-700 hover:from-purple-700 hover:to-fuchsia-800 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
                   onClick={handleEquals}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >=</motion.button>
               </div>
-            </div>
-          </div>
-        </Card>
-        
-        {/* Results display */}
-        {wizardStep === 'done' && (
-          <Card className="mt-4 bg-gray-800 border-gray-700 overflow-hidden">
-            <div className="p-4">
-              <h2 className="text-lg font-semibold mb-2 text-cyan-300">Insulin Dosage:</h2>
               
-              <div className="grid grid-cols-2 gap-4">
-                {mealType !== 'longActing' ? (
-                  <>
-                    <div>
-                      <p className="text-gray-400 text-sm">Meal Insulin:</p>
-                      <p className="text-2xl font-bold text-white">{insulinCalcResult.mealInsulin.toFixed(1)} units</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-400 text-sm">Correction Insulin:</p>
-                      <p className="text-2xl font-bold text-white">{insulinCalcResult.correctionInsulin.toFixed(1)} units</p>
-                    </div>
-                    <div className="col-span-2 border-t border-gray-700 pt-2 mt-2">
-                      <p className="text-gray-400 text-sm">Total Insulin:</p>
-                      <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-300 to-cyan-300">
-                        {insulinCalcResult.totalInsulin.toFixed(1)} units
-                      </p>
-                    </div>
-                  </>
-                ) : (
-                  <div className="col-span-2">
-                    <p className="text-gray-400 text-sm">24-Hour Insulin:</p>
-                    <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-300 to-cyan-300">
-                      {settings?.longActingDosage || '0'} units
-                    </p>
+              {/* Insulin calculation results */}
+              {mealType && (mealType === 'longActing' || bgValue) ? (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="bg-gradient-to-br from-gray-700 to-gray-800 p-4 rounded-lg shadow-lg mt-3 text-white border border-gray-600"
+                >
+                  <div className="text-center mb-2 text-lg font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text">
+                    Calculation Results
                   </div>
-                )}
-              </div>
-              
-              {mealType !== 'longActing' && (
-                <div className="mt-4 text-xs text-gray-400">
-                  <p>Method: {insulinCalcResult.calculationMethod}</p>
-                  <p className="mt-1">BG in mg/dL: {insulinCalcResult.bgMgdl.toFixed(0)}</p>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    {mealType !== 'longActing' && (
+                      <>
+                        <div className="font-bold flex items-center"><span className="mr-1">📈</span> Blood Glucose:</div>
+                        <div className="bg-gray-800 px-2 py-1 rounded font-medium text-cyan-300">{bgValue} {profile?.bgUnit || 'mmol/L'}</div>
+                      </>
+                    )}
+                    
+                    {carbValue !== null && (
+                      <>
+                        <div className="font-bold flex items-center"><span className="mr-1">🍞</span> Carbs:</div>
+                        <div className="bg-gray-800 px-2 py-1 rounded font-medium text-amber-300">{carbValue}g</div>
+                        
+                        <div className="font-bold flex items-center"><span className="mr-1">💉</span> Meal Insulin:</div>
+                        <div className="bg-gray-800 px-2 py-1 rounded font-medium text-pink-300">{insulinCalcResult.mealInsulin.toFixed(1)} units</div>
+                      </>
+                    )}
+                    
+                    {mealType !== 'longActing' && (
+                      <>
+                        <div className="font-bold flex items-center"><span className="mr-1">⚙️</span> Correction:</div>
+                        <div className="bg-gray-800 px-2 py-1 rounded font-medium text-blue-300">{insulinCalcResult.correctionInsulin.toFixed(1)} units</div>
+                      </>
+                    )}
+                    
+                    <div className="font-bold flex items-center text-lg col-span-2 mt-2 border-t border-gray-600 pt-2 justify-center">
+                      <span className="mr-2">💪</span> Total Insulin
+                    </div>
+                    <motion.button 
+                      className="col-span-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 p-3 rounded-lg text-center text-xl font-bold relative overflow-hidden cursor-pointer shadow-lg border border-green-300"
+                      onClick={() => {
+                        // Log and notify about insulin dose
+                        const logData = {
+                          mealType,
+                          bgValue,
+                          carbValue,
+                          insulinDose: insulinCalcResult.totalInsulin,
+                          mealInsulin: insulinCalcResult.mealInsulin,
+                          correctionInsulin: insulinCalcResult.correctionInsulin,
+                          timestamp: new Date().toISOString(),
+                        };
+                        
+                        // This would actually save to API in a real implementation
+                        toast({
+                          title: "Insulin Logged & Contacts Notified",
+                          description: `Logged ${typeof insulinCalcResult.totalInsulin === 'number' ? insulinCalcResult.totalInsulin.toFixed(1) : insulinCalcResult.totalInsulin} units and notified contacts`
+                        });
+                        
+                        // Reset display with success message
+                        setDisplayText("Dosage Logged Successfully!");
+                        setShowTypingEffect(true);
+                      }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      // Add pulsing effect to draw attention to the button
+                      animate={{ boxShadow: ['0 0 0 0 rgba(34, 197, 94, 0)', '0 0 0 10px rgba(34, 197, 94, 0)'], scale: [1, 1.05, 1] }}
+                      transition={{ repeat: Infinity, duration: 2 }}
+                    >
+                      <div className="flex flex-col">
+                        <span className="text-white">{typeof insulinCalcResult.totalInsulin === 'number' ? insulinCalcResult.totalInsulin.toFixed(1) : insulinCalcResult.totalInsulin} units</span>
+                        <div className="flex items-center justify-center mt-1">
+                          <span className="text-xs text-white/90 font-medium bg-green-700/50 px-2 py-1 rounded-full inline-flex items-center">
+                            <span className="mr-1">👆</span> Click to Log & Notify
+                          </span>
+                        </div>
+                      </div>
+                    </motion.button>
+                  </div>
+                </motion.div>
+              ) : (
+                <div className="text-center text-gray-400 italic text-sm mt-4 p-2">
+                  <span className="mr-2">💪</span>
+                  Select meal type and enter values to calculate insulin
                 </div>
               )}
             </div>
-          </Card>
-        )}
-        
-        {/* AI Food Search Dialog */}
-        <AnimatePresence>
-          {wizardStep === 'ai-search' && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50"
-            >
-              <Card className="w-full max-w-md bg-gray-800 border-gray-700 overflow-hidden">
-                <div className="p-4">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-semibold text-cyan-300">AI Food Search</h2>
-                    <button 
-                      onClick={closeAIFoodSearch}
-                      className="text-gray-400 hover:text-white"
-                    >
-                      ×
-                    </button>
-                  </div>
-                  
-                  <div className="flex mb-4">
-                    <input
-                      type="text"
-                      placeholder="Search for a food (e.g., pizza, pasta, apple)"
-                      value={foodSearchQuery}
-                      onChange={(e) => setFoodSearchQuery(e.target.value)}
-                      className="flex-1 bg-gray-700 border border-gray-600 rounded-l-lg px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-cyan-500"
-                    />
-                    <button
-                      onClick={searchFoods}
-                      disabled={isFoodSearchLoading}
-                      className="bg-cyan-600 hover:bg-cyan-500 text-white px-4 rounded-r-lg flex items-center justify-center"
-                    >
-                      {isFoodSearchLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Search"}
-                    </button>
-                  </div>
-                  
-                  {isFoodSearchLoading ? (
-                    <div className="flex justify-center p-8">
-                      <Loader2 className="h-8 w-8 animate-spin text-cyan-500" />
-                    </div>
-                  ) : foodSearchResults.length > 0 ? (
-                    <div className="space-y-4">
-                      {foodSearchResults.map((food, index) => (
-                        <Card key={index} className="bg-gray-700 border-gray-600 overflow-hidden">
-                          <div className="p-3">
-                            <h3 className="font-semibold text-white">{food.name}</h3>
-                            <p className="text-sm text-gray-300 mt-1">{food.description}</p>
-                            
-                            <div className="mt-3 space-y-2">
-                              <h4 className="text-xs font-medium text-gray-400">Portion Sizes:</h4>
-                              <div className="grid grid-cols-3 gap-2">
-                                <button 
-                                  onClick={() => selectFoodPortion(food.portions.small.carbValue)}
-                                  className="bg-gray-600 hover:bg-gray-500 text-xs p-2 rounded text-center flex flex-col items-center transition-colors"
-                                >
-                                  <span className="font-medium">Small</span>
-                                  <span className="text-gray-300 mt-1">{food.portions.small.carbValue}g carbs</span>
-                                  <span className="text-gray-400 text-xs mt-1">{food.portions.small.description}</span>
-                                </button>
-                                <button 
-                                  onClick={() => selectFoodPortion(food.portions.medium.carbValue)}
-                                  className="bg-gray-600 hover:bg-gray-500 text-xs p-2 rounded text-center flex flex-col items-center transition-colors"
-                                >
-                                  <span className="font-medium">Medium</span>
-                                  <span className="text-gray-300 mt-1">{food.portions.medium.carbValue}g carbs</span>
-                                  <span className="text-gray-400 text-xs mt-1">{food.portions.medium.description}</span>
-                                </button>
-                                <button 
-                                  onClick={() => selectFoodPortion(food.portions.large.carbValue)}
-                                  className="bg-gray-600 hover:bg-gray-500 text-xs p-2 rounded text-center flex flex-col items-center transition-colors"
-                                >
-                                  <span className="font-medium">Large</span>
-                                  <span className="text-gray-300 mt-1">{food.portions.large.carbValue}g carbs</span>
-                                  <span className="text-gray-400 text-xs mt-1">{food.portions.large.description}</span>
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </Card>
-                      ))}
-                    </div>
-                  ) : foodSearchQuery ? (
-                    <div className="text-center py-8 text-gray-400">
-                      No results found. Try a different search term.
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-gray-400">
-                      Enter a food name to get carbohydrate information.
-                    </div>
-                  )}
-                </div>
-              </Card>
-            </motion.div>
-          )}
-        </AnimatePresence>
+          </div>
+        </div>
       </div>
     </div>
   );
