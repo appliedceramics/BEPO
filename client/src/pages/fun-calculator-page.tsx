@@ -837,7 +837,7 @@ export default function FunCalculatorPage() {
                 </motion.button>
               </div>
               
-              {/* Number pad and operators - Fixed layout as requested with plus button in red box */}
+              {/* Number pad and operators - Exact layout as in reference image */}
               <div className="grid grid-cols-4 gap-2 grid-rows-[repeat(4,minmax(0,auto))]">
                 {/* Row 1: 7 8 9 divide/multiply (shared button) */}
                 <motion.button 
@@ -899,7 +899,7 @@ export default function FunCalculatorPage() {
                   whileTap={{ scale: 0.95 }}
                 >-</motion.button>
                 
-                {/* Row 3: 1 2 3 (plus button spans rows 3-4) */}
+                {/* Row 3: 1 2 3 plus */}
                 <motion.button 
                   className="bg-gradient-to-b from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white text-xl font-bold rounded-lg h-12 flex items-center justify-center shadow-md"
                   onClick={() => inputDigit("1")}
@@ -918,14 +918,16 @@ export default function FunCalculatorPage() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >3</motion.button>
-                {/* Plus button that spans two rows */}
-                <motion.button 
-                  className="bg-gradient-to-b from-sky-600 to-sky-700 hover:from-sky-500 hover:to-sky-600 text-white text-3xl font-bold rounded-lg flex items-center justify-center shadow-md"
-                  onClick={() => handleOperator("+")}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  style={{ gridRow: '3 / span 2', height: '100%', minHeight: '6.2rem' }}
-                >+</motion.button>
+                <div className="row-span-2">
+                  {/* Plus button in the red box area as in reference image */}
+                  <motion.button 
+                    className="bg-gradient-to-b from-sky-600 to-sky-700 hover:from-sky-500 hover:to-sky-600 text-white text-3xl font-bold rounded-lg w-full h-full flex items-center justify-center shadow-md"
+                    onClick={() => handleOperator("+")}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    style={{ minHeight: '6.2rem' }}
+                  >+</motion.button>
+                </div>
                 
                 {/* Row 4: decimal 0 = */}
                 <motion.button 
