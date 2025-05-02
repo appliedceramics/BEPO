@@ -67,7 +67,7 @@ export default function FunCalculatorPage() {
   const [foodSearchQuery, setFoodSearchQuery] = useState<string>('');
   const [foodSearchResults, setFoodSearchResults] = useState<any[]>([]);
   const [isFoodSearchLoading, setIsFoodSearchLoading] = useState<boolean>(false);
-  const [displayText, setDisplayText] = useState("Why are you taking insulin?");
+  const [displayText, setDisplayText] = useState("Select Dosage");
   const [typingText, setTypingText] = useState("");
   const [showTypingEffect, setShowTypingEffect] = useState(true);
   const [bgButtonActive, setBgButtonActive] = useState(false);
@@ -248,7 +248,7 @@ export default function FunCalculatorPage() {
       setShouldUseTypewriter(true); // Enable typewriter effect
     } else {
       // Apply typewriter effect to newly entered numbers
-      const newDisplayValue = displayValue === "0" || displayValue === "Select Dosage Purpose" ? digit : displayValue + digit;
+      const newDisplayValue = displayValue === "0" || displayValue === "Select Dosage" ? digit : displayValue + digit;
       setDisplayValue(newDisplayValue);
       setShouldUseTypewriter(true); // Enable typewriter effect
     }
@@ -270,7 +270,7 @@ export default function FunCalculatorPage() {
 
     if (!displayValue.includes(".")) {
       // Handle special display values
-      if (displayValue === "Select Dosage Purpose") {
+      if (displayValue === "Select Dosage") {
         setDisplayValue("0.");
       } else {
         setDisplayValue(displayValue + ".");
@@ -364,7 +364,7 @@ export default function FunCalculatorPage() {
   // All clear (reset calculator completely)
   const allClear = () => {
     // Clear display and calculation state
-    setDisplayValue("Select Dosage Purpose");
+    setDisplayValue("Select Dosage");
     setPreviousValue(null);
     setOperation(null);
     setWaitingForSecondOperand(false);
@@ -372,7 +372,7 @@ export default function FunCalculatorPage() {
     
     // Reset wizard to initial state
     setWizardStep('purpose');
-    setDisplayText("Why are you taking insulin?");
+    setDisplayText("Select Dosage");
     setShowTypingEffect(true);
     
     // Clear blood glucose and carb values
@@ -619,7 +619,7 @@ export default function FunCalculatorPage() {
               {/* Calculator display for values with typewriter effect */}
               <div className="flex justify-between items-center mt-2">
                 <div className="text-right text-3xl w-full">
-                  {displayValue === "Select Dosage Purpose" ? "" : (
+                  {displayValue === "Select Dosage" ? "" : (
                     shouldUseTypewriter ? (
                       <DisplayTypingEffect text={displayValue} />
                     ) : (
