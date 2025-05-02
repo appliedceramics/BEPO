@@ -83,17 +83,31 @@ export default function FunCalculatorPage() {
   
   useEffect(() => {
     if (bgValue !== null && wizardStep === 'bg') {
-      setWizardStep('carbs');
-      setDisplayText("Now, add-up & total carb count, then press Carb Total");
-      setShowTypingEffect(true);
-      setBgButtonActive(false);
-      setCarbButtonActive(true);
-      // Auto clear display for number entry
-      setDisplayValue("0");
-      
-      // We'll auto-activate Carb Total in a separate effect to avoid the initialization error
+      // For bedtime insulin, we skip the carb counting step since it's not needed
+      if (mealType === 'bedtime') {
+        setWizardStep('done');
+        setDisplayText("Blood glucose set. Calculating correction dose...");
+        setShowTypingEffect(true);
+        setBgButtonActive(false);
+        // Don't activate carb button for bedtime
+        setCarbButtonActive(false);
+        toast({
+          title: "Bedtime Calculation",
+          description: "Just using blood glucose for bedtime calculation (no carbs needed)",
+        });
+      } else {
+        // For all other meal types, proceed to carb counting
+        setWizardStep('carbs');
+        setDisplayText("Now, add-up & total carb count, then press Carb Total");
+        setShowTypingEffect(true);
+        setBgButtonActive(false);
+        setCarbButtonActive(true);
+        // Auto clear display for number entry
+        setDisplayValue("0");
+        // We'll auto-activate Carb Total in a separate effect to avoid the initialization error
+      }
     }
-  }, [bgValue, wizardStep]);
+  }, [bgValue, wizardStep, mealType]);
   
   // This effect watches for when we transition to carbs step and auto-activates the Carb Total mode
   useEffect(() => {
@@ -360,6 +374,16 @@ export default function FunCalculatorPage() {
   };
 
   const setAsCarbs = () => {
+    // Don't allow setting carbs for bedtime
+    if (mealType === 'bedtime') {
+      toast({
+        title: "Not Needed for Bedtime",
+        description: "Carbohydrate counting is not needed for bedtime insulin",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     const value = parseFloat(displayValue);
     if (!isNaN(value)) {
       setCarbValue(value);
@@ -372,6 +396,15 @@ export default function FunCalculatorPage() {
 
   // Voice input handling
   const startVoiceInput = (inputType: 'bg' | 'carbs') => {
+    // Don't allow carb voice input for bedtime
+    if (inputType === 'carbs' && mealType === 'bedtime') {
+      toast({
+        title: "Not Needed for Bedtime",
+        description: "Carbohydrate counting is not needed for bedtime insulin",
+        variant: "destructive"
+      });
+      return;
+    }
     // Check if browser supports speech recognition
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       // @ts-ignore - Speech recognition API not fully typed in TypeScript
@@ -455,6 +488,16 @@ export default function FunCalculatorPage() {
 
   // Handle carb total mode toggle
   const toggleCarbTotalMode = () => {
+    // Don't allow carb total mode for bedtime
+    if (mealType === 'bedtime') {
+      toast({
+        title: "Not Needed for Bedtime",
+        description: "Carbohydrate counting is not needed for bedtime insulin",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     if (!carbTotalMode) {
       setCarbTotalMode(true);
       toast({
