@@ -84,7 +84,7 @@ export default function FunCalculatorPage() {
   useEffect(() => {
     if (bgValue !== null && wizardStep === 'bg') {
       setWizardStep('carbs');
-      setDisplayText("Now add-up your carb count, press = for total and Carb Total button to enter");
+      setDisplayText("Now, add-up & total carb count, then press Carb Total");
       setShowTypingEffect(true);
       setBgButtonActive(false);
       setCarbButtonActive(true);
