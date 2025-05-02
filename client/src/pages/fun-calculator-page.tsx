@@ -605,55 +605,51 @@ export default function FunCalculatorPage() {
               <div className="grid grid-cols-4 gap-2 mb-2">
                 <motion.button 
                   className={`bg-transparent border-2 ${mealType === "first" ? 'border-yellow-400 text-yellow-400' : 'border-yellow-300 text-yellow-300'} 
-                    hover:bg-yellow-500/10 text-sm font-bold rounded-lg h-16 
-                    flex flex-col items-center justify-center shadow-lg`}
+                    hover:bg-yellow-500/10 font-bold rounded-lg h-16 
+                    flex items-center justify-center shadow-lg`}
                   onClick={() => setMealType("first" as MealType)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   animate={purposeButtonsActive ? { scale: [1, 1.08, 1] } : {}}
                   transition={purposeButtonsActive ? { repeat: Infinity, duration: 1.2 } : {}}
                 >
-                  <span className="text-center font-bold">Breakfast</span>
-                  <span className="text-xs mt-1">🍳 Meal 1</span>
+                  <span className="text-center font-bold text-lg" style={{ fontFamily: 'Arial, sans-serif' }}>Breakfast</span>
                 </motion.button>
                 <motion.button 
                   className={`bg-transparent border-2 ${mealType === "other" ? 'border-sky-400 text-sky-400' : 'border-sky-300 text-sky-300'} 
-                    hover:bg-sky-500/10 text-sm font-bold rounded-lg h-16 
-                    flex flex-col items-center justify-center shadow-lg`}
+                    hover:bg-sky-500/10 font-bold rounded-lg h-16 
+                    flex items-center justify-center shadow-lg`}
                   onClick={() => setMealType("other" as MealType)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   animate={purposeButtonsActive ? { scale: [1, 1.08, 1] } : {}}
                   transition={purposeButtonsActive ? { repeat: Infinity, duration: 1.2, delay: 0.1 } : {}}
                 >
-                  <span className="text-center font-bold">Lunch/Dinner</span>
-                  <span className="text-xs mt-1">🍔 Other Meal</span>
+                  <span className="text-center font-bold text-lg" style={{ fontFamily: 'Arial, sans-serif' }}>Lunch / Dinner</span>
                 </motion.button>
                 <motion.button 
                   className={`bg-transparent border-2 ${mealType === "bedtime" ? 'border-orange-600 text-orange-600' : 'border-orange-500 text-orange-500'} 
-                    hover:bg-orange-500/10 text-sm font-bold rounded-lg h-16 
-                    flex flex-col items-center justify-center shadow-lg`}
+                    hover:bg-orange-500/10 font-bold rounded-lg h-16 
+                    flex items-center justify-center shadow-lg`}
                   onClick={() => setMealType("bedtime" as MealType)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   animate={purposeButtonsActive ? { scale: [1, 1.08, 1] } : {}}
                   transition={purposeButtonsActive ? { repeat: Infinity, duration: 1.2, delay: 0.2 } : {}}
                 >
-                  <span className="text-center font-bold">Bedtime</span>
-                  <span className="text-xs mt-1">😴 Evening</span>
+                  <span className="text-center font-bold text-lg" style={{ fontFamily: 'Arial, sans-serif' }}>Bedtime +Correction</span>
                 </motion.button>
                 <motion.button 
                   className={`bg-transparent border-2 ${mealType === "longActing" ? 'border-green-500 text-green-500' : 'border-green-400 text-green-400'} 
-                    hover:bg-green-500/10 text-sm font-bold rounded-lg h-16 
-                    flex flex-col items-center justify-center shadow-lg`}
+                    hover:bg-green-500/10 font-bold rounded-lg h-16 
+                    flex items-center justify-center shadow-lg`}
                   onClick={() => setMealType("longActing" as MealType)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   animate={purposeButtonsActive ? { scale: [1, 1.08, 1] } : {}}
                   transition={purposeButtonsActive ? { repeat: Infinity, duration: 1.2, delay: 0.3 } : {}}
                 >
-                  <span className="text-center font-bold">Long Acting</span>
-                  <span className="text-xs mt-1">⏱️ 24-Hour</span>
+                  <span className="text-center font-bold text-lg" style={{ fontFamily: 'Arial, sans-serif' }}>24-Hour Acting</span>
                 </motion.button>
               </div>
               
