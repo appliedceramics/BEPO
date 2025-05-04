@@ -1054,16 +1054,16 @@ export default function FunCalculatorPage() {
                   <>
                     <div>
                       <p className="text-gray-600 text-sm">Meal Insulin:</p>
-                      <p className="text-2xl font-bold text-gray-800">{insulinCalcResult.mealInsulin.toFixed(1)} units</p>
+                      <p className="text-2xl font-bold text-gray-800">{typeof insulinCalcResult.mealInsulin === 'number' ? insulinCalcResult.mealInsulin.toFixed(1) : '0'} units</p>
                     </div>
                     <div>
                       <p className="text-gray-600 text-sm">Correction Insulin:</p>
-                      <p className="text-2xl font-bold text-gray-800">{insulinCalcResult.correctionInsulin.toFixed(1)} units</p>
+                      <p className="text-2xl font-bold text-gray-800">{typeof insulinCalcResult.correctionInsulin === 'number' ? insulinCalcResult.correctionInsulin.toFixed(1) : '0'} units</p>
                     </div>
                     <div className="col-span-2 border-t border-gray-300 pt-2 mt-2">
                       <p className="text-gray-600 text-sm">Total Insulin:</p>
                       <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-cyan-600">
-                        {insulinCalcResult.totalInsulin.toFixed(1)} units
+                        {typeof insulinCalcResult.totalInsulin === 'number' ? insulinCalcResult.totalInsulin.toFixed(1) : '0'} units
                       </p>
                     </div>
                   </>
@@ -1071,7 +1071,7 @@ export default function FunCalculatorPage() {
                   <div className="col-span-2">
                     <p className="text-gray-600 text-sm">24-Hour Insulin:</p>
                     <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-cyan-600">
-                      {settings?.longActingDosage || '0'} units
+                      {String(settings?.longActingDosage || '0')} units
                     </p>
                   </div>
                 )}
@@ -1079,8 +1079,8 @@ export default function FunCalculatorPage() {
               
               {mealType !== 'longActing' && (
                 <div className="mt-4 text-xs text-gray-600">
-                  <p>Method: {insulinCalcResult.calculationMethod}</p>
-                  <p className="mt-1">BG in mg/dL: {insulinCalcResult.bgMgdl.toFixed(0)}</p>
+                  <p>Method: {insulinCalcResult.calculationMethod || ''}</p>
+                  <p className="mt-1">BG in mg/dL: {typeof insulinCalcResult.bgMgdl === 'number' ? insulinCalcResult.bgMgdl.toFixed(0) : '0'}</p>
                 </div>
               )}
               
