@@ -778,6 +778,15 @@ export default function FunCalculatorPage() {
     }
   };
   
+  const addToBasketAndCheckout = () => {
+    if (currentSelection) {
+      const newBasket = [...foodBasket, currentSelection];
+      setFoodBasket(newBasket);
+      const totalCarbs = newBasket.reduce((sum, item) => sum + item.carbValue, 0);
+      sendToCalculator(totalCarbs);
+    }
+  };
+  
   const sendToCalculator = (totalCarbs?: number) => {
     const carbsToUse = totalCarbs !== undefined ? totalCarbs : (currentSelection?.carbValue || 0);
     setWizardStep('carbs');
@@ -1201,6 +1210,7 @@ export default function FunCalculatorPage() {
                       placeholder="Search for a food (e.g., pizza, pasta, apple)"
                       value={foodSearchQuery}
                       onChange={(e) => setFoodSearchQuery(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && !isFoodSearchLoading && searchFoods()}
                       className="flex-1 bg-gray-100 border border-gray-300 rounded-l-lg px-3 py-2 text-gray-800 focus:outline-none focus:ring-1 focus:ring-cyan-500"
                     />
                     <button
@@ -1327,6 +1337,15 @@ export default function FunCalculatorPage() {
             >
               <Calculator className="mr-2 h-4 w-4" />
               Send to Calculator
+            </Button>
+            
+            <Button
+              variant="default"
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+              onClick={addToBasketAndCheckout}
+            >
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add to Basket & Checkout
             </Button>
             
             {foodBasket.length > 0 && (
