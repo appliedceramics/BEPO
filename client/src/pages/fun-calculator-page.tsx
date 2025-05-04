@@ -6,7 +6,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
 import { calculateInsulin, CalculationResult } from "@/lib/insulinCalculator";
-import { Loader2, Mic, Pencil } from "lucide-react";
+import { Loader2, Mic, Pencil, PlusCircle, Calculator, SendHorizontal } from "lucide-react";
 import { MealType, Profile, InsulinLog } from "@shared/schema";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,6 +15,14 @@ import { extractNumber, extractOperation, extractCommand, calculateCarbTotal } f
 import { TypingEffect } from "../components/TypingEffect";
 import { VoiceInstructions } from "../components/VoiceInstructions";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 // Custom typing effect for calculator display
 const DisplayTypingEffect = ({ text }: { text: string }) => {
@@ -745,12 +753,44 @@ export default function FunCalculatorPage() {
     }
   };
   
-  const selectFoodPortion = (carbValue: number) => {
+  // Food basket state for multi-item selection
+  const [foodBasket, setFoodBasket] = useState<{name: string; portion: string; carbValue: number}[]>([]);
+  const [showFoodBasketDialog, setShowFoodBasketDialog] = useState(false);
+  const [currentSelection, setCurrentSelection] = useState<{name: string; portion: string; carbValue: number} | null>(null);
+  
+  const selectFoodPortion = (carbValue: number, foodName: string, portionName: string) => {
+    setCurrentSelection({
+      name: foodName,
+      portion: portionName,
+      carbValue: carbValue
+    });
+    setShowFoodBasketDialog(true);
+  };
+  
+  const addToBasket = () => {
+    if (currentSelection) {
+      setFoodBasket([...foodBasket, currentSelection]);
+      setShowFoodBasketDialog(false);
+      toast({
+        title: "Added to basket",
+        description: `${currentSelection.name} (${currentSelection.portion}) added.`
+      });
+    }
+  };
+  
+  const sendToCalculator = (totalCarbs?: number) => {
+    const carbsToUse = totalCarbs !== undefined ? totalCarbs : (currentSelection?.carbValue || 0);
     setWizardStep('carbs');
-    setDisplayValue(String(carbValue));
-    setCarbValue(carbValue);
-    setShouldUseTypewriter(true); // Enable typewriter effect
-    toast();
+    setDisplayValue(String(carbsToUse));
+    setCarbValue(carbsToUse);
+    setShouldUseTypewriter(true);
+    setFoodBasket([]);
+    setShowFoodBasketDialog(false);
+    closeAIFoodSearch();
+  };
+  
+  const calculateTotalCarbs = () => {
+    return foodBasket.reduce((sum, item) => sum + item.carbValue, 0);
   };
 
   return (
@@ -1189,7 +1229,7 @@ export default function FunCalculatorPage() {
                               <div className="grid grid-cols-3 gap-2">
                                 {food.portions && food.portions.small ? (
                                   <button 
-                                    onClick={() => selectFoodPortion(food.portions.small.carbValue)}
+                                    onClick={() => selectFoodPortion(food.portions.small.carbValue, food.name, 'Small')}
                                     className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs p-2 rounded text-center flex flex-col items-center transition-colors"
                                   >
                                     <span className="font-medium">Small</span>
@@ -1205,7 +1245,7 @@ export default function FunCalculatorPage() {
                                 
                                 {food.portions && food.portions.medium ? (
                                   <button 
-                                    onClick={() => selectFoodPortion(food.portions.medium.carbValue)}
+                                    onClick={() => selectFoodPortion(food.portions.medium.carbValue, food.name, 'Medium')}
                                     className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs p-2 rounded text-center flex flex-col items-center transition-colors"
                                   >
                                     <span className="font-medium">Medium</span>
@@ -1221,7 +1261,7 @@ export default function FunCalculatorPage() {
                                 
                                 {food.portions && food.portions.large ? (
                                   <button 
-                                    onClick={() => selectFoodPortion(food.portions.large.carbValue)}
+                                    onClick={() => selectFoodPortion(food.portions.large.carbValue, food.name, 'Large')}
                                     className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs p-2 rounded text-center flex flex-col items-center transition-colors"
                                   >
                                     <span className="font-medium">Large</span>
@@ -1255,6 +1295,68 @@ export default function FunCalculatorPage() {
           )}
         </AnimatePresence>
       </div>
+      
+      {/* Food Basket Dialog */}
+      <Dialog open={showFoodBasketDialog} onOpenChange={setShowFoodBasketDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Food Selection</DialogTitle>
+            <DialogDescription>
+              {currentSelection ? (
+                <div className="mb-2">
+                  Selected: <span className="font-medium">{currentSelection.name}</span> ({currentSelection.portion}) - {currentSelection.carbValue}g carbs
+                </div>
+              ) : 'What would you like to do with this selection?'}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex flex-col space-y-4 mt-2">
+            <Button
+              variant="default"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+              onClick={addToBasket}
+            >
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add to Basket
+            </Button>
+            
+            <Button
+              variant="default"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+              onClick={() => sendToCalculator()}
+            >
+              <Calculator className="mr-2 h-4 w-4" />
+              Send to Calculator
+            </Button>
+            
+            {foodBasket.length > 0 && (
+              <div className="mt-4 border-t pt-4">
+                <div className="text-sm font-medium mb-2">Current Basket:</div>
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {foodBasket.map((item, idx) => (
+                    <div key={idx} className="flex justify-between text-sm bg-gray-50 p-2 rounded">
+                      <span>{item.name} ({item.portion})</span>
+                      <span className="font-medium">{item.carbValue}g</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex justify-between font-medium mt-3 pt-2 border-t">
+                  <span>Total Carbs:</span>
+                  <span>{calculateTotalCarbs()}g</span>
+                </div>
+                <Button
+                  variant="default"
+                  className="bg-amber-600 hover:bg-amber-700 text-white w-full mt-3"
+                  onClick={() => sendToCalculator(calculateTotalCarbs())}
+                >
+                  <SendHorizontal className="mr-2 h-4 w-4" />
+                  Send Total to Calculator
+                </Button>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
