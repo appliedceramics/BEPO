@@ -36,7 +36,7 @@ const DisplayTypingEffect = ({ text }: { text: string }) => {
       if (currentIndex < text.length) {
         setDisplayedText(text.substring(0, currentIndex + 1));
         currentIndex++;
-        timerId = setTimeout(typeNextChar, 50);
+        timerId = setTimeout(typeNextChar, 25); // Reduced from 50ms to 25ms (50% faster)
       }
     };
     
@@ -114,7 +114,7 @@ export default function FunCalculatorPage() {
           }
           setShowTypingEffect(false);
         }
-      }, 75); // Speed of typing (slowed by 25% from previous value)
+      }, 37); // Speed of typing reduced by 50% (from 75ms to 37ms)
       
       return () => {
         if (typewriterRef.current) {

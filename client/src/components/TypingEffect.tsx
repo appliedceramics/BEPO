@@ -9,7 +9,7 @@ interface TypingEffectProps {
 
 export const TypingEffect: React.FC<TypingEffectProps> = ({
   text,
-  speed = 50,
+  speed = 25, // Reduced from 50ms to 25ms (50% faster)
   onComplete,
   className = ""
 }) => {
