@@ -710,7 +710,31 @@ export default function FunCalculatorPage() {
       
       if (response.ok) {
         const data = await response.json();
-        setFoodSearchResults([data]); // API returns a single detailed result
+        
+        // Validate and normalize the food data structure
+        const normalizedData = Array.isArray(data) ? data : [data];
+        
+        // Make sure each food has the expected structure
+        const validatedData = normalizedData.map(food => ({
+          name: food.name || 'Unknown food',
+          description: food.description || 'No description available',
+          portions: {
+            small: food.portions?.small || {
+              description: 'Small portion',
+              carbValue: 0
+            },
+            medium: food.portions?.medium || {
+              description: 'Medium portion',
+              carbValue: 0
+            },
+            large: food.portions?.large || {
+              description: 'Large portion',
+              carbValue: 0
+            }
+          }
+        }));
+        
+        setFoodSearchResults(validatedData);
       } else {
         console.error("Failed to search foods:", await response.text());
       }
@@ -1157,36 +1181,59 @@ export default function FunCalculatorPage() {
                       {foodSearchResults.map((food, index) => (
                         <Card key={index} className="bg-gray-100 border border-gray-300 overflow-hidden">
                           <div className="p-3">
-                            <h3 className="font-semibold text-gray-800">{food.name}</h3>
-                            <p className="text-sm text-gray-600 mt-1">{food.description}</p>
+                            <h3 className="font-semibold text-gray-800">{food.name || 'Food'}</h3>
+                            <p className="text-sm text-gray-600 mt-1">{food.description || 'No description available'}</p>
                             
                             <div className="mt-3 space-y-2">
                               <h4 className="text-xs font-medium text-gray-600">Portion Sizes:</h4>
                               <div className="grid grid-cols-3 gap-2">
-                                <button 
-                                  onClick={() => selectFoodPortion(food.portions.small.carbValue)}
-                                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs p-2 rounded text-center flex flex-col items-center transition-colors"
-                                >
-                                  <span className="font-medium">Small</span>
-                                  <span className="text-gray-700 mt-1">{food.portions.small.carbValue}g carbs</span>
-                                  <span className="text-gray-600 text-xs mt-1">{food.portions.small.description}</span>
-                                </button>
-                                <button 
-                                  onClick={() => selectFoodPortion(food.portions.medium.carbValue)}
-                                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs p-2 rounded text-center flex flex-col items-center transition-colors"
-                                >
-                                  <span className="font-medium">Medium</span>
-                                  <span className="text-gray-700 mt-1">{food.portions.medium.carbValue}g carbs</span>
-                                  <span className="text-gray-600 text-xs mt-1">{food.portions.medium.description}</span>
-                                </button>
-                                <button 
-                                  onClick={() => selectFoodPortion(food.portions.large.carbValue)}
-                                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs p-2 rounded text-center flex flex-col items-center transition-colors"
-                                >
-                                  <span className="font-medium">Large</span>
-                                  <span className="text-gray-700 mt-1">{food.portions.large.carbValue}g carbs</span>
-                                  <span className="text-gray-600 text-xs mt-1">{food.portions.large.description}</span>
-                                </button>
+                                {food.portions && food.portions.small ? (
+                                  <button 
+                                    onClick={() => selectFoodPortion(food.portions.small.carbValue)}
+                                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs p-2 rounded text-center flex flex-col items-center transition-colors"
+                                  >
+                                    <span className="font-medium">Small</span>
+                                    <span className="text-gray-700 mt-1">{food.portions.small.carbValue}g carbs</span>
+                                    <span className="text-gray-600 text-xs mt-1">{food.portions.small.description}</span>
+                                  </button>
+                                ) : (
+                                  <div className="bg-gray-100 text-gray-400 text-xs p-2 rounded text-center flex flex-col items-center">
+                                    <span>Small</span>
+                                    <span className="mt-1">Not available</span>
+                                  </div>
+                                )}
+                                
+                                {food.portions && food.portions.medium ? (
+                                  <button 
+                                    onClick={() => selectFoodPortion(food.portions.medium.carbValue)}
+                                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs p-2 rounded text-center flex flex-col items-center transition-colors"
+                                  >
+                                    <span className="font-medium">Medium</span>
+                                    <span className="text-gray-700 mt-1">{food.portions.medium.carbValue}g carbs</span>
+                                    <span className="text-gray-600 text-xs mt-1">{food.portions.medium.description}</span>
+                                  </button>
+                                ) : (
+                                  <div className="bg-gray-100 text-gray-400 text-xs p-2 rounded text-center flex flex-col items-center">
+                                    <span>Medium</span>
+                                    <span className="mt-1">Not available</span>
+                                  </div>
+                                )}
+                                
+                                {food.portions && food.portions.large ? (
+                                  <button 
+                                    onClick={() => selectFoodPortion(food.portions.large.carbValue)}
+                                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs p-2 rounded text-center flex flex-col items-center transition-colors"
+                                  >
+                                    <span className="font-medium">Large</span>
+                                    <span className="text-gray-700 mt-1">{food.portions.large.carbValue}g carbs</span>
+                                    <span className="text-gray-600 text-xs mt-1">{food.portions.large.description}</span>
+                                  </button>
+                                ) : (
+                                  <div className="bg-gray-100 text-gray-400 text-xs p-2 rounded text-center flex flex-col items-center">
+                                    <span>Large</span>
+                                    <span className="mt-1">Not available</span>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </div>
