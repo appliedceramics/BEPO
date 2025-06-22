@@ -1,6 +1,6 @@
 # Mobile Insulin Calculator
 
-A mobile-first, progressive web application for insulin dose calculations designed to look and feel like a native mobile app.
+A mobile-first, progressive web application for insulin dose calculations with complete calculator settings management. Extracted from BEPO and optimized for mobile devices.
 
 ## 🚀 Features
 
@@ -90,14 +90,15 @@ Navigate to `http://localhost:5000`
 - Fixed long-acting insulin dosage
 - Background insulin coverage
 
-## ⚙️ Configuration
+## ⚙️ Calculator Settings
 
-Access **Settings** to configure:
-- Insulin-to-carb ratios for different meals
-- Insulin sensitivity factor
-- Target blood glucose range
-- Correction factors
-- Long-acting insulin dosage
+Complete settings management system:
+- **Insulin-to-carb ratios**: Separate ratios for first meal vs other meals
+- **Insulin sensitivity factor**: How much 1 unit lowers blood glucose
+- **Target blood glucose**: Customizable target range
+- **Correction charts**: Meal and bedtime correction ranges
+- **Long-acting insulin**: 24-hour insulin dosage
+- **Real-time updates**: Settings apply immediately to calculator
 
 ## 📱 Mobile Installation
 
