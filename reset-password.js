@@ -24,12 +24,12 @@ async function hashPassword(password) {
   
   try {
     // Hash the password
-    const hashedPassword = await hashPassword('Z4greb2@');
+    const hashedPassword = await hashPassword('bepo123');
     
-    // Update the user
+    // Update the bepo user
     const res = await client.query(
-      'UPDATE users SET password = $1 WHERE id = 1 RETURNING id, username, email',
-      [hashedPassword]
+      'UPDATE users SET password = $1 WHERE username = $2 RETURNING id, username, email',
+      [hashedPassword, 'bepo']
     );
     
     console.log('Password updated for user:', res.rows[0]);
