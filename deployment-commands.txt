@@ -1,0 +1,19 @@
+DEPLOYMENT FIX COMMANDS
+
+1. Push updates to GitHub:
+git add .
+git commit -m "Fix deployment configuration for Fun Calculator"
+git push origin main
+
+2. In your deployment platform (Vercel/Netlify/Railway):
+- Set environment variables:
+  DATABASE_URL=your_postgres_url
+  SESSION_SECRET=your_secret_key
+  NODE_ENV=production
+
+3. Run in platform terminal:
+npm run db:push
+
+4. Redeploy the application
+
+The Fun Calculator code is working - this is purely a deployment configuration issue.
