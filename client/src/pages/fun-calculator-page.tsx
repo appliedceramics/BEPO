@@ -184,7 +184,7 @@ export default function FunCalculatorPage() {
       // For long-acting insulin, skip BG input and use fixed dosage
       if (mealType === "longActing" && settings?.longActingDosage) {
         setWizardStep('done');
-        setDisplayText(`Your 24-Hour insulin dosage is ${settings.longActingDosage} units`);
+        setDisplayText(`Your 24-Hour insulin dosage is ${parseFloat(settings.longActingDosage.toString())} units`);
         setShowTypingEffect(true);
         
         // Don't set a default BG value for long-acting insulin
@@ -192,7 +192,7 @@ export default function FunCalculatorPage() {
         setBgValue(null);
         
         // Update display to show the fixed dosage
-        setDisplayValue(settings.longActingDosage.toString());
+        setDisplayValue(parseFloat(settings.longActingDosage.toString()).toString());
         setShouldUseTypewriter(true); // Enable typewriter effect
         
         // Update button states
@@ -502,13 +502,16 @@ export default function FunCalculatorPage() {
         try {
           console.log('Calculator detected input change - mealType:', mealType, 'carbValue:', carbValue, 'bgValue:', bgValue);
   
-          // Calculate insulin doses using default values if settings are missing
+          // Calculate insulin doses using settings with proper field mappings
           const calculationParams: any = {
             mealType: mealType as MealType,
-            insulinToCarbohydrateRatio: settings?.insulinToCarbohydrateRatio || 10,
-            targetBgValue: settings?.targetBgValue || 5.6,
-            correctionFactor: settings?.correctionFactor || 1.0,
-            insulinSensitivityFactor: settings?.insulinSensitivityFactor || 35
+            // Use appropriate ratio based on meal type
+            insulinToCarbohydrateRatio: mealType === "first" 
+              ? (settings?.firstMealRatio ? parseFloat(settings.firstMealRatio.toString()) : 10)
+              : (settings?.otherMealRatio ? parseFloat(settings.otherMealRatio.toString()) : 15),
+            targetBgValue: settings?.targetBgValue ? parseFloat(settings.targetBgValue.toString()) : 5.6,
+            correctionFactor: settings?.correctionFactor ? parseFloat(settings.correctionFactor.toString()) : 1.0,
+            insulinSensitivityFactor: settings?.insulinSensitivityFactor ? parseFloat(settings.insulinSensitivityFactor.toString()) : 35
           };
           
           // For non-long-acting insulin, we need BG value and possibly carb value
@@ -518,7 +521,7 @@ export default function FunCalculatorPage() {
             calculationParams.carbValue = carbValue || undefined;
           } else {
             // For long-acting insulin, add the fixed dosage from settings
-            calculationParams.longActingDosage = settings?.longActingDosage || 0;
+            calculationParams.longActingDosage = settings?.longActingDosage ? parseFloat(settings.longActingDosage.toString()) : 0;
           }
   
           const result = calculateInsulin(calculationParams);
@@ -655,7 +658,7 @@ export default function FunCalculatorPage() {
     
     // For long-acting insulin, the correction insulin is 0
     const totalInsulin = mealType === 'longActing' 
-      ? settings?.longActingDosage || 0
+      ? (settings?.longActingDosage ? parseFloat(settings.longActingDosage.toString()) : 0)
       : insulinCalcResult.totalInsulin;
       
     // Create log object for API (convert numbers to strings as required by the schema)
@@ -663,10 +666,12 @@ export default function FunCalculatorPage() {
       mealType: mealType,
       carbValue: carbValue ? carbValue.toString() : null,
       totalInsulin: totalInsulin.toString(),
-      insulinSensitivityFactor: (settings?.insulinSensitivityFactor || 35).toString(),
-      targetBgValue: (settings?.targetBgValue || 5.6).toString(),
-      icRatio: (settings?.insulinToCarbohydrateRatio || 10).toString(),
-      correctionFactor: (settings?.correctionFactor || 1.0).toString()
+      insulinSensitivityFactor: (settings?.insulinSensitivityFactor ? parseFloat(settings.insulinSensitivityFactor.toString()) : 35).toString(),
+      targetBgValue: (settings?.targetBgValue ? parseFloat(settings.targetBgValue.toString()) : 5.6).toString(),
+      icRatio: mealType === "first" 
+        ? (settings?.firstMealRatio ? parseFloat(settings.firstMealRatio.toString()) : 10).toString()
+        : (settings?.otherMealRatio ? parseFloat(settings.otherMealRatio.toString()) : 15).toString(),
+      correctionFactor: (settings?.correctionFactor ? parseFloat(settings.correctionFactor.toString()) : 1.0).toString()
     };
     
     // Add BG related fields only if we have a BG value (not for long-acting)
@@ -1144,7 +1149,7 @@ export default function FunCalculatorPage() {
                   <div className="col-span-2">
                     <p className="text-gray-600 text-sm">24-Hour Insulin:</p>
                     <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-cyan-600">
-                      {String(settings?.longActingDosage || '0')} units
+                      {settings?.longActingDosage ? parseFloat(settings.longActingDosage.toString()).toFixed(1) : '0'} units
                     </p>
                   </div>
                 )}
