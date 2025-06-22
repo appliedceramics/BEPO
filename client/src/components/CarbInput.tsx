@@ -22,7 +22,7 @@ interface CarbInputProps {
 export function CarbInput({ value, onChange, hidden }: CarbInputProps) {
   const { toast } = useToast();
   const [error, setError] = useState<string | null>(null);
-  const [inputValue, setInputValue] = useState<string>(value?.toString() || "");
+  const [inputValue, setInputValue] = useState<string>(() => value?.toString() || "");
   const [isPresetsOpen, setIsPresetsOpen] = useState(false);
   const [isFoodBasketOpen, setIsFoodBasketOpen] = useState(false);
   const [isTotalForMeOpen, setIsTotalForMeOpen] = useState(false);
