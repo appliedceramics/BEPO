@@ -12,7 +12,7 @@ interface BloodGlucoseInputProps {
 
 export function BloodGlucoseInput({ value, onChange }: BloodGlucoseInputProps) {
   const [error, setError] = useState<string | null>(null);
-  const [inputValue, setInputValue] = useState<string>(value?.toString() || "");
+  const [inputValue, setInputValue] = useState<string>(() => value?.toString() || "");
   const [mgdlValue, setMgdlValue] = useState<string>("-- mg/dL");
 
   useEffect(() => {
